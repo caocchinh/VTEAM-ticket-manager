@@ -11,6 +11,7 @@ export interface StudentInput {
   studentIdInput: string;
   homeroomInput: string;
   notice: string;
+  ticketType: string;
 }
 
 export interface Staff {

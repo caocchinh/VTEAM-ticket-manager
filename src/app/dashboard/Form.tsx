@@ -40,6 +40,7 @@ const Form = () => {
   const [homeroomInput, setHomeroomInput] = useState("");
   const studentIdInputRef = useRef<HTMLInputElement | null>(null);
   const [emailInput, setEmailInput] = useState("");
+  const [ticketType, setTicketType] = useState("");
   const [whichInputIsBeingFocused, setWhichInputIsBeingFocused] = useState<
     "id" | "name" | "homeroom" | "email"
   >("id");
@@ -171,6 +172,7 @@ const Form = () => {
           homeroomInput: homeroomInput,
           studentIdInput: selectedStudentIdInput,
           notice: noticeInput,
+          ticketType,
         },
       ]);
       clearForm({ clearNotice: false });
@@ -280,7 +282,7 @@ const Form = () => {
   }, [handleTabKeyPress]);
 
   return (
-    <div className="flex flex-col items-center gap-2 justify-center">
+    <div className="flex flex-col items-center  gap-2 justify-center">
       <h2 className="font-semibold">Thông tin người mua</h2>
       <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px]">
         <div className="w-full flex flex-col items-start gap-2 ">

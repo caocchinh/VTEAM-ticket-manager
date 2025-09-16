@@ -5,13 +5,10 @@ import { Button } from "./ui/button";
 import { authClient } from "@/lib/auth/auth-client";
 
 export function GoogleSignInButton() {
-  const [isNavigating, setIsNavigating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = async () => {
     try {
-      setIsNavigating(true);
-
       await authClient.signIn.social({
         provider: "google",
       });
@@ -24,7 +21,7 @@ export function GoogleSignInButton() {
   return (
     <Button
       onClick={handleSignIn}
-      className="flex items-center justify-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      className="flex items-center cursor-pointer justify-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
     >
       <>
         <svg
@@ -52,13 +49,9 @@ export function GoogleSignInButton() {
             />
           </g>
         </svg>
-        {error ? (
-          <span className="text-red-500">{error}</span>
-        ) : isNavigating ? (
-          <span>Logging in</span>
-        ) : (
-          <span>Sign in with Google</span>
-        )}
+
+        {error && <span className="text-red-500">{error}</span>}
+        <span>Sign in with Google</span>
       </>
     </Button>
   );

@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/card";
 import { verifySession } from "@/dal/verifySession";
 import { fetchStaffInfo } from "@/lib/SpreadSheet";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
+import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -24,16 +27,21 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
     if (staffInfo.data) {
       redirect("/dashboard");
+    } else {
+      await auth.api.signOut({
+        headers: await headers(),
+      });
+      redirect(`/?error=${NOT_STAFF_ERROR}`);
     }
   }
   const greeting = getTimeBasedGreeting();
 
   const getErrorMessage = (error: string) => {
     switch (error) {
-      case "not-staff":
-        return "You are not a staff member";
-      case "not-logged-in":
-        return "You are not logged in";
+      case NOT_STAFF_ERROR:
+        return "You are not a staff";
+      case NOT_LOGGED_IN_ERROR:
+        return "Please sign in";
       default:
         return null;
     }

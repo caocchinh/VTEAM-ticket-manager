@@ -1,6 +1,7 @@
 import { getColumnNumber } from "@/lib/utils";
 
-export const STUDENT_LIST_SHEET_ID = "1PCdIEQOU3-aQgxs7pFUZaDQj0esNMgSi";
+export const STUDENT_LIST_SHEET_ID =
+  "1mLvMGOdNAo8nne1pytHe6xAIAAucnk9pDdRb3lzecxg";
 export const STUDENT_LIST_SHEET_NAME = "Student list";
 
 export const STUDENT_LIST_STUDENT_NAME_COLUMN = "C";
@@ -21,17 +22,22 @@ export const STUDENT_LIST_STUDENT_HOMEROOM_INDEX = getColumnNumber(
   STUDENT_LIST_STUDENT_HOMEROOM_COLUMN
 );
 
-export const TICKET_INFO_SHEET_ID =
+export const SALES_INFO_SHEET_ID =
   "1K3kNv-klSmu2TT3_fKwFJ9IDHkeZIeGRDFoOWzMVUT8";
-export const TICKET_INFO_STAFF_SHEET_NAME = "Staff";
-export const TICKET_INFO_TICKET_SHEET_NAME = "Ticket";
+export const SALES_INFO_STAFF_SHEET_NAME = "Staff";
+export const SALES_INFO_TICKET_SHEET_NAME = "Thông tin bán vé";
 
-export const TICKET_INFO_STAFF_EMAIL_COLUMN = "A";
-export const TICKET_INFO_STAFF_NAME_COLUMN = "B";
+export const SALES_INFO_STAFF_EMAIL_COLUMN = "A";
+export const SALES_INFO_STAFF_NAME_COLUMN = "B";
 
-export const TICKET_INFO_STAFF_EMAIL_INDEX = getColumnNumber(
-  TICKET_INFO_STAFF_EMAIL_COLUMN
+export const SALES_INFO_TICKET = "A";
+
+export const SALES_INFO_STAFF_EMAIL_INDEX = getColumnNumber(
+  SALES_INFO_STAFF_EMAIL_COLUMN
 );
-export const TICKET_INFO_STAFF_NAME_INDEX = getColumnNumber(
-  TICKET_INFO_STAFF_NAME_COLUMN
+export const SALES_INFO_STAFF_NAME_INDEX = getColumnNumber(
+  SALES_INFO_STAFF_NAME_COLUMN
 );
+
+export const NOT_STAFF_ERROR = "not-staff";
+export const NOT_LOGGED_IN_ERROR = "not-logged-in";

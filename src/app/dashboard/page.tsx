@@ -9,25 +9,25 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { verifySession } from "@/dal/verifySession";
-import { fetchStaffInfo } from "@/lib/SpreadSheet";
+import { fetchStaffInfo, fetchStudentList } from "@/lib/SpreadSheet";
 import { LogoutButton } from "@/components/LogoutButton";
 import { auth } from "@/lib/auth/auth";
+import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
 
 export default async function Dashboard() {
   const session = await verifySession();
 
   if (!session) {
-    redirect("/");
+    redirect(`/?error=${NOT_LOGGED_IN_ERROR}`);
   }
 
   const staffInfo = await fetchStaffInfo({ email: session.user.email });
 
   if (!staffInfo.data) {
-    // Sign out the user server-side since they're not staff
     await auth.api.signOut({
       headers: await headers(),
     });
-    redirect("/?error=not-staff");
+    redirect(`/?error=${NOT_STAFF_ERROR}`);
   }
 
   return (

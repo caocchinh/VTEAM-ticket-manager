@@ -6,10 +6,10 @@ import {
   STUDENT_LIST_STUDENT_HOMEROOM_INDEX,
   STUDENT_LIST_STUDENT_ID_INDEX,
   STUDENT_LIST_STUDENT_NAME_INDEX,
-  TICKET_INFO_SHEET_ID,
-  TICKET_INFO_STAFF_EMAIL_INDEX,
-  TICKET_INFO_STAFF_NAME_INDEX,
-  TICKET_INFO_STAFF_SHEET_NAME,
+  SALES_INFO_SHEET_ID,
+  SALES_INFO_STAFF_EMAIL_INDEX,
+  SALES_INFO_STAFF_NAME_INDEX,
+  SALES_INFO_STAFF_SHEET_NAME,
 } from "@/constants/constants";
 import { Staff, Student } from "@/constants/types";
 
@@ -70,17 +70,17 @@ export const fetchStaffInfo = async ({
 
   try {
     const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: TICKET_INFO_SHEET_ID,
-      range: `${TICKET_INFO_STAFF_SHEET_NAME}!A:Z`,
+      spreadsheetId: SALES_INFO_SHEET_ID,
+      range: `${SALES_INFO_STAFF_SHEET_NAME}!A:Z`,
     });
     const foundValue = response.data.values?.find(
-      (value) => value[TICKET_INFO_STAFF_EMAIL_INDEX] === email
+      (value) => value[SALES_INFO_STAFF_EMAIL_INDEX] === email
     );
 
     const data = foundValue
       ? {
           email,
-          name: foundValue[TICKET_INFO_STAFF_NAME_INDEX],
+          name: foundValue[SALES_INFO_STAFF_NAME_INDEX],
         }
       : undefined;
     if (data) {

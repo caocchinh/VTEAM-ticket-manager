@@ -9,8 +9,8 @@ export interface Student {
 export interface StudentInput {
   nameInput: string;
   studentIdInput: string;
-  genderInput: string;
   homeroomInput: string;
+  notice: string;
 }
 
 export interface Staff {

@@ -2,11 +2,22 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { NOT_STUDENT_IN_SCHOOL } from "@/constants/constants";
 import { Student, StudentInput } from "@/constants/types";
 import { removeVietnameseAccents } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -15,7 +26,6 @@ const Form = () => {
     useState("");
   const [homeroomAutoCompleteValue, setHomeroomAutoCompleteValue] =
     useState("");
-  const [genderAutoCompleteValue, setGenderAutoCompleteValue] = useState("");
   const [emailAutoCompleteValue, setEmailAutoCompleteValue] = useState("");
   const [bestMatchStudentId, setBestMatchStudentId] = useState("");
   const [currentOrders, setCurrentOrders] = useState<StudentInput[]>([]);
@@ -23,29 +33,46 @@ const Form = () => {
   // State for actual form values (separate from autocomplete preview)
   const [studentNameInput, setStudentNameInput] = useState("");
   const [homeroomInput, setHomeroomInput] = useState("");
-  const [genderInput, setGenderInput] = useState("");
+  const studentIdInputRef = useRef<HTMLInputElement | null>(null);
   const [emailInput, setEmailInput] = useState("");
   const [whichInputIsBeingFocused, setWhichInputIsBeingFocused] = useState<
-    "id" | "name" | "homeroom" | "email" | "gender"
+    "id" | "name" | "homeroom" | "email"
   >("id");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [noticeInput, setNoticeInput] = useState("");
 
   // State for validation errors
   const [errors, setErrors] = useState({
     studentId: false,
     studentName: false,
     homeroom: false,
-    gender: false,
     email: false,
   });
 
-  const areOtherFieldsBlank = useCallback(() => {
-    return (
-      !studentNameInput.trim() &&
-      !homeroomInput.trim() &&
-      !genderInput.trim() &&
-      !emailInput.trim()
-    );
-  }, [studentNameInput, homeroomInput, genderInput, emailInput]);
+  // Validation useEffect hooks for each input field
+  useEffect(() => {
+    if (selectedStudentIdInput.trim()) {
+      setErrors((prev) => ({ ...prev, studentId: false }));
+    }
+  }, [selectedStudentIdInput]);
+
+  useEffect(() => {
+    if (studentNameInput.trim()) {
+      setErrors((prev) => ({ ...prev, studentName: false }));
+    }
+  }, [studentNameInput]);
+
+  useEffect(() => {
+    if (homeroomInput.trim()) {
+      setErrors((prev) => ({ ...prev, homeroom: false }));
+    }
+  }, [homeroomInput]);
+
+  useEffect(() => {
+    if (emailInput.trim()) {
+      setErrors((prev) => ({ ...prev, email: false }));
+    }
+  }, [emailInput]);
 
   useEffect(() => {
     setMounted(true);
@@ -95,20 +122,23 @@ const Form = () => {
     setSelectedStudentIdInput("");
     setStudentNameAutoCompleteValue("");
     setHomeroomAutoCompleteValue("");
-    setGenderAutoCompleteValue("");
     setEmailAutoCompleteValue("");
     setBestMatchStudentId("");
     setStudentNameInput("");
     setHomeroomInput("");
-    setGenderInput("");
+    setNoticeInput("");
     setEmailInput("");
     setErrors({
       studentId: false,
       studentName: false,
       homeroom: false,
-      gender: false,
       email: false,
     });
+  };
+
+  const handleConfirmClear = () => {
+    clearForm();
+    setIsDialogOpen(false);
   };
 
   const validateForm = () => {
@@ -116,7 +146,6 @@ const Form = () => {
       studentId: !selectedStudentIdInput.trim(),
       studentName: !studentNameInput.trim(),
       homeroom: !homeroomInput.trim(),
-      gender: !genderInput.trim(),
       email: !emailInput.trim(),
     };
 
@@ -132,12 +161,13 @@ const Form = () => {
         ...prev,
         {
           nameInput: studentNameInput,
-          genderInput: genderInput,
           homeroomInput: homeroomInput,
           studentIdInput: selectedStudentIdInput,
+          notice: noticeInput,
         },
       ]);
       clearForm();
+      studentIdInputRef?.current?.focus();
     }
   };
 
@@ -149,7 +179,6 @@ const Form = () => {
       if (bestMatch && bestMatch.studentId.includes("VS")) {
         setStudentNameAutoCompleteValue(bestMatch.name);
         setHomeroomAutoCompleteValue(bestMatch.homeroom);
-        setGenderAutoCompleteValue(bestMatch.gender);
         setBestMatchStudentId(bestMatch.studentId);
         const numericalValue = bestMatch.studentId.replace(/\D/g, "");
         const splited = bestMatch.name.split(" ");
@@ -160,12 +189,17 @@ const Form = () => {
       } else {
         setStudentNameAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
         setHomeroomAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
-        setGenderAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
         setEmailAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
       }
     } else {
       if (value.trim() === "") {
-        clearForm();
+        if (studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL) {
+          clearForm();
+        } else {
+          setStudentNameAutoCompleteValue("");
+          setHomeroomAutoCompleteValue("");
+          setEmailAutoCompleteValue("");
+        }
       }
     }
   };
@@ -178,33 +212,37 @@ const Form = () => {
         studentNameAutoCompleteValue &&
         studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL
       ) {
-        e.preventDefault();
-
-        if (areOtherFieldsBlank() && whichInputIsBeingFocused === "id") {
+        if (
+          whichInputIsBeingFocused === "id" &&
+          (studentNameInput !== studentNameAutoCompleteValue ||
+            homeroomInput !== homeroomAutoCompleteValue ||
+            emailAutoCompleteValue !== emailInput)
+        ) {
+          e.preventDefault();
           setStudentNameInput(studentNameAutoCompleteValue);
           setHomeroomInput(homeroomAutoCompleteValue);
-          setGenderInput(genderAutoCompleteValue);
           setSelectedStudentIdInput(bestMatchStudentId);
           setEmailInput(emailAutoCompleteValue);
         } else if (
           whichInputIsBeingFocused === "name" &&
           studentNameInput.trim() === ""
         ) {
+          e.preventDefault();
+
           setStudentNameInput(studentNameAutoCompleteValue);
         } else if (
           whichInputIsBeingFocused === "homeroom" &&
           homeroomInput.trim() === ""
         ) {
+          e.preventDefault();
+
           setHomeroomInput(homeroomAutoCompleteValue);
-        } else if (
-          whichInputIsBeingFocused === "gender" &&
-          genderInput.trim() === ""
-        ) {
-          setGenderInput(genderAutoCompleteValue);
         } else if (
           whichInputIsBeingFocused === "email" &&
           emailInput.trim() === ""
         ) {
+          e.preventDefault();
+
           setEmailInput(emailAutoCompleteValue);
         }
       }
@@ -213,15 +251,12 @@ const Form = () => {
       studentList,
       studentNameAutoCompleteValue,
       homeroomAutoCompleteValue,
-      genderAutoCompleteValue,
       emailAutoCompleteValue,
       bestMatchStudentId,
       whichInputIsBeingFocused,
       studentNameInput,
       homeroomInput,
-      genderInput,
       emailInput,
-      areOtherFieldsBlank,
     ]
   );
 
@@ -238,166 +273,196 @@ const Form = () => {
   }, [handleTabKeyPress]);
 
   return (
-    <div className="flex flex-col gap-4 items-start w-[350px]">
-      <div className="w-full flex flex-col items-start gap-2">
-        <Label
-          htmlFor="student-id"
-          className={errors.studentId ? "text-red-500" : ""}
-        >
-          Mã số học sinh
-        </Label>
-        <Input
-          onFocus={() => {
-            setWhichInputIsBeingFocused("id");
-          }}
-          id="student-id"
-          onChange={(e) => {
-            handleStudentIdChange(e.target.value);
-            if (errors.studentId && e.target.value.trim()) {
-              setErrors((prev) => ({ ...prev, studentId: false }));
-            }
-          }}
-          value={selectedStudentIdInput}
-          placeholder="Nhập mã số HS"
-          tabIndex={-1}
-          className={
-            errors.studentId
-              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-              : ""
-          }
-        />
-      </div>
-      <div className="w-full flex flex-col items-start gap-2">
-        <Label
-          htmlFor="student-name"
-          className={errors.studentName ? "text-red-500" : ""}
-        >
-          Tên học sinh
-        </Label>
-        <Input
-          id="student-name"
-          onFocus={() => {
-            setWhichInputIsBeingFocused("name");
-          }}
-          value={studentNameInput}
-          onChange={(e) => {
-            setStudentNameInput(e.target.value);
-            if (errors.studentName && e.target.value.trim()) {
-              setErrors((prev) => ({ ...prev, studentName: false }));
-            }
-          }}
-          placeholder={
-            studentNameAutoCompleteValue || "Tên học sinh sẽ hiển thị tự động"
-          }
-          tabIndex={-1}
-          className={
-            errors.studentName
-              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-              : ""
-          }
-        />
-      </div>
-      <div className="w-full flex flex-col items-start gap-2">
-        <Label
-          htmlFor="homeroom"
-          className={errors.homeroom ? "text-red-500" : ""}
-        >
-          Lớp
-        </Label>
-        <Input
-          id="homeroom"
-          onFocus={() => {
-            setWhichInputIsBeingFocused("homeroom");
-          }}
-          value={homeroomInput}
-          onChange={(e) => {
-            setHomeroomInput(e.target.value);
-            if (errors.homeroom && e.target.value.trim()) {
-              setErrors((prev) => ({ ...prev, homeroom: false }));
-            }
-          }}
-          placeholder={
-            homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
-          }
-          tabIndex={-1}
-          className={
-            errors.homeroom
-              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-              : ""
-          }
-        />
-      </div>
-      <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="gender" className={errors.gender ? "text-red-500" : ""}>
-          Giới tính
-        </Label>
-        <Input
-          id="gender"
-          onFocus={() => {
-            setWhichInputIsBeingFocused("gender");
-          }}
-          value={genderInput}
-          onChange={(e) => {
-            setGenderInput(e.target.value);
-            if (errors.gender && e.target.value.trim()) {
-              setErrors((prev) => ({ ...prev, gender: false }));
-            }
-          }}
-          placeholder={
-            genderAutoCompleteValue || "Giới tính sẽ hiển thị tự động"
-          }
-          tabIndex={-1}
-          className={
-            errors.gender
-              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-              : ""
-          }
-        />
-      </div>
-      <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="email" className={errors.email ? "text-red-500" : ""}>
-          Email
-        </Label>
-        <Input
-          id="email"
-          value={emailInput}
-          onFocus={() => {
-            setWhichInputIsBeingFocused("email");
-          }}
-          onChange={(e) => {
-            setEmailInput(e.target.value);
-            if (errors.email && e.target.value.trim()) {
-              setErrors((prev) => ({ ...prev, email: false }));
-            }
-          }}
-          placeholder={emailAutoCompleteValue || "Email sẽ hiển thị tự động"}
-          tabIndex={-1}
-          className={
-            errors.email
-              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-              : ""
-          }
-        />
-      </div>
-      <Button onClick={handleSubmit} className="w-full">
-        Thêm vào đơn
-      </Button>
-      <Button onClick={clearForm} variant="outline" className="w-full">
-        Xóa tất cả
-      </Button>
-
-      {currentOrders.length > 0 && (
-        <div className="w-full mt-4">
-          <Label>Đơn hiện tại ({currentOrders.length} học sinh)</Label>
-          <div className="mt-2 space-y-1">
-            {currentOrders.map((order, index) => (
-              <div key={index} className="text-sm p-2 bg-gray-50 rounded">
-                {order.nameInput} - {order.studentIdInput}
-              </div>
-            ))}
+    <div className="flex flex-col items-center gap-2 justify-center">
+      <h3>Thông tin người mua</h3>
+      <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[400px]">
+        <div className="w-full flex flex-col items-start gap-2 ">
+          <Label
+            htmlFor="student-id"
+            className={errors.studentId ? "text-red-500" : ""}
+          >
+            Mã số học sinh
+          </Label>
+          <div className="relative w-full">
+            <Input
+              onFocus={() => {
+                setWhichInputIsBeingFocused("id");
+              }}
+              ref={studentIdInputRef}
+              id="student-id"
+              onChange={(e) => {
+                handleStudentIdChange(e.target.value);
+              }}
+              value={selectedStudentIdInput}
+              placeholder="Nhập mã số HS"
+              className={
+                errors.studentId
+                  ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+                  : ""
+              }
+            />
+            <X
+              className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
+              size={17}
+              onClick={() => {
+                handleStudentIdChange("");
+              }}
+            />
           </div>
         </div>
-      )}
+        <div className="w-full flex flex-col items-start gap-2">
+          <Label
+            htmlFor="student-name"
+            className={errors.studentName ? "text-red-500" : ""}
+          >
+            Tên học sinh
+          </Label>
+          <div className="relative w-full">
+            <Input
+              id="student-name"
+              onFocus={() => {
+                setWhichInputIsBeingFocused("name");
+              }}
+              value={studentNameInput}
+              onChange={(e) => {
+                setStudentNameInput(e.target.value);
+              }}
+              placeholder={
+                studentNameAutoCompleteValue ||
+                "Tên học sinh sẽ hiển thị tự động"
+              }
+              className={
+                errors.studentName
+                  ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+                  : ""
+              }
+            />
+            <X
+              className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
+              size={17}
+              onClick={() => {
+                setStudentNameInput("");
+              }}
+            />
+          </div>
+        </div>
+        <div className="w-full flex flex-col items-start gap-2">
+          <Label
+            htmlFor="homeroom"
+            className={errors.homeroom ? "text-red-500" : ""}
+          >
+            Lớp
+          </Label>
+          <div className="relative w-full">
+            <Input
+              id="homeroom"
+              onFocus={() => {
+                setWhichInputIsBeingFocused("homeroom");
+              }}
+              value={homeroomInput}
+              onChange={(e) => {
+                setHomeroomInput(e.target.value);
+              }}
+              placeholder={
+                homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
+              }
+              className={
+                errors.homeroom
+                  ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+                  : ""
+              }
+            />
+            <X
+              className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
+              size={17}
+              onClick={() => {
+                setHomeroomInput("");
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col items-start gap-2">
+          <Label htmlFor="email" className={errors.email ? "text-red-500" : ""}>
+            Email
+          </Label>
+          <div className="relative w-full">
+            <Input
+              id="email"
+              value={emailInput}
+              onFocus={() => {
+                setWhichInputIsBeingFocused("email");
+              }}
+              onChange={(e) => {
+                setEmailInput(e.target.value);
+              }}
+              placeholder={
+                emailAutoCompleteValue || "Email sẽ hiển thị tự động"
+              }
+              className={
+                errors.email
+                  ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+                  : ""
+              }
+            />
+            <X
+              className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
+              size={17}
+              onClick={() => {
+                setEmailInput("");
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col items-start gap-2">
+          <Label htmlFor="notice">Lưu ý</Label>
+          <div className="relative w-full">
+            <Textarea
+              id="notice"
+              value={noticeInput}
+              onChange={(e) => {
+                setNoticeInput(e.target.value);
+              }}
+              placeholder={"Nếu có"}
+            />
+            <X
+              className="absolute right-1 top-1 cursor-pointer  text-red-400"
+              size={17}
+              onClick={() => {
+                setEmailInput("");
+              }}
+            />
+          </div>
+        </div>
+        <Button onClick={handleSubmit} className="w-full cursor-pointer">
+          Thêm vào đơn
+        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="w-full cursor-pointer -mt-2">
+              Xóa tất cả
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Xác nhận xóa</DialogTitle>
+              <DialogDescription>
+                Bạn có chắc chắn muốn xóa tất cả thông tin đã nhập? Hành động
+                này không thể hoàn tác.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Hủy
+              </Button>
+              <Button variant="destructive" onClick={handleConfirmClear}>
+                Xóa tất cả
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

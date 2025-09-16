@@ -49,3 +49,6 @@ export const SALES_INFO_STAFF_NAME_INDEX = getColumnNumber(
 
 export const NOT_STAFF_ERROR = "not-staff";
 export const NOT_LOGGED_IN_ERROR = "not-logged-in";
+
+export const NOT_STUDENT_IN_SCHOOL =
+  "Không phải học sinh trong trường, vui lòng tự điền";

@@ -13,11 +13,16 @@ import {
 } from "@/components/ui/dialog";
 import { NOT_STUDENT_IN_SCHOOL } from "@/constants/constants";
 import { Student, StudentInput } from "@/constants/types";
-import { removeVietnameseAccents } from "@/lib/utils";
+import { cn, removeVietnameseAccents } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { ShoppingCart, Sparkle, Trash2, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -28,7 +33,7 @@ const Form = () => {
     useState("");
   const [emailAutoCompleteValue, setEmailAutoCompleteValue] = useState("");
   const [bestMatchStudentId, setBestMatchStudentId] = useState("");
-  const [currentOrders, setCurrentOrders] = useState<StudentInput[]>([]);
+  const [, setCurrentOrders] = useState<StudentInput[]>([]);
 
   // State for actual form values (separate from autocomplete preview)
   const [studentNameInput, setStudentNameInput] = useState("");
@@ -118,7 +123,7 @@ const Form = () => {
     enabled: mounted,
   });
 
-  const clearForm = () => {
+  const clearForm = ({ clearNotice }: { clearNotice: boolean }) => {
     setSelectedStudentIdInput("");
     setStudentNameAutoCompleteValue("");
     setHomeroomAutoCompleteValue("");
@@ -126,7 +131,9 @@ const Form = () => {
     setBestMatchStudentId("");
     setStudentNameInput("");
     setHomeroomInput("");
-    setNoticeInput("");
+    if (clearNotice) {
+      setNoticeInput("");
+    }
     setEmailInput("");
     setErrors({
       studentId: false,
@@ -137,7 +144,7 @@ const Form = () => {
   };
 
   const handleConfirmClear = () => {
-    clearForm();
+    clearForm({ clearNotice: true });
     setIsDialogOpen(false);
   };
 
@@ -166,7 +173,7 @@ const Form = () => {
           notice: noticeInput,
         },
       ]);
-      clearForm();
+      clearForm({ clearNotice: false });
       studentIdInputRef?.current?.focus();
     }
   };
@@ -194,7 +201,7 @@ const Form = () => {
     } else {
       if (value.trim() === "") {
         if (studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL) {
-          clearForm();
+          clearForm({ clearNotice: false });
         } else {
           setStudentNameAutoCompleteValue("");
           setHomeroomAutoCompleteValue("");
@@ -274,8 +281,8 @@ const Form = () => {
 
   return (
     <div className="flex flex-col items-center gap-2 justify-center">
-      <h3>Thông tin người mua</h3>
-      <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[400px]">
+      <h2 className="font-semibold">Thông tin người mua</h2>
+      <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px]">
         <div className="w-full flex flex-col items-start gap-2 ">
           <Label
             htmlFor="student-id"
@@ -291,15 +298,16 @@ const Form = () => {
               ref={studentIdInputRef}
               id="student-id"
               onChange={(e) => {
-                handleStudentIdChange(e.target.value);
+                handleStudentIdChange(e.target.value.toUpperCase());
               }}
               value={selectedStudentIdInput}
               placeholder="Nhập mã số HS"
-              className={
+              className={cn(
                 errors.studentId
-                  ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-                  : ""
-              }
+                  ? "border-red-500  focus:border-red-500 placeholder:text-red-400"
+                  : "",
+                "pl-23"
+              )}
             />
             <X
               className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
@@ -308,6 +316,30 @@ const Form = () => {
                 handleStudentIdChange("");
               }}
             />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={
+                    studentNameAutoCompleteValue === "" ||
+                    studentNameAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
+                    (studentNameInput === studentNameAutoCompleteValue &&
+                      homeroomInput === homeroomAutoCompleteValue &&
+                      emailAutoCompleteValue === emailInput)
+                  }
+                  onClick={() => {
+                    setStudentNameInput(studentNameAutoCompleteValue);
+                    setHomeroomInput(homeroomAutoCompleteValue);
+                    setSelectedStudentIdInput(bestMatchStudentId);
+                    setEmailInput(emailAutoCompleteValue);
+                  }}
+                  tabIndex={-1}
+                  className="bg-yellow-500 absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-yellow-500 cursor-pointer w-20 h-6"
+                >
+                  <Sparkle size={8} /> Tất cả
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Autocomplete tất cả</TooltipContent>
+            </Tooltip>
           </div>
         </div>
         <div className="w-full flex flex-col items-start gap-2">
@@ -331,11 +363,16 @@ const Form = () => {
                 studentNameAutoCompleteValue ||
                 "Tên học sinh sẽ hiển thị tự động"
               }
-              className={
+              className={cn(
                 errors.studentName
                   ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-                  : ""
-              }
+                  : studentNameAutoCompleteValue &&
+                    studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
+                    studentNameInput === ""
+                  ? "placeholder:text-[#0084ff]  placeholder:opacity-50  "
+                  : "",
+                "pl-10"
+              )}
             />
             <X
               className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
@@ -344,6 +381,25 @@ const Form = () => {
                 setStudentNameInput("");
               }}
             />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={
+                    studentNameAutoCompleteValue === "" ||
+                    studentNameAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
+                    studentNameAutoCompleteValue === studentNameInput
+                  }
+                  onClick={() => {
+                    setStudentNameInput(studentNameAutoCompleteValue);
+                  }}
+                  tabIndex={-1}
+                  className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
+                >
+                  <Sparkle size={8} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Autocomplete tên</TooltipContent>
+            </Tooltip>
           </div>
         </div>
         <div className="w-full flex flex-col items-start gap-2">
@@ -361,16 +417,21 @@ const Form = () => {
               }}
               value={homeroomInput}
               onChange={(e) => {
-                setHomeroomInput(e.target.value);
+                setHomeroomInput(e.target.value.toUpperCase());
               }}
               placeholder={
                 homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
               }
-              className={
+              className={cn(
                 errors.homeroom
                   ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-                  : ""
-              }
+                  : homeroomAutoCompleteValue &&
+                    homeroomAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
+                    homeroomInput === ""
+                  ? "placeholder:text-[#0084ff]  placeholder:opacity-50  "
+                  : "",
+                "pl-10"
+              )}
             />
             <X
               className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
@@ -379,6 +440,25 @@ const Form = () => {
                 setHomeroomInput("");
               }}
             />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={
+                    homeroomAutoCompleteValue === "" ||
+                    homeroomAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
+                    homeroomAutoCompleteValue === homeroomInput
+                  }
+                  onClick={() => {
+                    setHomeroomInput(homeroomAutoCompleteValue);
+                  }}
+                  tabIndex={-1}
+                  className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
+                >
+                  <Sparkle size={8} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Autocomplete lớp</TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
@@ -399,11 +479,16 @@ const Form = () => {
               placeholder={
                 emailAutoCompleteValue || "Email sẽ hiển thị tự động"
               }
-              className={
+              className={cn(
                 errors.email
                   ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-                  : ""
-              }
+                  : emailAutoCompleteValue &&
+                    emailAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
+                    emailInput === ""
+                  ? "placeholder:text-[#0084ff] placeholder:opacity-50 "
+                  : "",
+                "pl-10"
+              )}
             />
             <X
               className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
@@ -412,6 +497,25 @@ const Form = () => {
                 setEmailInput("");
               }}
             />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={
+                    emailAutoCompleteValue === "" ||
+                    emailAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
+                    emailAutoCompleteValue === emailInput
+                  }
+                  onClick={() => {
+                    setEmailInput(emailAutoCompleteValue);
+                  }}
+                  tabIndex={-1}
+                  className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
+                >
+                  <Sparkle size={8} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Autocomplete email</TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
@@ -437,11 +541,13 @@ const Form = () => {
         </div>
         <Button onClick={handleSubmit} className="w-full cursor-pointer">
           Thêm vào đơn
+          <ShoppingCart />
         </Button>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="w-full cursor-pointer -mt-2">
               Xóa tất cả
+              <Trash2 />
             </Button>
           </DialogTrigger>
           <DialogContent>

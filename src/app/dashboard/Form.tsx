@@ -1,11 +1,12 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NOT_STUDENT_IN_SCHOOL } from "@/constants/constants";
-import { Student } from "@/constants/types";
+import { Student, StudentInput } from "@/constants/types";
 import { removeVietnameseAccents } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -17,36 +18,34 @@ const Form = () => {
   const [genderAutoCompleteValue, setGenderAutoCompleteValue] = useState("");
   const [emailAutoCompleteValue, setEmailAutoCompleteValue] = useState("");
   const [bestMatchStudentId, setBestMatchStudentId] = useState("");
+  const [currentOrders, setCurrentOrders] = useState<StudentInput[]>([]);
 
   // State for actual form values (separate from autocomplete preview)
-  const [studentName, setStudentName] = useState("");
-  const [homeroom, setHomeroom] = useState("");
-  const [gender, setGender] = useState("");
-  const [email, setEmail] = useState("");
+  const [studentNameInput, setStudentNameInput] = useState("");
+  const [homeroomInput, setHomeroomInput] = useState("");
+  const [genderInput, setGenderInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [whichInputIsBeingFocused, setWhichInputIsBeingFocused] = useState<
+    "id" | "name" | "homeroom" | "email" | "gender"
+  >("id");
 
-  const areOtherFieldsBlank = () => {
+  // State for validation errors
+  const [errors, setErrors] = useState({
+    studentId: false,
+    studentName: false,
+    homeroom: false,
+    gender: false,
+    email: false,
+  });
+
+  const areOtherFieldsBlank = useCallback(() => {
     return (
-      !studentName.trim() && !homeroom.trim() && !gender.trim() && !email.trim()
+      !studentNameInput.trim() &&
+      !homeroomInput.trim() &&
+      !genderInput.trim() &&
+      !emailInput.trim()
     );
-  };
-
-  const handleTabKeyPress = (e: React.KeyboardEvent) => {
-    if (
-      e.key === "Tab" &&
-      studentList &&
-      studentNameAutoCompleteValue &&
-      areOtherFieldsBlank()
-    ) {
-      {
-        e.preventDefault();
-        setStudentName(studentNameAutoCompleteValue);
-        setHomeroom(homeroomAutoCompleteValue);
-        setGender(genderAutoCompleteValue);
-        setSelectedStudentIdInput(bestMatchStudentId);
-        setEmail(emailAutoCompleteValue);
-      }
-    }
-  };
+  }, [studentNameInput, homeroomInput, genderInput, emailInput]);
 
   useEffect(() => {
     setMounted(true);
@@ -92,12 +91,62 @@ const Form = () => {
     enabled: mounted,
   });
 
+  const clearForm = () => {
+    setSelectedStudentIdInput("");
+    setStudentNameAutoCompleteValue("");
+    setHomeroomAutoCompleteValue("");
+    setGenderAutoCompleteValue("");
+    setEmailAutoCompleteValue("");
+    setBestMatchStudentId("");
+    setStudentNameInput("");
+    setHomeroomInput("");
+    setGenderInput("");
+    setEmailInput("");
+    setErrors({
+      studentId: false,
+      studentName: false,
+      homeroom: false,
+      gender: false,
+      email: false,
+    });
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      studentId: !selectedStudentIdInput.trim(),
+      studentName: !studentNameInput.trim(),
+      homeroom: !homeroomInput.trim(),
+      gender: !genderInput.trim(),
+      email: !emailInput.trim(),
+    };
+
+    setErrors(newErrors);
+
+    // Return true if no errors
+    return !Object.values(newErrors).some((error) => error);
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      setCurrentOrders((prev) => [
+        ...prev,
+        {
+          nameInput: studentNameInput,
+          genderInput: genderInput,
+          homeroomInput: homeroomInput,
+          studentIdInput: selectedStudentIdInput,
+        },
+      ]);
+      clearForm();
+    }
+  };
+
   const handleStudentIdChange = (value: string) => {
     setSelectedStudentIdInput(value);
 
     if (studentList && value.trim() && value.toLowerCase()) {
       const bestMatch = findBestMatch(value.trim(), studentList);
-      if (bestMatch) {
+      if (bestMatch && bestMatch.studentId.includes("VS")) {
         setStudentNameAutoCompleteValue(bestMatch.name);
         setHomeroomAutoCompleteValue(bestMatch.homeroom);
         setGenderAutoCompleteValue(bestMatch.gender);
@@ -116,77 +165,239 @@ const Form = () => {
       }
     } else {
       if (value.trim() === "") {
-        setStudentNameAutoCompleteValue("");
-        setHomeroomAutoCompleteValue("");
-        setGenderAutoCompleteValue("");
-        setEmailAutoCompleteValue("");
-        setStudentName("");
-        setHomeroom("");
-        setGender("");
-        setEmail("");
+        clearForm();
       }
     }
   };
 
+  const handleTabKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (
+        e.key === "Tab" &&
+        studentList &&
+        studentNameAutoCompleteValue &&
+        studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL
+      ) {
+        e.preventDefault();
+
+        if (areOtherFieldsBlank() && whichInputIsBeingFocused === "id") {
+          setStudentNameInput(studentNameAutoCompleteValue);
+          setHomeroomInput(homeroomAutoCompleteValue);
+          setGenderInput(genderAutoCompleteValue);
+          setSelectedStudentIdInput(bestMatchStudentId);
+          setEmailInput(emailAutoCompleteValue);
+        } else if (
+          whichInputIsBeingFocused === "name" &&
+          studentNameInput.trim() === ""
+        ) {
+          setStudentNameInput(studentNameAutoCompleteValue);
+        } else if (
+          whichInputIsBeingFocused === "homeroom" &&
+          homeroomInput.trim() === ""
+        ) {
+          setHomeroomInput(homeroomAutoCompleteValue);
+        } else if (
+          whichInputIsBeingFocused === "gender" &&
+          genderInput.trim() === ""
+        ) {
+          setGenderInput(genderAutoCompleteValue);
+        } else if (
+          whichInputIsBeingFocused === "email" &&
+          emailInput.trim() === ""
+        ) {
+          setEmailInput(emailAutoCompleteValue);
+        }
+      }
+    },
+    [
+      studentList,
+      studentNameAutoCompleteValue,
+      homeroomAutoCompleteValue,
+      genderAutoCompleteValue,
+      emailAutoCompleteValue,
+      bestMatchStudentId,
+      whichInputIsBeingFocused,
+      studentNameInput,
+      homeroomInput,
+      genderInput,
+      emailInput,
+      areOtherFieldsBlank,
+    ]
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      handleTabKeyPress(e as unknown as React.KeyboardEvent);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleTabKeyPress]);
+
   return (
     <div className="flex flex-col gap-4 items-start w-[350px]">
       <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="student-id">Mã số học sinh</Label>
+        <Label
+          htmlFor="student-id"
+          className={errors.studentId ? "text-red-500" : ""}
+        >
+          Mã số học sinh
+        </Label>
         <Input
+          onFocus={() => {
+            setWhichInputIsBeingFocused("id");
+          }}
           id="student-id"
-          onChange={(e) => handleStudentIdChange(e.target.value)}
-          onKeyDown={handleTabKeyPress}
+          onChange={(e) => {
+            handleStudentIdChange(e.target.value);
+            if (errors.studentId && e.target.value.trim()) {
+              setErrors((prev) => ({ ...prev, studentId: false }));
+            }
+          }}
           value={selectedStudentIdInput}
           placeholder="Nhập mã số HS"
           tabIndex={-1}
+          className={
+            errors.studentId
+              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+              : ""
+          }
         />
       </div>
       <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="student-name">Tên học sinh</Label>
+        <Label
+          htmlFor="student-name"
+          className={errors.studentName ? "text-red-500" : ""}
+        >
+          Tên học sinh
+        </Label>
         <Input
           id="student-name"
-          value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
+          onFocus={() => {
+            setWhichInputIsBeingFocused("name");
+          }}
+          value={studentNameInput}
+          onChange={(e) => {
+            setStudentNameInput(e.target.value);
+            if (errors.studentName && e.target.value.trim()) {
+              setErrors((prev) => ({ ...prev, studentName: false }));
+            }
+          }}
           placeholder={
             studentNameAutoCompleteValue || "Tên học sinh sẽ hiển thị tự động"
           }
           tabIndex={-1}
+          className={
+            errors.studentName
+              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+              : ""
+          }
         />
       </div>
       <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="homeroom">Lớp học</Label>
+        <Label
+          htmlFor="homeroom"
+          className={errors.homeroom ? "text-red-500" : ""}
+        >
+          Lớp
+        </Label>
         <Input
           id="homeroom"
-          value={homeroom}
-          onChange={(e) => setHomeroom(e.target.value)}
+          onFocus={() => {
+            setWhichInputIsBeingFocused("homeroom");
+          }}
+          value={homeroomInput}
+          onChange={(e) => {
+            setHomeroomInput(e.target.value);
+            if (errors.homeroom && e.target.value.trim()) {
+              setErrors((prev) => ({ ...prev, homeroom: false }));
+            }
+          }}
           placeholder={
             homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
           }
           tabIndex={-1}
+          className={
+            errors.homeroom
+              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+              : ""
+          }
         />
       </div>
       <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="gender">Giới tính</Label>
+        <Label htmlFor="gender" className={errors.gender ? "text-red-500" : ""}>
+          Giới tính
+        </Label>
         <Input
           id="gender"
-          value={gender}
-          onChange={(e) => setGender(e.target.value)}
+          onFocus={() => {
+            setWhichInputIsBeingFocused("gender");
+          }}
+          value={genderInput}
+          onChange={(e) => {
+            setGenderInput(e.target.value);
+            if (errors.gender && e.target.value.trim()) {
+              setErrors((prev) => ({ ...prev, gender: false }));
+            }
+          }}
           placeholder={
             genderAutoCompleteValue || "Giới tính sẽ hiển thị tự động"
           }
           tabIndex={-1}
+          className={
+            errors.gender
+              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+              : ""
+          }
         />
       </div>
       <div className="w-full flex flex-col items-start gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className={errors.email ? "text-red-500" : ""}>
+          Email
+        </Label>
         <Input
           id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={emailInput}
+          onFocus={() => {
+            setWhichInputIsBeingFocused("email");
+          }}
+          onChange={(e) => {
+            setEmailInput(e.target.value);
+            if (errors.email && e.target.value.trim()) {
+              setErrors((prev) => ({ ...prev, email: false }));
+            }
+          }}
           placeholder={emailAutoCompleteValue || "Email sẽ hiển thị tự động"}
           tabIndex={-1}
+          className={
+            errors.email
+              ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+              : ""
+          }
         />
       </div>
+      <Button onClick={handleSubmit} className="w-full">
+        Thêm vào đơn
+      </Button>
+      <Button onClick={clearForm} variant="outline" className="w-full">
+        Xóa tất cả
+      </Button>
+
+      {currentOrders.length > 0 && (
+        <div className="w-full mt-4">
+          <Label>Đơn hiện tại ({currentOrders.length} học sinh)</Label>
+          <div className="mt-2 space-y-1">
+            {currentOrders.map((order, index) => (
+              <div key={index} className="text-sm p-2 bg-gray-50 rounded">
+                {order.nameInput} - {order.studentIdInput}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

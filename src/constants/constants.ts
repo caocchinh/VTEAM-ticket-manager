@@ -3,11 +3,6 @@ import { getColumnNumber } from "@/lib/utils";
 export const STUDENT_LIST_SHEET_ID = "1PCdIEQOU3-aQgxs7pFUZaDQj0esNMgSi";
 export const STUDENT_LIST_SHEET_NAME = "Student list";
 
-export const TICKET_FORM_SHEET_ID =
-  "1K3kNv-klSmu2TT3_fKwFJ9IDHkeZIeGRDFoOWzMVUT8";
-export const TICKET_FORM_STAFF_SHEET_NAME = "Staff";
-export const TICKET_FORM_TICKET_SHEET_NAME = "Ticket";
-
 export const STUDENT_LIST_STUDENT_NAME_COLUMN = "C";
 export const STUDENT_LIST_STUDENT_ID_COLUMN = "B";
 export const STUDENT_LIST_STUDENT_GENDER_COLUMN = "E";
@@ -24,4 +19,19 @@ export const STUDENT_LIST_STUDENT_GENDER_INDEX = getColumnNumber(
 );
 export const STUDENT_LIST_STUDENT_HOMEROOM_INDEX = getColumnNumber(
   STUDENT_LIST_STUDENT_HOMEROOM_COLUMN
+);
+
+export const TICKET_INFO_SHEET_ID =
+  "1K3kNv-klSmu2TT3_fKwFJ9IDHkeZIeGRDFoOWzMVUT8";
+export const TICKET_INFO_STAFF_SHEET_NAME = "Staff";
+export const TICKET_INFO_TICKET_SHEET_NAME = "Ticket";
+
+export const TICKET_INFO_STAFF_EMAIL_COLUMN = "A";
+export const TICKET_INFO_STAFF_NAME_COLUMN = "B";
+
+export const TICKET_INFO_STAFF_EMAIL_INDEX = getColumnNumber(
+  TICKET_INFO_STAFF_EMAIL_COLUMN
+);
+export const TICKET_INFO_STAFF_NAME_INDEX = getColumnNumber(
+  TICKET_INFO_STAFF_NAME_COLUMN
 );

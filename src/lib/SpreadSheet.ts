@@ -6,8 +6,12 @@ import {
   STUDENT_LIST_STUDENT_HOMEROOM_INDEX,
   STUDENT_LIST_STUDENT_ID_INDEX,
   STUDENT_LIST_STUDENT_NAME_INDEX,
+  TICKET_INFO_SHEET_ID,
+  TICKET_INFO_STAFF_EMAIL_INDEX,
+  TICKET_INFO_STAFF_NAME_INDEX,
+  TICKET_INFO_STAFF_SHEET_NAME,
 } from "@/constants/constants";
-import { Student } from "@/constants/types";
+import { Staff, Student } from "@/constants/types";
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -48,6 +52,41 @@ export const fetchStudentList = async (): Promise<{
       row: index,
     }));
     return { error: false, data: data };
+  } catch (error) {
+    console.error(error);
+    return { error: true, data: undefined };
+  }
+};
+
+export const fetchStaffInfo = async ({
+  email,
+}: {
+  email: string;
+}): Promise<{
+  error: boolean;
+  data: Staff | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: TICKET_INFO_SHEET_ID,
+      range: `${TICKET_INFO_STAFF_SHEET_NAME}!A:Z`,
+    });
+    const foundValue = response.data.values?.find(
+      (value) => value[TICKET_INFO_STAFF_EMAIL_INDEX] === email
+    );
+
+    const data = foundValue
+      ? {
+          email,
+          name: foundValue[TICKET_INFO_STAFF_NAME_INDEX],
+        }
+      : undefined;
+    if (data) {
+      return { error: false, data: data };
+    }
+    return { error: true, data: undefined };
   } catch (error) {
     console.error(error);
     return { error: true, data: undefined };

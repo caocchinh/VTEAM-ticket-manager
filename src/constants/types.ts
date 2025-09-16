@@ -5,3 +5,8 @@ export interface Student {
   gender: string;
   homeroom: string;
 }
+
+export interface Staff {
+  email: string;
+  name: string;
+}

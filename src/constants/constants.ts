@@ -1,0 +1,27 @@
+import { getColumnNumber } from "@/lib/utils";
+
+export const STUDENT_LIST_SHEET_ID = "1PCdIEQOU3-aQgxs7pFUZaDQj0esNMgSi";
+export const STUDENT_LIST_SHEET_NAME = "Student list";
+
+export const TICKET_FORM_SHEET_ID =
+  "1K3kNv-klSmu2TT3_fKwFJ9IDHkeZIeGRDFoOWzMVUT8";
+export const TICKET_FORM_STAFF_SHEET_NAME = "Staff";
+export const TICKET_FORM_TICKET_SHEET_NAME = "Ticket";
+
+export const STUDENT_LIST_STUDENT_NAME_COLUMN = "C";
+export const STUDENT_LIST_STUDENT_ID_COLUMN = "B";
+export const STUDENT_LIST_STUDENT_GENDER_COLUMN = "E";
+export const STUDENT_LIST_STUDENT_HOMEROOM_COLUMN = "F";
+
+export const STUDENT_LIST_STUDENT_NAME_INDEX = getColumnNumber(
+  STUDENT_LIST_STUDENT_NAME_COLUMN
+);
+export const STUDENT_LIST_STUDENT_ID_INDEX = getColumnNumber(
+  STUDENT_LIST_STUDENT_ID_COLUMN
+);
+export const STUDENT_LIST_STUDENT_GENDER_INDEX = getColumnNumber(
+  STUDENT_LIST_STUDENT_GENDER_COLUMN
+);
+export const STUDENT_LIST_STUDENT_HOMEROOM_INDEX = getColumnNumber(
+  STUDENT_LIST_STUDENT_HOMEROOM_COLUMN
+);

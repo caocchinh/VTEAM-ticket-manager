@@ -1,18 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { CardTitle, CardDescription } from "@/components/ui/card";
 import { verifySession } from "@/dal/verifySession";
-import { fetchStaffInfo, fetchStudentList } from "@/lib/SpreadSheet";
+import { fetchStaffInfo } from "@/lib/SpreadSheet";
 import { LogoutButton } from "@/components/LogoutButton";
 import { auth } from "@/lib/auth/auth";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
+import { truncateText } from "@/lib/utils";
+import Form from "./Form";
 
 export default async function Dashboard() {
   const session = await verifySession();
@@ -31,60 +27,40 @@ export default async function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  {session.user.image ? (
-                    <img
-                      src={session.user.image}
-                      alt={session.user.name || "User Avatar"}
-                      width={64}
-                      height={64}
-                      className="rounded-full border-2 border-gray-200"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 text-xl font-semibold">
-                        {session.user.name?.charAt(0) ||
-                          session.user.email?.charAt(0) ||
-                          "U"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">
-                    {staffInfo.data.name || "User"}!
-                  </CardTitle>
-                  <CardDescription className="text-lg">
-                    {session.user.email}
-                  </CardDescription>
-                </div>
+    <div className="min-h-screen bg-gray-50 p-2">
+      <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between mr-auto w-max  gap-3 border-1 ">
+        <div className="flex items-center">
+          <div className="relative">
+            {session.user.image ? (
+              <img
+                src={session.user.image}
+                alt={session.user.name || "User Avatar"}
+                width={35}
+                height={35}
+                className="rounded-full border-2  h-[35px] mr-1 border-gray-200"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                <span className="text-gray-600 text-xl font-semibold">
+                  {session.user.name?.charAt(0) ||
+                    session.user.email?.charAt(0) ||
+                    "U"}
+                </span>
               </div>
-              <LogoutButton />
-            </div>
-          </CardHeader>
-        </Card>
-
-        {staffInfo.data && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Staff Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p>
-                  <strong>Email:</strong> {staffInfo.data.email}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            )}
+          </div>
+          <div>
+            <CardTitle className="text-sm">
+              {truncateText(staffInfo.data.name, 24)}
+            </CardTitle>
+            <CardDescription className="text-[10px]">
+              {truncateText(session.user.email, 24)}
+            </CardDescription>
+          </div>
+        </div>
+        <LogoutButton />
       </div>
+      <Form />
     </div>
   );
 }

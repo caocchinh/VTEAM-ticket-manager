@@ -30,7 +30,15 @@ export const SALES_INFO_TICKET_SHEET_NAME = "Thông tin bán vé";
 export const SALES_INFO_STAFF_EMAIL_COLUMN = "A";
 export const SALES_INFO_STAFF_NAME_COLUMN = "B";
 
-export const SALES_INFO_TICKET = "A";
+export const SALES_INFO_TICKET_SUBMIT_TIME_COLUMN = "A";
+export const SALES_INFO_TICKET_STAFF_NAME_COLUMN = "B";
+export const SALES_INFO_MEDIUM_TYPE_COLUMN = "C";
+export const SALES_INFO_BUYER_NAME_COLUMN = "D";
+export const SALES_INFO_BUYER_CLASS_COLUMN = "E";
+export const SALES_INFO_BUYER_EMAIL_COLUMN = "F";
+export const SALES_INFO_BUYER_ID_COLUMN = "G";
+export const SALES_INFO_TICKET_TYPE_COLUMN = "H";
+export const SALES_INFO_NOTICE_COLUMN = "I";
 
 export const SALES_INFO_STAFF_EMAIL_INDEX = getColumnNumber(
   SALES_INFO_STAFF_EMAIL_COLUMN

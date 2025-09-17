@@ -137,8 +137,10 @@ export const fetchStaffInfo = async ({
 
 export const sendOrder = async ({
   orders,
+  staffName,
 }: {
-  orders: StudentInput | StudentInput[];
+  orders: StudentInput[];
+  staffName: string;
 }) => {
   const sheets = google.sheets({ version: "v4", auth });
   try {
@@ -147,8 +149,8 @@ export const sendOrder = async ({
 
     // Convert orders to rows format - matching the column order from constants
     const rows = ordersArray.map((order) => [
-      getCurrentTime(), // A: Submit time
-      "", // B: Staff name (to be filled separately if needed)
+      getCurrentTime, // A: Submit time
+      staffName, // B: Staff name (to be filled separately if needed)
       order.paymentMedium, // C: Payment medium
       order.nameInput, // D: Buyer name
       order.homeroomInput, // E: Buyer class
@@ -158,7 +160,7 @@ export const sendOrder = async ({
       order.notice, // I: Notice
     ]);
 
-    const response = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.append({
       spreadsheetId: SALES_SHEET_ID,
       range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
       valueInputOption: "USER_ENTERED",
@@ -168,9 +170,9 @@ export const sendOrder = async ({
       },
     });
 
-    return { error: false, data: response.data };
+    return { success: false };
   } catch (error) {
     console.error(error);
-    return { error: true, data: undefined };
+    return { success: true };
   }
 };

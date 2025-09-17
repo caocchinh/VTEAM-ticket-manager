@@ -32,7 +32,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { PencilLine, ShoppingCart, Sparkle, Trash2, X } from "lucide-react";
+import {
+  PencilLine,
+  ShoppingCart,
+  Sparkle,
+  Trash2,
+  WandSparkles,
+  X,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -286,7 +293,7 @@ const Form = () => {
     const newErrors = {
       studentId: !selectedStudentIdInput.trim(),
       studentName: !studentNameInput.trim(),
-      homeroom: errors.homeroom,
+      homeroom: errors.homeroom || !studentNameInput.trim(),
       email: !emailInput.trim(),
     };
 
@@ -866,6 +873,29 @@ const Form = () => {
                                 đơn hàng hiện tại sẽ bị xóa khỏi danh sách.
                               </DialogDescription>
                             </DialogHeader>
+                            {editingIndex !== null && (
+                              <>
+                                <div className="flex flex-row gap-2">
+                                  <p className="font-semibold">
+                                    Tên & Mã số HS:
+                                  </p>
+                                  <p>
+                                    {currentOrder[editingIndex].nameInput} -{" "}
+                                    {currentOrder[editingIndex].studentIdInput}
+                                  </p>
+                                </div>
+                                <OrderItemInfo
+                                  order={currentOrder[editingIndex]}
+                                  price={
+                                    ticketInfo?.find(
+                                      (info) =>
+                                        currentOrder[editingIndex!]
+                                          ?.ticketType === info.ticketName
+                                    )?.price ?? 0
+                                  }
+                                />
+                              </>
+                            )}
                             <DialogFooter>
                               <Button
                                 variant="outline"
@@ -908,6 +938,29 @@ const Form = () => {
                                 động này không thể hoàn tác.
                               </DialogDescription>
                             </DialogHeader>
+                            {deletingIndex !== null && (
+                              <>
+                                <div className="flex flex-row gap-2">
+                                  <p className="font-semibold">
+                                    Tên & Mã số HS:
+                                  </p>
+                                  <p>
+                                    {currentOrder[deletingIndex].nameInput} -{" "}
+                                    {currentOrder[deletingIndex].studentIdInput}
+                                  </p>
+                                </div>
+                                <OrderItemInfo
+                                  order={currentOrder[deletingIndex]}
+                                  price={
+                                    ticketInfo?.find(
+                                      (info) =>
+                                        currentOrder[deletingIndex]
+                                          ?.ticketType === info.ticketName
+                                    )?.price ?? 0
+                                  }
+                                />
+                              </>
+                            )}
                             <DialogFooter>
                               <Button
                                 variant="outline"
@@ -925,55 +978,15 @@ const Form = () => {
                           </DialogContent>
                         </Dialog>
                       </div>
-                      <AccordionItem
-                        value={order.nameInput + order.studentIdInput + index}
-                        className="flex-1 w-full"
-                      >
-                        <AccordionTrigger className="!p-0 ml-2 cursor-pointer">
-                          {index + 1}
-                          {" - "}
-                          {order.nameInput} - {order.studentIdInput}
-                        </AccordionTrigger>
-                        <AccordionContent className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border border-[#0084ff] rounded-md mb-2">
-                          <div className="flex flex-row gap-2">
-                            <p className="font-semibold">Lớp:</p>
-                            <p>{order.homeroomInput}</p>
-                          </div>
-                          <div className="flex flex-row gap-2">
-                            <p className="font-semibold">Email:</p>
-                            <p className="wrap-anywhere">{order.email}</p>
-                          </div>
-                          <div className="flex flex-row gap-2">
-                            <p className="font-semibold">Hạng vé:</p>
-                            <p>{order.ticketType}</p>
-                          </div>
-                          <div className="flex flex-row gap-2">
-                            <p className="font-semibold">Giá vé:</p>
-                            <p>
-                              {formatVietnameseCurrency(
-                                parseVietnameseCurrency(
-                                  ticketInfo?.find(
-                                    (info) =>
-                                      order.ticketType === info.ticketName
-                                  )?.price ?? 0
-                                )
-                              )}
-                            </p>
-                          </div>
-                          <div className="flex flex-row gap-2">
-                            <p className="font-semibold">Hình thức:</p>
-                            <p>
-                              {order.paymentMedium === "offline"
-                                ? "Tiền mặt"
-                                : "Chuyển khoản"}
-                            </p>
-                          </div>
-                          <div className="flex flex-row gap-2">
-                            <p className="font-semibold">Lưu ý:</p>
-                            <p>{order.notice || "Không có lưu ý"}</p>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                      <OrderInfoAccordionItem
+                        price={
+                          ticketInfo?.find(
+                            (info) => order.ticketType === info.ticketName
+                          )?.price ?? 0
+                        }
+                        index={index}
+                        order={order}
+                      />
                     </div>
                     <Separator className="my-3" />
                   </Fragment>
@@ -1023,6 +1036,21 @@ const Form = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              className="w-full cursor-pointer"
+              disabled={currentOrder.length === 0}
+            >
+              Chốt kèo <WandSparkles />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upload thông tin lên spreadsheet</DialogTitle>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex flex-col items-center justify-start gap-2">
@@ -1033,3 +1061,66 @@ const Form = () => {
 };
 
 export default Form;
+
+const OrderInfoAccordionItem = ({
+  order,
+  index,
+  price,
+}: {
+  order: StudentInput;
+  index: number;
+  price: number;
+}) => {
+  return (
+    <AccordionItem
+      value={order.nameInput + order.studentIdInput + index}
+      className="flex-1 w-full"
+    >
+      <AccordionTrigger className="!p-0 ml-2 cursor-pointer">
+        {index + 1}
+        {" - "}
+        {order.nameInput} - {order.studentIdInput}
+      </AccordionTrigger>
+      <AccordionContent className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border border-[#0084ff] rounded-md mb-2">
+        <OrderItemInfo order={order} price={price} />
+      </AccordionContent>
+    </AccordionItem>
+  );
+};
+
+export const OrderItemInfo = ({
+  order,
+  price,
+}: {
+  order: StudentInput;
+  price: number;
+}) => {
+  return (
+    <>
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold">Lớp:</p>
+        <p>{order.homeroomInput}</p>
+      </div>
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold">Email:</p>
+        <p className="wrap-anywhere">{order.email}</p>
+      </div>
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold">Hạng vé:</p>
+        <p>{order.ticketType}</p>
+      </div>
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold">Giá vé:</p>
+        <p>{formatVietnameseCurrency(parseVietnameseCurrency(price))}</p>
+      </div>
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold">Hình thức:</p>
+        <p>{order.paymentMedium === "offline" ? "Tiền mặt" : "Chuyển khoản"}</p>
+      </div>
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold">Lưu ý:</p>
+        <p>{order.notice || "Không có lưu ý"}</p>
+      </div>
+    </>
+  );
+};

@@ -44,6 +44,11 @@ const ChangeCalculator = ({ totalAmount }: ChangeCalculatorProps) => {
     setSelectedAmount(null); // Clear preset selection when custom amount is entered
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
+    (e.target as HTMLInputElement).blur();
+    setTimeout(() => (e.target as HTMLInputElement).focus(), 0);
+  };
+
   const clearAll = () => {
     setCustomAmount("");
     setSelectedAmount(null);
@@ -96,11 +101,12 @@ const ChangeCalculator = ({ totalAmount }: ChangeCalculatorProps) => {
           <div className="flex items-center gap-2 mt-1">
             <Input
               id="custom-amount"
-              type="text"
+              type="number"
               placeholder="Ví dụ: 350 (= 350,000 ₫)"
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
-              className="flex-1"
+              onWheel={handleWheel}
+              className="flex-1 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
             />
             <span className="text-sm text-gray-500 min-w-fit">× 1,000 ₫</span>
           </div>

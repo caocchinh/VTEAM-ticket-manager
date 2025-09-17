@@ -1,3 +1,4 @@
+import "server-only";
 import { google } from "googleapis";
 import {
   STUDENT_LIST_SHEET_ID,
@@ -14,8 +15,10 @@ import {
   SALES_TICKET_INFO_NAME_INDEX,
   SALES_TICKET_INFO_PRICE_INDEX,
   SALES_TICKET_INFO_CLASS_RANGE_INDEX,
+  SALES_ORDER_SHEET_NAME,
 } from "@/constants/constants";
-import { Staff, Student, TicketInfo } from "@/constants/types";
+import { Staff, Student, StudentInput, TicketInfo } from "@/constants/types";
+import { getCurrentTime } from "./utils";
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -126,6 +129,46 @@ export const fetchStaffInfo = async ({
       return { error: false, data: data };
     }
     return { error: true, data: undefined };
+  } catch (error) {
+    console.error(error);
+    return { error: true, data: undefined };
+  }
+};
+
+export const sendOrder = async ({
+  orders,
+}: {
+  orders: StudentInput | StudentInput[];
+}) => {
+  const sheets = google.sheets({ version: "v4", auth });
+  try {
+    // Convert single order to array for consistent handling
+    const ordersArray = Array.isArray(orders) ? orders : [orders];
+
+    // Convert orders to rows format - matching the column order from constants
+    const rows = ordersArray.map((order) => [
+      getCurrentTime(), // A: Submit time
+      "", // B: Staff name (to be filled separately if needed)
+      order.paymentMedium, // C: Payment medium
+      order.nameInput, // D: Buyer name
+      order.homeroomInput, // E: Buyer class
+      order.email, // F: Buyer email
+      order.studentIdInput, // G: Buyer ID
+      order.ticketType, // H: Ticket type
+      order.notice, // I: Notice
+    ]);
+
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId: SALES_SHEET_ID,
+      range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      requestBody: {
+        values: rows,
+      },
+    });
+
+    return { error: false, data: response.data };
   } catch (error) {
     console.error(error);
     return { error: true, data: undefined };

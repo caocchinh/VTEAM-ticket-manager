@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ChangeCalculator from "@/components/ChangeCalculator";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -74,6 +75,7 @@ const Form = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const [noticeInput, setNoticeInput] = useState("");
   const [ticketType, setTicketType] = useState("");
@@ -455,13 +457,8 @@ const Form = () => {
     return 0;
   }, [currentOrder, ticketInfo]);
 
-  // Formatted subtotal for display
-  const formattedSubtotal = useMemo(() => {
-    return formatVietnameseCurrency(orderSubtotal);
-  }, [orderSubtotal]);
-
   return (
-    <div className="flex flex-row items-start justify-around">
+    <div className="flex flex-row items-start justify-center gap-5 mt-2">
       <div className="flex flex-col items-center  gap-2 justify-center">
         <h2 className="font-semibold">Thông tin người mua</h2>
         <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px]">
@@ -831,7 +828,9 @@ const Form = () => {
       <div className="flex flex-col items-center justify-center gap-2">
         <h2 className="font-semibold">Thông tin order</h2>
         <div className="flex flex-col gap-2 w-[400px] border rounded-md shadow-sm p-4">
-          {currentOrder.length === 0 && <h3>Hiện tại chưa có đơn nào!</h3>}
+          {currentOrder.length === 0 && (
+            <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
+          )}
           <ScrollArea className="h-[50vh] pr-4" type="always">
             {currentOrder.length > 0 && (
               <Accordion type="multiple" className="w-full">
@@ -930,7 +929,7 @@ const Form = () => {
                         value={order.nameInput + order.studentIdInput + index}
                         className="flex-1 w-full"
                       >
-                        <AccordionTrigger className="!p-0 ml-2">
+                        <AccordionTrigger className="!p-0 ml-2 cursor-pointer">
                           {index + 1}
                           {" - "}
                           {order.nameInput} - {order.studentIdInput}
@@ -982,10 +981,52 @@ const Form = () => {
               </Accordion>
             )}
           </ScrollArea>
-          <div className="flex flex-row items-center justify-start">
-            <h3>Thành tiền: {formattedSubtotal}</h3>
-          </div>
         </div>
+        <Dialog
+          open={isDeleteAllDialogOpen}
+          onOpenChange={setIsDeleteAllDialogOpen}
+        >
+          <DialogTrigger asChild>
+            <Button
+              variant="destructive"
+              disabled={currentOrder.length === 0}
+              className="cursor-pointer w-full"
+            >
+              Xóa hết order
+              <Trash2 size={8} />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Xác nhận xóa hết tất cả</DialogTitle>
+              <DialogDescription>
+                Bạn có chắc chắn muốn xóa hết order hiện tại này? Hành động này
+                không thể hoàn tác.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteAllDialogOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setCurrentOrders([]);
+                  setIsDeleteAllDialogOpen(false);
+                }}
+              >
+                Xóa hết
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="flex flex-col items-center justify-start gap-2">
+        <ChangeCalculator totalAmount={orderSubtotal} />
       </div>
     </div>
   );

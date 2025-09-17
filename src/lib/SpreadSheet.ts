@@ -6,12 +6,16 @@ import {
   STUDENT_LIST_STUDENT_HOMEROOM_INDEX,
   STUDENT_LIST_STUDENT_ID_INDEX,
   STUDENT_LIST_STUDENT_NAME_INDEX,
-  SALES_INFO_SHEET_ID,
-  SALES_INFO_STAFF_EMAIL_INDEX,
-  SALES_INFO_STAFF_NAME_INDEX,
-  SALES_INFO_STAFF_SHEET_NAME,
+  SALES_SHEET_ID,
+  SALES_STAFF_EMAIL_INDEX,
+  SALES_STAFF_NAME_INDEX,
+  SALES_STAFF_SHEET_NAME,
+  SALES_TICKET_INFO_SHEET_NAME,
+  SALES_TICKET_INFO_NAME_INDEX,
+  SALES_TICKET_INFO_PRICE_INDEX,
+  SALES_TICKET_INFO_CLASS_RANGE_INDEX,
 } from "@/constants/constants";
-import { Staff, Student } from "@/constants/types";
+import { Staff, Student, TicketInfo } from "@/constants/types";
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -58,6 +62,41 @@ export const fetchStudentList = async (): Promise<{
   }
 };
 
+export const fetchTicketInfo = async (): Promise<{
+  error: boolean;
+  data: TicketInfo[] | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SALES_SHEET_ID,
+      range: `${SALES_TICKET_INFO_SHEET_NAME}!A:Z`,
+    });
+    // Ignore the first row
+    const data = response.data.values?.slice(1).map((value) => ({
+      ticketName: value[SALES_TICKET_INFO_NAME_INDEX]
+        ? value[SALES_TICKET_INFO_NAME_INDEX].trim()
+        : "",
+      price: value[SALES_TICKET_INFO_PRICE_INDEX]
+        ? value[SALES_TICKET_INFO_PRICE_INDEX].trim()
+        : "",
+      classRange: value[SALES_TICKET_INFO_CLASS_RANGE_INDEX]
+        ? value[SALES_TICKET_INFO_CLASS_RANGE_INDEX].split(",").map(
+            (_value: string) => parseInt(_value)
+          )
+        : [],
+    }));
+    if (data) {
+      return { error: false, data: data };
+    }
+    return { error: true, data: undefined };
+  } catch (error) {
+    console.error(error);
+    return { error: true, data: undefined };
+  }
+};
+
 export const fetchStaffInfo = async ({
   email,
 }: {
@@ -70,17 +109,17 @@ export const fetchStaffInfo = async ({
 
   try {
     const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SALES_INFO_SHEET_ID,
-      range: `${SALES_INFO_STAFF_SHEET_NAME}!A:Z`,
+      spreadsheetId: SALES_SHEET_ID,
+      range: `${SALES_STAFF_SHEET_NAME}!A:Z`,
     });
     const foundValue = response.data.values?.find(
-      (value) => value[SALES_INFO_STAFF_EMAIL_INDEX] === email
+      (value) => value[SALES_STAFF_EMAIL_INDEX] === email
     );
 
     const data = foundValue
       ? {
           email,
-          name: foundValue[SALES_INFO_STAFF_NAME_INDEX],
+          name: foundValue[SALES_STAFF_NAME_INDEX],
         }
       : undefined;
     if (data) {

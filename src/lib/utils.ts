@@ -243,3 +243,20 @@ export const removeVietnameseAccents = (str: string): string => {
     .join("")
     .toLowerCase();
 };
+
+/**
+ * Extracts the first numerical part from a string
+ * @param str - The input string
+ * @returns The first numerical part as a string, or null if no numerical part is found
+ * @example
+ * extractFirstNumber("12B3") // returns "12"
+ * extractFirstNumber("1232B4221C22") // returns "1232"
+ * extractFirstNumber("ABC123") // returns "123"
+ * extractFirstNumber("ABC") // returns null
+ */
+export const extractFirstNumber = (str: string): number | null => {
+  if (!str) return null;
+
+  const match = str.match(/\d+/);
+  return match ? parseInt(match[0]) : null;
+};

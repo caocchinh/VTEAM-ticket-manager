@@ -6,6 +6,12 @@ export interface Student {
   homeroom: string;
 }
 
+export interface TicketInfo {
+  ticketName: string;
+  price: number;
+  classRange: number[];
+}
+
 export interface StudentInput {
   nameInput: string;
   studentIdInput: string;

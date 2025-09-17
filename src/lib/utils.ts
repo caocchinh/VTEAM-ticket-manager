@@ -260,3 +260,33 @@ export const extractFirstNumber = (str: string): number | null => {
   const match = str.match(/\d+/);
   return match ? parseInt(match[0]) : null;
 };
+
+/**
+ * Parses Vietnamese currency string to number
+ * @param priceStr - The price string like '259,000 ₫'
+ * @returns The numerical value
+ * @example
+ * parseVietnameseCurrency('259,000 ₫') // returns 259000
+ * parseVietnameseCurrency('1,500,000 ₫') // returns 1500000
+ */
+export const parseVietnameseCurrency = (priceStr: string | number): number => {
+  if (typeof priceStr === "number") return priceStr;
+  if (!priceStr) return 0;
+
+  // Remove currency symbol and spaces, then remove commas
+  return parseInt(priceStr.toString().replace(/[₫\s,]/g, "")) || 0;
+};
+
+/**
+ * Formats number to Vietnamese currency string
+ * @param amount - The numerical amount
+ * @returns Formatted currency string
+ * @example
+ * formatVietnameseCurrency(259000) // returns '259,000 ₫'
+ * formatVietnameseCurrency(1500000) // returns '1,500,000 ₫'
+ */
+export const formatVietnameseCurrency = (amount: number): string => {
+  if (!amount && amount !== 0) return "0 ₫";
+
+  return amount.toLocaleString("vi-VN") + " ₫";
+};

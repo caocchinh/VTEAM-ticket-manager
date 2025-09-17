@@ -16,7 +16,13 @@ import {
   NOT_STUDENT_IN_SCHOOL,
 } from "@/constants/constants";
 import { Student, StudentInput, TicketInfo } from "@/constants/types";
-import { cn, extractFirstNumber, removeVietnameseAccents } from "@/lib/utils";
+import {
+  cn,
+  extractFirstNumber,
+  removeVietnameseAccents,
+  parseVietnameseCurrency,
+  formatVietnameseCurrency,
+} from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   Fragment,
@@ -26,7 +32,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { ShoppingCart, Sparkle, Trash2, X } from "lucide-react";
+import { PencilLine, ShoppingCart, Sparkle, Trash2, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -43,6 +49,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -64,6 +71,10 @@ const Form = () => {
     "id" | "name" | "homeroom" | "email"
   >("id");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const [noticeInput, setNoticeInput] = useState("");
   const [ticketType, setTicketType] = useState("");
   const [paymentMedium, setPaymentMedium] = useState<
@@ -234,6 +245,41 @@ const Form = () => {
     setIsDialogOpen(false);
   };
 
+  const handleEditClick = (index: number) => {
+    setEditingIndex(index);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleConfirmEdit = () => {
+    if (editingIndex !== null) {
+      const orderToEdit = currentOrder[editingIndex];
+      setSelectedStudentIdInput(orderToEdit.studentIdInput);
+      setStudentNameInput(orderToEdit.nameInput);
+      setHomeroomInput(orderToEdit.homeroomInput);
+      setEmailInput(orderToEdit.email);
+      setNoticeInput(orderToEdit.notice);
+      setTicketType(orderToEdit.ticketType);
+      setPaymentMedium(orderToEdit.paymentMedium);
+
+      setCurrentOrders((prev) => prev.filter((_, i) => i !== editingIndex));
+    }
+    setIsEditDialogOpen(false);
+    setEditingIndex(null);
+  };
+
+  const handleDeleteClick = (index: number) => {
+    setDeletingIndex(index);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingIndex !== null) {
+      setCurrentOrders((prev) => prev.filter((_, i) => i !== deletingIndex));
+    }
+    setIsDeleteDialogOpen(false);
+    setDeletingIndex(null);
+  };
+
   const validateForm = () => {
     const newErrors = {
       studentId: !selectedStudentIdInput.trim(),
@@ -393,6 +439,26 @@ const Form = () => {
       }
     }
   }, [availableTicketsType, homeroomInput]);
+
+  const orderSubtotal = useMemo(() => {
+    if (currentOrder.length > 0 && ticketInfo) {
+      let subTotal = 0;
+      currentOrder.forEach((order) => {
+        const ticketPrice =
+          ticketInfo.find((info) => order.ticketType === info.ticketName)
+            ?.price ?? 0;
+        const numericPrice = parseVietnameseCurrency(ticketPrice);
+        subTotal += numericPrice;
+      });
+      return subTotal;
+    }
+    return 0;
+  }, [currentOrder, ticketInfo]);
+
+  // Formatted subtotal for display
+  const formattedSubtotal = useMemo(() => {
+    return formatVietnameseCurrency(orderSubtotal);
+  }, [orderSubtotal]);
 
   return (
     <div className="flex flex-row items-start justify-around">
@@ -762,56 +828,163 @@ const Form = () => {
           </Dialog>
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center gap-2">
         <h2 className="font-semibold">Thông tin order</h2>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-[400px] border rounded-md shadow-sm p-4">
           {currentOrder.length === 0 && <h3>Hiện tại chưa có đơn nào!</h3>}
-          {currentOrder.length > 0 && (
-            <div>
+          <ScrollArea className="h-[50vh] pr-4" type="always">
+            {currentOrder.length > 0 && (
               <Accordion type="multiple" className="w-full">
                 {currentOrder.map((order, index) => (
                   <Fragment key={index}>
-                    <AccordionItem
-                      value={order.nameInput + order.studentIdInput + index}
-                    >
-                      <AccordionTrigger>
-                        {index + 1}
-                        {" - "}
-                        {order.nameInput} - {order.studentIdInput}
-                      </AccordionTrigger>
-                      <AccordionContent className="flex flex-col gap-4 text-balance border rounded-md mb-2">
-                        <div className="flex flex-row gap-2">
-                          <p>Lớp:</p>
-                          <p>{order.homeroomInput}</p>
-                        </div>
-                        <div className="flex flex-row gap-2">
-                          <p>Email:</p>
-                          <p>{order.email}</p>
-                        </div>
-                        <div className="flex flex-row gap-2">
-                          <p>Hạng vé:</p>
-                          <p>{order.ticketType}</p>
-                        </div>
-                        <div className="flex flex-row gap-2">
-                          <p>Hình thức:</p>
-                          <p>
-                            {order.paymentMedium === "offline"
-                              ? "Tiền mặt"
-                              : "Chuyển khoản"}
-                          </p>
-                        </div>
-                        <div className="flex flex-row gap-2">
-                          <p>Lưu ý:</p>
-                          <p>{order.notice || "Không có lưu ý"}</p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                    <Separator />
+                    <div className="flex flex-row items-start gap-2">
+                      <div className="flex flex-row gap-1">
+                        <Dialog
+                          open={isEditDialogOpen}
+                          onOpenChange={setIsEditDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <div>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    className="cursor-pointer w-6 h-6"
+                                    onClick={() => handleEditClick(index)}
+                                  >
+                                    <PencilLine size={8} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Sửa</TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Xác nhận chỉnh sửa</DialogTitle>
+                              <DialogDescription>
+                                Bạn có chắc chắn muốn chỉnh sửa đơn hàng này?
+                                Thông tin sẽ được đưa về form để chỉnh sửa và
+                                đơn hàng hiện tại sẽ bị xóa khỏi danh sách.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button
+                                variant="outline"
+                                onClick={() => setIsEditDialogOpen(false)}
+                              >
+                                Hủy
+                              </Button>
+                              <Button onClick={handleConfirmEdit}>
+                                Xác nhận chỉnh sửa
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+
+                        <Dialog
+                          open={isDeleteDialogOpen}
+                          onOpenChange={setIsDeleteDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <div>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="destructive"
+                                    className="cursor-pointer w-6 h-6"
+                                    onClick={() => handleDeleteClick(index)}
+                                  >
+                                    <Trash2 size={8} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Xóa</TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Xác nhận xóa</DialogTitle>
+                              <DialogDescription>
+                                Bạn có chắc chắn muốn xóa đơn hàng này? Hành
+                                động này không thể hoàn tác.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteDialogOpen(false)}
+                              >
+                                Hủy
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={handleConfirmDelete}
+                              >
+                                Xóa đơn hàng
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      <AccordionItem
+                        value={order.nameInput + order.studentIdInput + index}
+                        className="flex-1 w-full"
+                      >
+                        <AccordionTrigger className="!p-0 ml-2">
+                          {index + 1}
+                          {" - "}
+                          {order.nameInput} - {order.studentIdInput}
+                        </AccordionTrigger>
+                        <AccordionContent className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border border-[#0084ff] rounded-md mb-2">
+                          <div className="flex flex-row gap-2">
+                            <p className="font-semibold">Lớp:</p>
+                            <p>{order.homeroomInput}</p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <p className="font-semibold">Email:</p>
+                            <p className="wrap-anywhere">{order.email}</p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <p className="font-semibold">Hạng vé:</p>
+                            <p>{order.ticketType}</p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <p className="font-semibold">Giá vé:</p>
+                            <p>
+                              {formatVietnameseCurrency(
+                                parseVietnameseCurrency(
+                                  ticketInfo?.find(
+                                    (info) =>
+                                      order.ticketType === info.ticketName
+                                  )?.price ?? 0
+                                )
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <p className="font-semibold">Hình thức:</p>
+                            <p>
+                              {order.paymentMedium === "offline"
+                                ? "Tiền mặt"
+                                : "Chuyển khoản"}
+                            </p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <p className="font-semibold">Lưu ý:</p>
+                            <p>{order.notice || "Không có lưu ý"}</p>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </div>
+                    <Separator className="my-3" />
                   </Fragment>
                 ))}
               </Accordion>
-            </div>
-          )}
+            )}
+          </ScrollArea>
+          <div className="flex flex-row items-center justify-start">
+            <h3>Thành tiền: {formattedSubtotal}</h3>
+          </div>
         </div>
       </div>
     </div>

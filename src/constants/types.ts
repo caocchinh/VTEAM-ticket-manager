@@ -18,7 +18,7 @@ export interface StudentInput {
   homeroomInput: string;
   notice: string;
   ticketType: string;
-  paymentMedium: string;
+  paymentMedium: "offline" | "bank transfer";
   email: string;
 }
 

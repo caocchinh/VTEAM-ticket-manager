@@ -23,7 +23,7 @@ export const sendOrderAction = async ({
     }
 
     const result = await sendOrder({ orders, staffName: staffInfo.data.name });
-    return { sucess: result.success };
+    return { success: result.success };
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);

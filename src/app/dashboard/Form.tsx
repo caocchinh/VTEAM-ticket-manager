@@ -22,8 +22,10 @@ import {
   removeVietnameseAccents,
   parseVietnameseCurrency,
   formatVietnameseCurrency,
+  sucessToast,
+  errorToast,
 } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Fragment,
   useCallback,
@@ -33,12 +35,14 @@ import {
   useState,
 } from "react";
 import {
+  Loader2,
   PencilLine,
   ShoppingCart,
   Sparkle,
   Trash2,
   WandSparkles,
   X,
+  Zap,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -66,6 +70,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { sendOrderAction } from "@/server/actions";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -95,8 +100,8 @@ const Form = () => {
   const [noticeInput, setNoticeInput] = useState("");
   const [ticketType, setTicketType] = useState("");
   const [paymentMedium, setPaymentMedium] = useState<
-    "offline" | "bank transfer"
-  >("offline");
+    "Tiền mặt" | "Chuyển khoản"
+  >("Tiền mặt");
   const [
     isConfirmingOrderAlertDialogOpen,
     setIsConfirmingOrderAlertDialogOpen,
@@ -184,7 +189,7 @@ const Form = () => {
     return data.data as Student[];
   };
 
-  const { data: studentList } = useQuery({
+  const { data: studentList, isPending: isStudentListPending } = useQuery({
     queryKey: ["student_list"],
     queryFn: async () => {
       try {
@@ -215,7 +220,7 @@ const Form = () => {
     return data.data as TicketInfo[];
   };
 
-  const { data: ticketInfo } = useQuery({
+  const { data: ticketInfo, isPending: isTicketInfoPending } = useQuery({
     queryKey: ["ticket_info"],
     queryFn: async () => {
       try {
@@ -247,7 +252,7 @@ const Form = () => {
     setEmailAutoCompleteValue("");
     setBestMatchStudentId("");
     setStudentNameInput("");
-    setPaymentMedium("offline");
+    setPaymentMedium("Tiền mặt");
     setHomeroomInput("");
     if (clearNotice) {
       setNoticeInput("");
@@ -476,11 +481,42 @@ const Form = () => {
     return 0;
   }, [currentOrder, ticketInfo]);
 
+  const { mutate: mutateOrder, isPending: isOrderMutating } = useMutation({
+    mutationKey: ["submit_order"],
+    mutationFn: async () => {
+      const result = await sendOrderAction({ orders: currentOrder });
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return true;
+    },
+    onSuccess: () => {
+      clearForm({ clearNotice: true });
+      setCurrentOrders([]);
+      sucessToast({ message: "Chốt deal thành công!" });
+      setIsConfirmingOrderAlertDialogOpen(false);
+    },
+    onError: () => {
+      errorToast({ message: "Chốt deal thất bại, vui lòng thử lại!" });
+    },
+  });
+
   return (
-    <div className="flex flex-row items-start justify-center gap-5 mt-2">
+    <div className="flex flex-row items-start justify-center gap-5 mt-2 flex-wrap">
       <div className="flex flex-col items-center  gap-2 justify-center">
         <h2 className="font-semibold">Điền thông tin người mua</h2>
-        <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px]">
+        <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px] relative">
+          {(isTicketInfoPending || isStudentListPending) && (
+            <div className="absolute w-full h-full bg-black/40 z-[100] top-0 left-0 rounded-md flex items-center justify-center flex-col">
+              <p className="text-white">Đang lấy thông tin từ cơ sở dữ liệu</p>
+              <Loader2
+                className="animate-spin"
+                size={50}
+                color="white"
+                strokeWidth={1}
+              />
+            </div>
+          )}
           <div className="w-full flex flex-col items-start gap-2 ">
             <Label
               htmlFor="student-id"
@@ -755,16 +791,16 @@ const Form = () => {
                 <Label
                   htmlFor="offline"
                   className={cn(
-                    paymentMedium === "offline" && "text-[#0084ff]"
+                    paymentMedium === "Tiền mặt" && "text-[#0084ff]"
                   )}
                 >
                   Tiền mặt
                 </Label>
                 <Checkbox
                   id="offline"
-                  checked={paymentMedium == "offline"}
+                  checked={paymentMedium == "Tiền mặt"}
                   onCheckedChange={() => {
-                    setPaymentMedium("offline");
+                    setPaymentMedium("Tiền mặt");
                   }}
                   className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff]"
                 />
@@ -773,16 +809,16 @@ const Form = () => {
                 <Label
                   htmlFor="bank-transfer"
                   className={cn(
-                    paymentMedium === "bank transfer" && "text-[#0084ff]"
+                    paymentMedium === "Chuyển khoản" && "text-[#0084ff]"
                   )}
                 >
                   Chuyển khoản
                 </Label>
                 <Checkbox
                   id="bank-transfer"
-                  checked={paymentMedium == "bank transfer"}
+                  checked={paymentMedium == "Chuyển khoản"}
                   onCheckedChange={() => {
-                    setPaymentMedium("bank transfer");
+                    setPaymentMedium("Chuyển khoản");
                   }}
                   className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff]"
                 />
@@ -1013,47 +1049,6 @@ const Form = () => {
             )}
           </ScrollArea>
         </div>
-        <Dialog
-          open={isDeleteAllDialogOpen}
-          onOpenChange={setIsDeleteAllDialogOpen}
-        >
-          <DialogTrigger asChild>
-            <Button
-              variant="destructive"
-              disabled={currentOrder.length === 0}
-              className="cursor-pointer w-full"
-            >
-              Xóa hết order
-              <Trash2 size={8} />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Xác nhận xóa hết tất cả</DialogTitle>
-              <DialogDescription>
-                Bạn có chắc chắn muốn xóa hết order hiện tại này? Hành động này
-                không thể hoàn tác.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsDeleteAllDialogOpen(false)}
-              >
-                Hủy
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  setCurrentOrders([]);
-                  setIsDeleteAllDialogOpen(false);
-                }}
-              >
-                Xóa hết
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
         <AlertDialog
           open={isConfirmingOrderAlertDialogOpen}
           onOpenChange={setIsConfirmingOrderAlertDialogOpen}
@@ -1063,7 +1058,7 @@ const Form = () => {
               className="w-full cursor-pointer"
               disabled={currentOrder.length === 0}
             >
-              Chốt kèo <WandSparkles />
+              Chốt deal <WandSparkles />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -1107,6 +1102,7 @@ const Form = () => {
             <DialogFooter>
               <Button
                 className="w-1/2 border cursor-pointer"
+                disabled={isOrderMutating}
                 variant="ghost"
                 onClick={() => {
                   setIsConfirmingOrderAlertDialogOpen(false);
@@ -1115,16 +1111,60 @@ const Form = () => {
                 Hủy
               </Button>
               <Button
+                disabled={isOrderMutating}
                 className="w-1/2 border cursor-pointer"
                 onClick={() => {
-                  setIsConfirmingOrderAlertDialogOpen(false);
+                  mutateOrder();
                 }}
               >
                 Chốt
+                {!isOrderMutating && <Zap />}
+                {isOrderMutating && <Loader2 className="animate-spin" />}
               </Button>
             </DialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <Dialog
+          open={isDeleteAllDialogOpen}
+          onOpenChange={setIsDeleteAllDialogOpen}
+        >
+          <DialogTrigger asChild>
+            <Button
+              variant="destructive"
+              disabled={currentOrder.length === 0}
+              className="cursor-pointer w-full"
+            >
+              Xóa hết order
+              <Trash2 size={8} />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Xác nhận xóa hết tất cả</DialogTitle>
+              <DialogDescription>
+                Bạn có chắc chắn muốn xóa hết order hiện tại này? Hành động này
+                không thể hoàn tác.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteAllDialogOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setCurrentOrders([]);
+                  setIsDeleteAllDialogOpen(false);
+                }}
+              >
+                Xóa hết
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex flex-col items-center justify-start gap-2">
@@ -1189,7 +1229,7 @@ export const OrderItemInfo = ({
       </div>
       <div className="flex flex-row gap-2">
         <p className="font-semibold">Hình thức:</p>
-        <p>{order.paymentMedium === "offline" ? "Tiền mặt" : "Chuyển khoản"}</p>
+        <p>{order.paymentMedium}</p>
       </div>
       <div className="flex flex-row gap-2">
         <p className="font-semibold">Lưu ý:</p>

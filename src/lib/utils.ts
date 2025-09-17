@@ -10,10 +10,16 @@ export const getColumnNumber = (columnLetter: string): number => {
   return columnLetter.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
 };
 
-export const sucessToast = (message: string, description?: string) => {
+export const sucessToast = ({
+  message,
+  description,
+}: {
+  message: string;
+  description?: string;
+}) => {
   toast.success(message, {
     description: description,
-    duration: 6000,
+    duration: 3000,
     style: {
       backgroundColor: "#00a63e",
       color: "white",
@@ -34,13 +40,19 @@ export const sucessToast = (message: string, description?: string) => {
       cursor: "pointer",
     },
     action: {
-      label: "Close",
+      label: "Đóng",
       onClick: () => toast.dismiss(),
     },
   });
 };
 
-export const errorToast = (message: string, description?: string) => {
+export const errorToast = ({
+  message,
+  description,
+}: {
+  message: string;
+  description?: string;
+}) => {
   toast.error(message, {
     description: description,
     duration: 3000,
@@ -64,7 +76,7 @@ export const errorToast = (message: string, description?: string) => {
       cursor: "pointer",
     },
     action: {
-      label: "Close",
+      label: "Đóng",
       onClick: () => toast.dismiss(),
     },
   });

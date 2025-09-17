@@ -149,7 +149,7 @@ export const sendOrder = async ({
 
     // Convert orders to rows format - matching the column order from constants
     const rows = ordersArray.map((order) => [
-      getCurrentTime, // A: Submit time
+      getCurrentTime(), // A: Submit time
       staffName, // B: Staff name (to be filled separately if needed)
       order.paymentMedium, // C: Payment medium
       order.nameInput, // D: Buyer name
@@ -163,16 +163,15 @@ export const sendOrder = async ({
     await sheets.spreadsheets.values.append({
       spreadsheetId: SALES_SHEET_ID,
       range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
-      valueInputOption: "USER_ENTERED",
-      insertDataOption: "INSERT_ROWS",
+      valueInputOption: "RAW",
       requestBody: {
         values: rows,
       },
     });
 
-    return { success: false };
+    return { success: true };
   } catch (error) {
     console.error(error);
-    return { success: true };
+    return { success: false };
   }
 };

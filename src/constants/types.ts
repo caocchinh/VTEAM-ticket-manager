@@ -18,6 +18,7 @@ export interface StudentInput {
   homeroomInput: string;
   notice: string;
   ticketType: string;
+  paymentMedium: string;
 }
 
 export interface Staff {

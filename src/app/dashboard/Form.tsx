@@ -87,6 +87,8 @@ const Form = () => {
         return;
       }
       setErrors((prev) => ({ ...prev, homeroom: false }));
+    } else {
+      setErrors((prev) => ({ ...prev, homeroom: false }));
     }
   }, [homeroomInput]);
 
@@ -241,6 +243,7 @@ const Form = () => {
           homeroomInput: homeroomInput,
           studentIdInput: selectedStudentIdInput,
           notice: noticeInput,
+          paymentMedium: paymentMedium,
           ticketType,
         },
       ]);
@@ -368,7 +371,11 @@ const Form = () => {
     if (availableTicketsType.length > 0) {
       setTicketType(availableTicketsType[0]);
     } else {
-      if (homeroomInput) setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
+      if (homeroomInput) {
+        setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
+      } else {
+        setTicketType("");
+      }
     }
   }, [availableTicketsType, homeroomInput]);
 
@@ -648,7 +655,14 @@ const Form = () => {
             </div>
             <div className="flex flex-col w-full items-center gap-2 justify-center">
               <div className="flex flex-row items-center justify-between gap-1 w-full">
-                <Label htmlFor="offline">Tiền mặt</Label>
+                <Label
+                  htmlFor="offline"
+                  className={cn(
+                    paymentMedium === "offline" && "text-[#0084ff]"
+                  )}
+                >
+                  Tiền mặt
+                </Label>
                 <Checkbox
                   id="offline"
                   checked={paymentMedium == "offline"}
@@ -659,7 +673,14 @@ const Form = () => {
                 />
               </div>
               <div className="flex flex-row items-center justify-between gap-1 w-full">
-                <Label htmlFor="bank-transfer">Chuyển khoản</Label>
+                <Label
+                  htmlFor="bank-transfer"
+                  className={cn(
+                    paymentMedium === "bank transfer" && "text-[#0084ff]"
+                  )}
+                >
+                  Chuyển khoản
+                </Label>
                 <Checkbox
                   id="bank-transfer"
                   checked={paymentMedium == "bank transfer"}

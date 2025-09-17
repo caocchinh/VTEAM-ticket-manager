@@ -16,8 +16,23 @@ import {
   SALES_TICKET_INFO_PRICE_INDEX,
   SALES_TICKET_INFO_CLASS_RANGE_INDEX,
   SALES_ORDER_SHEET_NAME,
+  SALES_ORDER_BUYER_CLASS_INDEX,
+  SALES_ORDER_BUYER_EMAIL_INDEX,
+  SALES_ORDER_BUYER_ID_INDEX,
+  SALES_ORDER_BUYER_NAME_INDEX,
+  SALES_ORDER_MEDIUM_TYPE_INDEX,
+  SALES_ORDER_NOTICE_INDEX,
+  SALES_ORDER_STAFF_NAME_INDEX,
+  SALES_ORDER_SUBMIT_TIME_INDEX,
+  SALES_ORDER_TICKET_TYPE_INDEX,
 } from "@/constants/constants";
-import { Staff, Student, StudentInput, TicketInfo } from "@/constants/types";
+import {
+  SalesInfo,
+  Staff,
+  Student,
+  StudentInput,
+  TicketInfo,
+} from "@/constants/types";
 import { getCurrentTime } from "./utils";
 
 const auth = new google.auth.GoogleAuth({
@@ -173,5 +188,56 @@ export const sendOrder = async ({
   } catch (error) {
     console.error(error);
     return { success: false };
+  }
+};
+
+export const fetchSales = async (): Promise<{
+  error: boolean;
+  data: SalesInfo[] | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SALES_SHEET_ID,
+      range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
+    });
+    // Ignore the first row
+    const data = response.data.values?.slice(1).map((value) => ({
+      time: value[SALES_ORDER_SUBMIT_TIME_INDEX]
+        ? value[SALES_ORDER_SUBMIT_TIME_INDEX].trim()
+        : "",
+      staffName: value[SALES_ORDER_STAFF_NAME_INDEX]
+        ? value[SALES_ORDER_STAFF_NAME_INDEX].trim()
+        : "",
+      paymentMedium: value[SALES_ORDER_MEDIUM_TYPE_INDEX]
+        ? value[SALES_ORDER_MEDIUM_TYPE_INDEX].trim()
+        : "",
+      buyerName: value[SALES_ORDER_BUYER_NAME_INDEX]
+        ? value[SALES_ORDER_BUYER_NAME_INDEX].trim()
+        : "",
+      buyerClass: value[SALES_ORDER_BUYER_CLASS_INDEX]
+        ? value[SALES_ORDER_BUYER_CLASS_INDEX].trim()
+        : "",
+      buyerEmail: value[SALES_ORDER_BUYER_EMAIL_INDEX]
+        ? value[SALES_ORDER_BUYER_EMAIL_INDEX].trim()
+        : "",
+      buyerId: value[SALES_ORDER_BUYER_ID_INDEX]
+        ? value[SALES_ORDER_BUYER_ID_INDEX].trim()
+        : "",
+      buyerTicketType: value[SALES_ORDER_TICKET_TYPE_INDEX]
+        ? value[SALES_ORDER_TICKET_TYPE_INDEX].trim()
+        : "",
+      buyerNotice: value[SALES_ORDER_NOTICE_INDEX]
+        ? value[SALES_ORDER_NOTICE_INDEX].trim()
+        : "",
+    }));
+    if (data) {
+      return { error: false, data: data };
+    }
+    return { error: true, data: undefined };
+  } catch (error) {
+    console.error(error);
+    return { error: true, data: undefined };
   }
 };

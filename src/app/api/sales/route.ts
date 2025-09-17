@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifySession } from "@/dal/verifySession";
-import { fetchStaffInfo, fetchTicketInfo } from "@/lib/SpreadSheet";
+import { fetchSales, fetchStaffInfo } from "@/lib/SpreadSheet";
 
 export async function GET() {
   try {
@@ -16,10 +16,10 @@ export async function GET() {
       return NextResponse.json({});
     }
 
-    const ticketInfo = await fetchTicketInfo();
-    return NextResponse.json(ticketInfo);
+    const studentList = await fetchSales();
+    return NextResponse.json(studentList);
   } catch (error) {
-    console.error("Error fetching ticket info:", error);
+    console.error("Error fetching sales info:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

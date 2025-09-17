@@ -2,17 +2,18 @@
 
 import { useState } from "react";
 import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+
 import { authClient } from "@/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 export function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +35,8 @@ export function LogoutButton() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         <Button
           variant="outline"
           className="flex items-center gap-2 text-sm cursor-pointer"
@@ -55,15 +56,15 @@ export function LogoutButton() {
           </svg>
           Đăng xuất
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Xác nhận đăng xuất</DialogTitle>
-          <DialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Xác nhận đăng xuất</AlertDialogTitle>
+          <AlertDialogDescription>
             Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
@@ -85,8 +86,8 @@ export function LogoutButton() {
               "Đăng xuất"
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

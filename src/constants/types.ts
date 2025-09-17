@@ -26,3 +26,15 @@ export interface Staff {
   email: string;
   name: string;
 }
+
+export interface SalesInfo {
+  time: string;
+  staffName: string;
+  paymentMedium: string;
+  buyerName: string;
+  buyerClass: string;
+  buyerEmail: string;
+  buyerId: string;
+  buyerTicketType: string;
+  buyerNotice: string;
+}

@@ -21,7 +21,13 @@ import {
   NOT_STUDENT_IN_SCHOOL,
   SALES_SHEET_ID,
 } from "@/constants/constants";
-import { Staff, Student, StudentInput, TicketInfo } from "@/constants/types";
+import {
+  SalesInfo,
+  Staff,
+  Student,
+  StudentInput,
+  TicketInfo,
+} from "@/constants/types";
 import {
   cn,
   extractFirstNumber,
@@ -31,7 +37,7 @@ import {
   sucessToast,
   errorToast,
 } from "@/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Fragment,
   useCallback,
@@ -41,6 +47,7 @@ import {
   useState,
 } from "react";
 import {
+  CloudDownload,
   Loader2,
   PencilLine,
   RefreshCcw,
@@ -80,6 +87,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { sendOrderAction } from "@/server/actions";
 import Image from "next/image";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverContent } from "@radix-ui/react-popover";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -529,6 +538,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     return 0;
   }, [currentOrder, ticketInfo]);
 
+  const queryClient = useQueryClient();
   const { mutate: mutateOrder, isPending: isOrderMutating } = useMutation({
     mutationKey: ["submit_order"],
     mutationFn: async () => {
@@ -543,15 +553,70 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       setCurrentOrders([]);
       sucessToast({ message: "Chốt deal thành công!" });
       setIsConfirmingOrderAlertDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["sales_info"] });
     },
     onError: () => {
       errorToast({ message: "Chốt deal thất bại, vui lòng thử lại!" });
     },
   });
 
+  const {
+    data: salesInfo,
+    isFetching: isSalesInfoFetching,
+    isError: isSalesInfoError,
+    refetch: refetchSalesInfo,
+  } = useQuery({
+    queryKey: ["sales_info"],
+    queryFn: async () => {
+      const response = await fetch("/api/sales");
+      if (!response.ok) {
+        throw new Error("Failed to fetch sales info");
+      }
+      const data = await response.json();
+      return data.data as SalesInfo[];
+    },
+    enabled: mounted,
+  });
+
+  const totalSalesAmount = useMemo(() => {
+    if (salesInfo && salesInfo.length > 0 && ticketInfo) {
+      let total = 0;
+      salesInfo.forEach((sale) => {
+        const ticketPrice =
+          ticketInfo.find((info) => sale.buyerTicketType === info.ticketName)
+            ?.price ?? 0;
+        const numericPrice = parseVietnameseCurrency(ticketPrice);
+        total += numericPrice;
+      });
+      return total;
+    }
+    return 0;
+  }, [salesInfo, ticketInfo]);
+
+  const currentStaffStats = useMemo(() => {
+    if (salesInfo && salesInfo.length > 0 && ticketInfo && staffInfo) {
+      let staffRevenue = 0;
+      let staffOrderCount = 0;
+
+      salesInfo.forEach((sale) => {
+        if (sale.staffName === staffInfo.name) {
+          staffOrderCount++;
+          const ticketPrice =
+            ticketInfo.find((info) => sale.buyerTicketType === info.ticketName)
+              ?.price ?? 0;
+          const numericPrice = parseVietnameseCurrency(ticketPrice);
+          staffRevenue += numericPrice;
+        }
+      });
+
+      return { revenue: staffRevenue, orderCount: staffOrderCount };
+    }
+    return { revenue: 0, orderCount: 0 };
+  }, [salesInfo, ticketInfo, staffInfo]);
+
   return (
     <>
-      <div className="flex flex-row mr-auto w-max flex-wrap items-center justify-start gap-4">
+      <div className="flex flex-row m-auto w-max flex-wrap items-center justify-start gap-4">
         <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1 ">
           <div className="flex items-center">
             <div className="relative">
@@ -614,7 +679,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               disabled={isStudentListFetching || isTicketInfoFetching}
             >
               Update thông tin vé & học sinh
-              <RefreshCcw />
+              <CloudDownload />
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -650,8 +715,41 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1">
+          <Popover>
+            <PopoverTrigger className="cursor-pointer">
+              <div className="flex items-center gap-2">
+                <ShoppingCart size={20} className="text-green-600" />
+                <div>
+                  <CardDescription className="text-lg font-semibold text-green-600">
+                    Tổng danh thu {formatVietnameseCurrency(totalSalesAmount)}
+                  </CardDescription>
+                </div>
+              </div>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1">
+                <div className="flex items-center justify-center gap-1 flex-col">
+                  <CardTitle className="text-sm">Doanh thu bạn kiếm </CardTitle>
+
+                  <div className="flex items-center justify-center w-full gap-2">
+                    <Zap size={20} className="text-blue-600" />
+                    <div>
+                      <CardDescription className="text-lg font-semibold text-blue-600">
+                        {formatVietnameseCurrency(currentStaffStats.revenue)}
+                      </CardDescription>
+                      <CardDescription className="text-xs text-gray-500">
+                        {currentStaffStats.orderCount} đơn hàng
+                      </CardDescription>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
-      <div className="flex flex-row items-start justify-center gap-5 mt-2 flex-wrap">
+      <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap">
         <div className="flex flex-col items-center  gap-2 justify-center">
           <h2 className="font-semibold">Điền thông tin người mua</h2>
           <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px] relative">

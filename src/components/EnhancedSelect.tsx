@@ -99,10 +99,7 @@ const EnhancedSelect = ({
               if (selectedValue) {
                 return data?.find((item) => item === selectedValue);
               }
-              if (prerequisite) {
-                return `Select ${prerequisite.toLowerCase()} first`;
-              }
-              return `Select ${label.toLowerCase()}`;
+              return prerequisite;
             })()}
 
             <ChevronsUpDown className="opacity-50" />
@@ -233,7 +230,7 @@ const EnhancedSelectItem = ({
     >
       <Checkbox
         checked={selectedValue === item}
-        className="data-[state=checked]:border-logo-main data-[state=checked]:bg-logo-main data-[state=checked]:text-white dark:data-[state=checked]:border-logo-main dark:data-[state=checked]:bg-logo-main rounded-full"
+        className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] rounded-full"
       />
       {item}
     </CommandItem>

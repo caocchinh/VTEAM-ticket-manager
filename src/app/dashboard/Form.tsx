@@ -27,6 +27,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import EnhancedSelect from "@/components/EnhancedSelect";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getCache, setCache } from "@/drizzle/idb";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -50,6 +52,9 @@ const Form = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [noticeInput, setNoticeInput] = useState("");
   const [ticketType, setTicketType] = useState("");
+  const [paymentMedium, setPaymentMedium] = useState<
+    "offline" | "bank transfer"
+  >("offline");
 
   // State for validation errors
   const [errors, setErrors] = useState({
@@ -122,28 +127,67 @@ const Form = () => {
     return fuzzyMatch || null;
   };
 
+  const fetchStudentList = async () => {
+    const response = await fetch("/api/studentList");
+    if (!response.ok) {
+      throw new Error("Failed to fetch student list");
+    }
+    const data = await response.json();
+    return data.data as Student[];
+  };
+
   const { data: studentList } = useQuery({
     queryKey: ["student_list"],
     queryFn: async () => {
-      const response = await fetch("/api/studentList");
-      if (!response.ok) {
-        throw new Error("Failed to fetch student list");
+      try {
+        const cachedData = await getCache<string>("student_list");
+        if (cachedData) {
+          return JSON.parse(cachedData) as Student[];
+        } else {
+          const freshData = await fetchStudentList();
+          setCache("student_list", JSON.stringify(freshData));
+          return freshData;
+        }
+      } catch (error) {
+        if (error == "Failed to fetch student list") {
+          throw new Error("Failed to fetch student list");
+        }
+        return fetchStudentList();
       }
-      const data = await response.json();
-      return data.data as Student[];
     },
     enabled: mounted,
   });
 
+  const fetchTicketInfo = async () => {
+    const response = await fetch("/api/ticket-info");
+    if (!response.ok) {
+      throw new Error("Failed to fetch ticket info");
+    }
+    const data = await response.json();
+    return data.data as TicketInfo[];
+  };
+
   const { data: ticketInfo } = useQuery({
     queryKey: ["ticket_info"],
     queryFn: async () => {
-      const response = await fetch("/api/ticket-info");
-      if (!response.ok) {
-        throw new Error("Failed to fetch ticket info");
+      try {
+        const cachedData = await getCache<string>("ticket_info");
+        if (cachedData) {
+          return JSON.parse(cachedData) as TicketInfo[];
+        } else {
+          const freshData = await fetchTicketInfo();
+          setCache("ticket_info", JSON.stringify(freshData));
+          return freshData;
+        }
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message === "Failed to fetch ticket info"
+        ) {
+          throw new Error("Failed to fetch ticket info");
+        }
+        return fetchTicketInfo();
       }
-      const data = await response.json();
-      return data.data as TicketInfo[];
     },
     enabled: mounted,
   });
@@ -155,6 +199,7 @@ const Form = () => {
     setEmailAutoCompleteValue("");
     setBestMatchStudentId("");
     setStudentNameInput("");
+    setPaymentMedium("offline");
     setHomeroomInput("");
     if (clearNotice) {
       setNoticeInput("");
@@ -199,7 +244,7 @@ const Form = () => {
           ticketType,
         },
       ]);
-      clearForm({ clearNotice: false });
+      clearForm({ clearNotice: true });
       studentIdInputRef?.current?.focus();
     }
   };
@@ -306,22 +351,26 @@ const Form = () => {
   }, [handleTabKeyPress]);
 
   const availableTicketsType = useMemo(() => {
-    return (
-      ticketInfo
-        ?.filter((value) =>
-          value.classRange.includes(extractFirstNumber(homeroomInput) ?? 0)
-        )
-        .map((value) => value.ticketName) ?? []
-    );
+    if (ticketInfo) {
+      return (
+        ticketInfo
+          ?.filter((value) =>
+            value.classRange.includes(extractFirstNumber(homeroomInput) ?? 0)
+          )
+          .map((value) => value.ticketName) ?? []
+      );
+    } else {
+      return [];
+    }
   }, [homeroomInput, ticketInfo]);
 
   useEffect(() => {
     if (availableTicketsType.length > 0) {
       setTicketType(availableTicketsType[0]);
     } else {
-      setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
+      if (homeroomInput) setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
     }
-  }, [availableTicketsType]);
+  }, [availableTicketsType, homeroomInput]);
 
   return (
     <div className="flex flex-row items-start justify-around">
@@ -567,32 +616,60 @@ const Form = () => {
             </div>
           </div>
 
-          <div className="w-full flex flex-col items-start gap-2 ">
-            <Label
-              htmlFor="ticket-type"
-              className={errors.studentId ? "text-red-500" : ""}
-            >
-              Hạng vé
-            </Label>
-            <EnhancedSelect
-              prerequisite={
-                !!ticketInfo &&
-                homeroomInput &&
-                extractFirstNumber(homeroomInput) &&
-                availableTicketsType.length > 0
-                  ? ""
-                  : "Vui điền lớp"
-              }
-              setSelectedValue={setTicketType}
-              selectedValue={ticketType}
-              side="bottom"
-              label="Hạng vé"
-              data={
-                availableTicketsType.length > 0
-                  ? availableTicketsType
-                  : [INVALID_TICKET_DUE_TO_INVALID_CLASS]
-              }
-            />
+          <div className="flex flex-row items-center justify-between gap-5 w-full">
+            <div className="w-full flex flex-col items-start gap-3 ">
+              <Label
+                htmlFor="ticket-type"
+                className={errors.studentId ? "text-red-500" : ""}
+              >
+                Hạng vé
+              </Label>
+              <EnhancedSelect
+                prerequisite={
+                  !!ticketInfo &&
+                  homeroomInput &&
+                  extractFirstNumber(homeroomInput) &&
+                  availableTicketsType.length > 0
+                    ? ""
+                    : "Vui lòng điền lớp"
+                }
+                setSelectedValue={setTicketType}
+                selectedValue={ticketType}
+                side="bottom"
+                label="Hạng vé"
+                data={
+                  availableTicketsType &&
+                  availableTicketsType.length &&
+                  homeroomInput.length > 0
+                    ? availableTicketsType
+                    : [INVALID_TICKET_DUE_TO_INVALID_CLASS]
+                }
+              />
+            </div>
+            <div className="flex flex-col w-full items-center gap-2 justify-center">
+              <div className="flex flex-row items-center justify-between gap-1 w-full">
+                <Label htmlFor="offline">Tiền mặt</Label>
+                <Checkbox
+                  id="offline"
+                  checked={paymentMedium == "offline"}
+                  onCheckedChange={() => {
+                    setPaymentMedium("offline");
+                  }}
+                  className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff]"
+                />
+              </div>
+              <div className="flex flex-row items-center justify-between gap-1 w-full">
+                <Label htmlFor="bank-transfer">Chuyển khoản</Label>
+                <Checkbox
+                  id="bank-transfer"
+                  checked={paymentMedium == "bank transfer"}
+                  onCheckedChange={() => {
+                    setPaymentMedium("bank transfer");
+                  }}
+                  className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff]"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="w-full flex flex-col items-start gap-2">

@@ -58,6 +58,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChangeCalculator from "@/components/ChangeCalculator";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -89,6 +97,10 @@ const Form = () => {
   const [paymentMedium, setPaymentMedium] = useState<
     "offline" | "bank transfer"
   >("offline");
+  const [
+    isConfirmingOrderAlertDialogOpen,
+    setIsConfirmingOrderAlertDialogOpen,
+  ] = useState(false);
 
   // State for validation errors
   const [errors, setErrors] = useState({
@@ -467,7 +479,7 @@ const Form = () => {
   return (
     <div className="flex flex-row items-start justify-center gap-5 mt-2">
       <div className="flex flex-col items-center  gap-2 justify-center">
-        <h2 className="font-semibold">Thông tin người mua</h2>
+        <h2 className="font-semibold">Điền thông tin người mua</h2>
         <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px]">
           <div className="w-full flex flex-col items-start gap-2 ">
             <Label
@@ -799,7 +811,7 @@ const Form = () => {
             </div>
           </div>
           <Button onClick={handleSubmit} className="w-full cursor-pointer">
-            Thêm vào đơn
+            Thêm vào order
             <ShoppingCart />
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -874,7 +886,7 @@ const Form = () => {
                               </DialogDescription>
                             </DialogHeader>
                             {editingIndex !== null && (
-                              <>
+                              <div className="p-2 border border-[#0084ff] rounded-md">
                                 <div className="flex flex-row gap-2">
                                   <p className="font-semibold">
                                     Tên & Mã số HS:
@@ -894,16 +906,20 @@ const Form = () => {
                                     )?.price ?? 0
                                   }
                                 />
-                              </>
+                              </div>
                             )}
                             <DialogFooter>
                               <Button
                                 variant="outline"
+                                className="cursor-pointer"
                                 onClick={() => setIsEditDialogOpen(false)}
                               >
                                 Hủy
                               </Button>
-                              <Button onClick={handleConfirmEdit}>
+                              <Button
+                                onClick={handleConfirmEdit}
+                                className="cursor-pointer"
+                              >
                                 Xác nhận chỉnh sửa
                               </Button>
                             </DialogFooter>
@@ -939,7 +955,7 @@ const Form = () => {
                               </DialogDescription>
                             </DialogHeader>
                             {deletingIndex !== null && (
-                              <>
+                              <div className="p-2 border border-red-600 rounded-md">
                                 <div className="flex flex-row gap-2">
                                   <p className="font-semibold">
                                     Tên & Mã số HS:
@@ -959,17 +975,19 @@ const Form = () => {
                                     )?.price ?? 0
                                   }
                                 />
-                              </>
+                              </div>
                             )}
                             <DialogFooter>
                               <Button
                                 variant="outline"
+                                className="cursor-pointer"
                                 onClick={() => setIsDeleteDialogOpen(false)}
                               >
                                 Hủy
                               </Button>
                               <Button
                                 variant="destructive"
+                                className="cursor-pointer"
                                 onClick={handleConfirmDelete}
                               >
                                 Xóa đơn hàng
@@ -1036,21 +1054,77 @@ const Form = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <Dialog>
-          <DialogTrigger asChild>
+        <AlertDialog
+          open={isConfirmingOrderAlertDialogOpen}
+          onOpenChange={setIsConfirmingOrderAlertDialogOpen}
+        >
+          <AlertDialogTrigger asChild>
             <Button
               className="w-full cursor-pointer"
               disabled={currentOrder.length === 0}
             >
               Chốt kèo <WandSparkles />
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Upload thông tin lên spreadsheet</DialogTitle>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Lưu thông tin về spreadsheet</AlertDialogTitle>
+              <AlertDialogDescription>
+                Kiểm tra kỹ lại thông tin order nhé!!
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <ScrollArea className="h-[45vh] pr-4" type="always">
+              <Accordion type="multiple">
+                {currentOrder.map((order, index) => (
+                  <Fragment key={index}>
+                    <OrderInfoAccordionItem
+                      price={
+                        ticketInfo?.find(
+                          (info) => order.ticketType === info.ticketName
+                        )?.price ?? 0
+                      }
+                      index={index}
+                      order={order}
+                    />
+                    <div className="my-4"></div>
+                  </Fragment>
+                ))}
+              </Accordion>
+            </ScrollArea>
+            <p className="text-center">
+              Tôi chắc chắn đã nhận đủ{" "}
+              <span className="text-green-700 font-semibold">
+                {" "}
+                {formatVietnameseCurrency(
+                  parseVietnameseCurrency(orderSubtotal)
+                )}
+              </span>{" "}
+              trước khi bấm{" "}
+              <span className="text-red-500 font-semibold">
+                &quot;Chốt&quot;
+              </span>
+            </p>
+            <DialogFooter>
+              <Button
+                className="w-1/2 border cursor-pointer"
+                variant="ghost"
+                onClick={() => {
+                  setIsConfirmingOrderAlertDialogOpen(false);
+                }}
+              >
+                Hủy
+              </Button>
+              <Button
+                className="w-1/2 border cursor-pointer"
+                onClick={() => {
+                  setIsConfirmingOrderAlertDialogOpen(false);
+                }}
+              >
+                Chốt
+              </Button>
+            </DialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="flex flex-col items-center justify-start gap-2">
@@ -1078,7 +1152,7 @@ const OrderInfoAccordionItem = ({
     >
       <AccordionTrigger className="!p-0 ml-2 cursor-pointer">
         {index + 1}
-        {" - "}
+        {": "}
         {order.nameInput} - {order.studentIdInput}
       </AccordionTrigger>
       <AccordionContent className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border border-[#0084ff] rounded-md mb-2">

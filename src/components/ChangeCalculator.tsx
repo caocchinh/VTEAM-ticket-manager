@@ -56,7 +56,7 @@ const ChangeCalculator = ({ totalAmount }: ChangeCalculatorProps) => {
   return (
     <div className="flex flex-col gap-2 items-center justify-center w-[300px]">
       <h2 className="font-semibold flex items-center justify-center gap-2">
-        Tính tiền thối
+        Tính tiền
       </h2>
 
       <div className="flex flex-col gap-4 border shadow-sm rounded-md p-4 w-full">

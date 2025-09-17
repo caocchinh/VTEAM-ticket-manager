@@ -19,6 +19,7 @@ export interface StudentInput {
   notice: string;
   ticketType: string;
   paymentMedium: string;
+  email: string;
 }
 
 export interface Staff {

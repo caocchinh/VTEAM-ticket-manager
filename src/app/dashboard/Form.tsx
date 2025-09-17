@@ -18,7 +18,14 @@ import {
 import { Student, StudentInput, TicketInfo } from "@/constants/types";
 import { cn, extractFirstNumber, removeVietnameseAccents } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ShoppingCart, Sparkle, Trash2, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -29,6 +36,13 @@ import {
 import EnhancedSelect from "@/components/EnhancedSelect";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCache, setCache } from "@/drizzle/idb";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 
 const Form = () => {
   const [mounted, setMounted] = useState(false);
@@ -39,7 +53,7 @@ const Form = () => {
     useState("");
   const [emailAutoCompleteValue, setEmailAutoCompleteValue] = useState("");
   const [bestMatchStudentId, setBestMatchStudentId] = useState("");
-  const [, setCurrentOrders] = useState<StudentInput[]>([]);
+  const [currentOrder, setCurrentOrders] = useState<StudentInput[]>([]);
 
   // State for actual form values (separate from autocomplete preview)
   const [studentNameInput, setStudentNameInput] = useState("");
@@ -245,6 +259,7 @@ const Form = () => {
           notice: noticeInput,
           paymentMedium: paymentMedium,
           ticketType,
+          email: emailInput,
         },
       ]);
       clearForm({ clearNotice: true });
@@ -708,7 +723,7 @@ const Form = () => {
                 className="absolute right-1 top-1 cursor-pointer  text-red-400"
                 size={17}
                 onClick={() => {
-                  setEmailInput("");
+                  setNoticeInput("");
                 }}
               />
             </div>
@@ -748,7 +763,56 @@ const Form = () => {
         </div>
       </div>
       <div className="flex flex-col items-center justify-center">
-        <h3>Đơn hiện tại</h3>
+        <h2 className="font-semibold">Thông tin order</h2>
+        <div className="flex flex-col gap-2">
+          {currentOrder.length === 0 && <h3>Hiện tại chưa có đơn nào!</h3>}
+          {currentOrder.length > 0 && (
+            <div>
+              <Accordion type="multiple" className="w-full">
+                {currentOrder.map((order, index) => (
+                  <Fragment key={index}>
+                    <AccordionItem
+                      value={order.nameInput + order.studentIdInput + index}
+                    >
+                      <AccordionTrigger>
+                        {index + 1}
+                        {" - "}
+                        {order.nameInput} - {order.studentIdInput}
+                      </AccordionTrigger>
+                      <AccordionContent className="flex flex-col gap-4 text-balance border rounded-md mb-2">
+                        <div className="flex flex-row gap-2">
+                          <p>Lớp:</p>
+                          <p>{order.homeroomInput}</p>
+                        </div>
+                        <div className="flex flex-row gap-2">
+                          <p>Email:</p>
+                          <p>{order.email}</p>
+                        </div>
+                        <div className="flex flex-row gap-2">
+                          <p>Hạng vé:</p>
+                          <p>{order.ticketType}</p>
+                        </div>
+                        <div className="flex flex-row gap-2">
+                          <p>Hình thức:</p>
+                          <p>
+                            {order.paymentMedium === "offline"
+                              ? "Tiền mặt"
+                              : "Chuyển khoản"}
+                          </p>
+                        </div>
+                        <div className="flex flex-row gap-2">
+                          <p>Lưu ý:</p>
+                          <p>{order.notice || "Không có lưu ý"}</p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                    <Separator />
+                  </Fragment>
+                ))}
+              </Accordion>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

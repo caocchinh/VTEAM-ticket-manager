@@ -135,6 +135,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     setIsConfirmingOrderAlertDialogOpen,
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
+  const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
   const [isMoneyVisible, setIsMoneyVisible] = useState(true);
 
   // State for validation errors
@@ -494,6 +495,41 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     };
   }, [handleTabKeyPress]);
 
+  // Prevent accidental page refresh/close when there's unsaved data
+  useEffect(() => {
+    const hasUnsavedData =
+      selectedStudentIdInput.trim() ||
+      studentNameInput.trim() ||
+      homeroomInput.trim() ||
+      emailInput.trim() ||
+      noticeInput.trim() ||
+      currentOrder.length > 0;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedData) {
+        e.preventDefault();
+        e.returnValue =
+          "Bạn có dữ liệu chưa được lưu. Bạn có chắc chắn muốn rời khỏi trang?";
+        return e.returnValue;
+      }
+    };
+
+    if (hasUnsavedData) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [
+    selectedStudentIdInput,
+    studentNameInput,
+    homeroomInput,
+    emailInput,
+    noticeInput,
+    currentOrder.length,
+  ]);
+
   const availableTicketsType = useMemo(() => {
     if (ticketInfo) {
       return (
@@ -580,6 +616,24 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       errorToast({ message: "Chốt deal thất bại, vui lòng thử lại!" });
     },
   });
+
+  const { mutate: mutateRefetchSales, isPending: isRefetchingSales } =
+    useMutation({
+      mutationKey: ["refetch_sales"],
+      mutationFn: async () => {
+        await refetchSalesInfo();
+        return true;
+      },
+      onSuccess: () => {
+        sucessToast({ message: "Cập nhật dữ liệu thành công!" });
+      },
+      onError: () => {
+        errorToast({ message: "Cập nhật dữ liệu thất bại!" });
+        if (isStatsDialogOpen) {
+          setIsStatsDialogOpen(false);
+        }
+      },
+    });
 
   const {
     data: salesInfo,
@@ -850,13 +904,13 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             <TooltipContent>Cập nhật dữ liệu</TooltipContent>
           </Tooltip>
         </div>
-        <Dialog>
+        <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
           <Tooltip>
             <TooltipTrigger asChild>
               <DialogTrigger asChild>
                 <Button
                   className="cursor-pointer w-[35px]"
-                  disabled={!salesInfo}
+                  disabled={!salesInfo || isSalesInfoError}
                 >
                   <ChartSpline />
                 </Button>
@@ -864,12 +918,24 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </TooltipTrigger>
             <TooltipContent>Xem thống kê</TooltipContent>
           </Tooltip>
-          <DialogContent className="max-h-[95vh] !max-w-[100vw] w-[90vw]">
+          <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
             <DialogTitle className="sr-only">Thống kế</DialogTitle>
-            <h3 className="text-center font-semibold text-xl uppercase">
-              Có tổng cộng {salesInfo?.length} đơn thành công
-            </h3>
-            <ScrollArea className="h-[80dvh] pr-4 w-full" type="always">
+            <div className="flex items-center justify-center gap-2">
+              <h3 className="text-center font-semibold text-xl uppercase">
+                Tổng {salesInfo?.length} đơn
+              </h3>
+              <Separator orientation="vertical" />
+              <Button
+                onClick={() => mutateRefetchSales()}
+                variant="ghost"
+                className="border border-blac cursor-pointer"
+                disabled={isRefetchingSales || isSalesInfoFetching}
+              >
+                Cập nhật dữ liệu
+                {isRefetchingSales && <Loader2 className="animate-spin " />}
+              </Button>
+            </div>
+            <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
               <div className="flex flex-wrap  items-center justify-center gap-2 w-full">
                 <ClassDistributionBarChart salesInfo={salesInfo} />
                 <TicketDistributionPieChart salesInfo={salesInfo} />
@@ -877,6 +943,15 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 <StaffContributionBarChart salesInfo={salesInfo} />
               </div>
             </ScrollArea>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="w-full cursor-pointer"
+                onClick={() => setIsStatsDialogOpen(false)}
+              >
+                Đóng
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

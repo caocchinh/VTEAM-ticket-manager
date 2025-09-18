@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import { errorToast } from "@/lib/utils";
 
 export function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +29,7 @@ export function LogoutButton() {
       router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
+      errorToast({ message: "Đăng xuất thất bại! Vui lòng thử lại" });
     } finally {
       setIsLoading(false);
       setOpen(false);
@@ -67,6 +69,7 @@ export function LogoutButton() {
         <AlertDialogFooter>
           <Button
             variant="outline"
+            className="cursor-pointer"
             onClick={() => setOpen(false)}
             disabled={isLoading}
           >
@@ -75,7 +78,7 @@ export function LogoutButton() {
           <Button
             onClick={handleLogout}
             disabled={isLoading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer"
           >
             {isLoading ? (
               <>

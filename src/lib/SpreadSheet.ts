@@ -175,7 +175,7 @@ export const sendOrder = async ({
       order.notice, // I: Notice
     ]);
 
-    await sheets.spreadsheets.values.append({
+    const response = await sheets.spreadsheets.values.append({
       spreadsheetId: SALES_SHEET_ID,
       range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
       valueInputOption: "RAW",
@@ -184,7 +184,7 @@ export const sendOrder = async ({
       },
     });
 
-    return { success: true };
+    return { success: response.status === 200 };
   } catch (error) {
     console.error(error);
     return { success: false };

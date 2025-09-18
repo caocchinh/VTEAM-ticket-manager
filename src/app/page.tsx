@@ -14,6 +14,7 @@ import { fetchStaffInfo } from "@/lib/SpreadSheet";
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
+import Beams from "@/components/Beams";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -53,39 +54,53 @@ export default async function HomePage({ searchParams }: HomeProps) {
     : null;
 
   return (
-    <div className="min-h-screen w-full p-6 md:p-10 flex justify-start items-center flex-col gap-6 relative z-10">
-      <div className="flex w-full max-w-md flex-col gap-6">
-        <div className="flex flex-col items-center gap-2 self-center font-medium">
-          <Image
-            src="/assets/logo.webp"
-            alt="VTEAM"
-            width={110}
-            height={110}
-            className="dark:invert"
-          />
-          <h1 className="text-3xl text-center">
-            VTEAM - Vinschool Central Park
-          </h1>
-        </div>
+    <div className="h-screen overflow-hidden w-full flex flex-row justify-between items-center gap-0 relative z-10">
+      <div className="h-screen w-1/2 hidden lg:block">
+        <Beams
+          beamWidth={3}
+          beamHeight={30}
+          beamNumber={5}
+          lightColor="#ffffff"
+          speed={2}
+          noiseIntensity={3}
+          scale={0.2}
+          rotation={30}
+        />
+      </div>
+      <div className=" w-full items-center justify-center lg:w-1/2 p-6">
+        <div className="flex w-full flex-col gap-6 items-center">
+          <div className="flex flex-col items-center gap-2 self-center font-medium">
+            <Image
+              src="/assets/logo.webp"
+              alt="VTEAM"
+              width={110}
+              height={110}
+              className="dark:invert"
+            />
+            <h1 className="text-3xl text-center">
+              VTEAM - Vinschool Central Park
+            </h1>
+          </div>
 
-        <div className="flex flex-col gap-6">
-          {errorMessage && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-600 text-center font-medium">
-                {errorMessage}
-              </p>
-            </div>
-          )}
+          <div className="flex flex-col gap-6 w-[90%]">
+            {errorMessage && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-600 text-center font-medium">
+                  {errorMessage}
+                </p>
+              </div>
+            )}
 
-          <Card className="min-h-[100px]">
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">{greeting.message}</CardTitle>
-              <CardDescription>Staff login</CardDescription>
-            </CardHeader>
-            <CardContent className="flex gap-6 items-center justify-center">
-              <GoogleSignInButton />
-            </CardContent>
-          </Card>
+            <Card className="min-h-[100px]">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl">{greeting.message}</CardTitle>
+                <CardDescription>Staff login</CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-6 items-center justify-center">
+                <GoogleSignInButton />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

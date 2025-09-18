@@ -55,18 +55,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
   return (
     <div className="h-screen overflow-hidden w-full flex flex-row justify-between items-center gap-0 relative z-10">
-      <div className="h-screen w-1/2 hidden lg:block">
-        <Beams
-          beamWidth={3}
-          beamHeight={30}
-          beamNumber={5}
-          lightColor="#ffffff"
-          speed={2}
-          noiseIntensity={3}
-          scale={0.2}
-          rotation={30}
-        />
-      </div>
       <div className=" w-full items-center justify-center lg:w-1/2 p-6">
         <div className="flex w-full flex-col gap-6 items-center">
           <div className="flex flex-col items-center gap-2 self-center font-medium">
@@ -102,6 +90,18 @@ export default async function HomePage({ searchParams }: HomeProps) {
             </Card>
           </div>
         </div>
+      </div>
+      <div className="h-screen w-1/2 hidden lg:block">
+        <Beams
+          beamWidth={3}
+          beamHeight={30}
+          beamNumber={5}
+          lightColor="#ffffff"
+          speed={2}
+          noiseIntensity={3}
+          scale={0.2}
+          rotation={30}
+        />
       </div>
     </div>
   );

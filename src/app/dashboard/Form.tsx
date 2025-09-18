@@ -335,6 +335,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       setPaymentMedium(orderToEdit.paymentMedium);
 
       setCurrentOrders((prev) => prev.filter((_, i) => i !== editingIndex));
+      handleStudentIdChange(orderToEdit.studentIdInput);
     }
     setIsEditDialogOpen(false);
     setEditingIndex(null);
@@ -1468,9 +1469,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   &quot;Chốt&quot;
                 </span>
               </p>
-              <DialogFooter>
+              <DialogFooter className="flex flex-col md:flex-row items-center justify-center gap-2 ">
                 <Button
-                  className="w-1/2 border cursor-pointer"
+                  className="w-full md:w-1/2 border cursor-pointer"
                   disabled={isOrderMutating}
                   variant="ghost"
                   onClick={() => {
@@ -1481,7 +1482,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </Button>
                 <Button
                   disabled={isOrderMutating}
-                  className="w-1/2 border cursor-pointer"
+                  className="w-full md:w-1/2 border cursor-pointer"
                   onClick={() => {
                     mutateOrder();
                   }}

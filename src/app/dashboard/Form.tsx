@@ -48,6 +48,8 @@ import {
 } from "react";
 import {
   CloudDownload,
+  Eye,
+  EyeOff,
   Loader2,
   PencilLine,
   RefreshCcw,
@@ -127,6 +129,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     setIsConfirmingOrderAlertDialogOpen,
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
+  const [isMoneyVisible, setIsMoneyVisible] = useState(true);
 
   // State for validation errors
   const [errors, setErrors] = useState({
@@ -172,6 +175,11 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
 
   useEffect(() => {
     setMounted(true);
+    // Load money visibility preference from localStorage
+    const savedVisibility = localStorage.getItem("moneyVisibility");
+    if (savedVisibility !== null) {
+      setIsMoneyVisible(JSON.parse(savedVisibility));
+    }
   }, []);
 
   // Fuzzy search function to find the best matching student
@@ -275,6 +283,12 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     },
     enabled: mounted,
   });
+
+  const toggleMoneyVisibility = () => {
+    const newVisibility = !isMoneyVisible;
+    setIsMoneyVisible(newVisibility);
+    localStorage.setItem("moneyVisibility", JSON.stringify(newVisibility));
+  };
 
   const clearForm = ({ clearNotice }: { clearNotice: boolean }) => {
     setSelectedStudentIdInput("");
@@ -715,17 +729,46 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1">
+        <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-1 border-1 relative">
+          {isSalesInfoFetching && (
+            <div className="absolute top-0 left-0 flex  w-full h-full rounded-md items-center justify-center bg-black/50 z-[10] text-white gap-2">
+              Đang cập nhật
+              <Loader2 className="animate-spin" />
+            </div>
+          )}
+          {isSalesInfoError && !isSalesInfoFetching && (
+            <div className="absolute top-0 left-0 flex  w-full h-full rounded-md items-center justify-center bg-red-500/70 z-[10] text-white gap-2">
+              <div className="flex items-center justify-center">
+                Lỗi
+                <TriangleAlert />
+              </div>
+              <Button
+                variant="ghost"
+                className="border w-[35px] border-white cursor-pointer"
+                onClick={() => {
+                  refetchSalesInfo();
+                }}
+              >
+                <RefreshCcw />
+              </Button>
+            </div>
+          )}
           <Popover>
-            <PopoverTrigger className="cursor-pointer">
-              <div className="flex items-center gap-2">
+            <PopoverTrigger asChild>
+              <Button
+                className="flex items-center gap-2 bg-transparent hover:bg-transparent cursor-pointer border rounded-sm"
+                disabled={isSalesInfoFetching || isSalesInfoError}
+              >
                 <ShoppingCart size={20} className="text-green-600" />
                 <div>
-                  <CardDescription className="text-lg font-semibold text-green-600">
-                    Tổng danh thu {formatVietnameseCurrency(totalSalesAmount)}
+                  <CardDescription className="text-md font-semibold text-green-600">
+                    Tổng doanh thu{" "}
+                    {isMoneyVisible
+                      ? formatVietnameseCurrency(totalSalesAmount)
+                      : "*****"}
                   </CardDescription>
                 </div>
-              </div>
+              </Button>
             </PopoverTrigger>
             <PopoverContent>
               <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1">
@@ -736,17 +779,55 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                     <Zap size={20} className="text-blue-600" />
                     <div>
                       <CardDescription className="text-lg font-semibold text-blue-600">
-                        {formatVietnameseCurrency(currentStaffStats.revenue)}
+                        {isMoneyVisible
+                          ? formatVietnameseCurrency(currentStaffStats.revenue)
+                          : "*****"}
                       </CardDescription>
                       <CardDescription className="text-xs text-gray-500">
                         {currentStaffStats.orderCount} đơn hàng
                       </CardDescription>
+                      {totalSalesAmount > 0 && (
+                        <CardDescription className="text-xs text-gray-500">
+                          {Math.round(
+                            (currentStaffStats.revenue / totalSalesAmount) * 100
+                          )}
+                          % tổng danh thu
+                        </CardDescription>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             </PopoverContent>
           </Popover>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleMoneyVisibility}
+                className="h-8 w-8 p-0 hover:bg-gray-100"
+              >
+                {isMoneyVisible ? (
+                  <Eye size={16} className="text-gray-600" />
+                ) : (
+                  <EyeOff size={16} className="text-gray-600" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isMoneyVisible ? "Ẩn số tiền" : "Hiện số tiền"}
+            </TooltipContent>
+          </Tooltip>
+          <Button
+            variant="ghost"
+            className="border w-[35px] border-white cursor-pointer -ml-2"
+            onClick={() => {
+              refetchSalesInfo();
+            }}
+          >
+            <RefreshCcw />
+          </Button>
         </div>
       </div>
       <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap">
@@ -754,7 +835,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           <h2 className="font-semibold">Điền thông tin người mua</h2>
           <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px] relative">
             {(isTicketInfoFetching || isStudentListFetching) && (
-              <div className="absolute w-full h-full bg-black/40 z-[100] top-0 left-0 rounded-md flex items-center justify-center flex-col">
+              <div className="absolute w-full h-full bg-black/40 z-[10] top-0 left-0 rounded-md flex items-center justify-center flex-col">
                 <p className="text-white">
                   Đang lấy thông tin từ cơ sở dữ liệu
                 </p>
@@ -1376,9 +1457,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 Tôi chắc chắn đã nhận đủ{" "}
                 <span className="text-green-700 font-semibold">
                   {" "}
-                  {formatVietnameseCurrency(
-                    parseVietnameseCurrency(orderSubtotal)
-                  )}
+                  {formatVietnameseCurrency(orderSubtotal)}
                 </span>{" "}
                 trước khi bấm{" "}
                 <span className="text-red-500 font-semibold">

@@ -48,6 +48,7 @@ import {
 } from "react";
 import {
   Calculator,
+  ChartSpline,
   CloudDownload,
   Eye,
   EyeOff,
@@ -92,6 +93,8 @@ import { sendOrderAction } from "@/server/actions";
 import Image from "next/image";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
+import ClassDistributionBarChart from "@/components/ClassDistributionBarChart";
+import { Tabs } from "@/components/ui/tabs";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -731,7 +734,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-1 border-1 relative">
+        <div className="flex p-2 h-[50px] shadow-sm bg-card rounded-md items-center justify-between gap-1 border-1 relative">
           {isSalesInfoFetching && (
             <div className="absolute top-0 left-0 flex  w-full h-full rounded-md items-center justify-center bg-black/50 z-[10] text-white gap-2">
               Đang cập nhật
@@ -744,15 +747,20 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 Lỗi
                 <TriangleAlert />
               </div>
-              <Button
-                variant="ghost"
-                className="border w-[35px] border-white cursor-pointer"
-                onClick={() => {
-                  refetchSalesInfo();
-                }}
-              >
-                <RefreshCcw />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="border w-[30px] border-white cursor-pointer"
+                    onClick={() => {
+                      refetchSalesInfo();
+                    }}
+                  >
+                    <RefreshCcw />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Thử lại</TooltipContent>
+              </Tooltip>
             </div>
           )}
           <Popover>
@@ -793,7 +801,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                           {Math.round(
                             (currentStaffStats.revenue / totalSalesAmount) * 100
                           )}
-                          % tổng danh thu
+                          % tổng doanh thu
                         </CardDescription>
                       )}
                     </div>
@@ -821,16 +829,37 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               {isMoneyVisible ? "Ẩn số tiền" : "Hiện số tiền"}
             </TooltipContent>
           </Tooltip>
-          <Button
-            variant="ghost"
-            className="border w-[35px] border-white cursor-pointer -ml-2"
-            onClick={() => {
-              refetchSalesInfo();
-            }}
-          >
-            <RefreshCcw />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className="border w-[35px] border-white cursor-pointer -ml-2"
+                onClick={() => {
+                  refetchSalesInfo();
+                }}
+              >
+                <RefreshCcw />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Cập nhật dữ liệu</TooltipContent>
+          </Tooltip>
         </div>
+        <Dialog>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button className="cursor-pointer w-[35px]">
+                  <ChartSpline />
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Xem thống kê</TooltipContent>
+          </Tooltip>
+          <DialogContent>
+            <DialogTitle></DialogTitle>
+            <Tabs></Tabs>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">
         <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">

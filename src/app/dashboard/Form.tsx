@@ -9,6 +9,7 @@ import { truncateText } from "@/lib/utils";
 
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -38,14 +39,7 @@ import {
   errorToast,
 } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Calculator,
   ChartSpline,
@@ -113,7 +107,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   // State for actual form values (separate from autocomplete preview)
   const [studentNameInput, setStudentNameInput] = useState("");
   const [homeroomInput, setHomeroomInput] = useState("");
-  const studentIdInputRef = useRef<HTMLInputElement | null>(null);
   const [emailInput, setEmailInput] = useState("");
   const [whichInputIsBeingFocused, setWhichInputIsBeingFocused] = useState<
     "id" | "name" | "homeroom" | "email"
@@ -390,7 +383,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       ]);
       clearForm({ clearNotice: true });
       setLastValidTicketType("");
-      studentIdInputRef?.current?.focus();
     }
   };
 
@@ -1011,7 +1003,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   onFocus={() => {
                     setWhichInputIsBeingFocused("id");
                   }}
-                  ref={studentIdInputRef}
                   id="student-id"
                   onChange={(e) => {
                     handleStudentIdChange(e.target.value.toUpperCase());
@@ -1634,6 +1625,13 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               <div className="flex-col items-center justify-center w-full flex gap-2 ">
                 <ChangeCalculator totalAmount={orderSubtotal} />
               </div>
+              <DialogFooter className="w-full">
+                <DialogClose asChild>
+                  <Button variant="outline" className="w-full">
+                    Đóng
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
 

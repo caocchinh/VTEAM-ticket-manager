@@ -1,6 +1,7 @@
-/**
- * Generate time-based welcome messages
- */
+"use client";
+
+import { useState, useEffect } from "react";
+import { CardTitle } from "@/components/ui/card";
 
 interface TimeGreeting {
   message: string;
@@ -50,9 +51,6 @@ const greetings = {
   ],
 };
 
-/**
- * Get current time period based on hour
- */
 function getTimePeriod(
   hour: number
 ): "morning" | "afternoon" | "evening" | "night" {
@@ -62,10 +60,7 @@ function getTimePeriod(
   return "night";
 }
 
-/**
- * Get a random greeting for the current time
- */
-export function getTimeBasedGreeting(): TimeGreeting {
+function getTimeBasedGreeting(): TimeGreeting {
   const now = new Date();
   const hour = now.getHours();
   const period = getTimePeriod(hour);
@@ -78,21 +73,18 @@ export function getTimeBasedGreeting(): TimeGreeting {
   };
 }
 
-/**
- * Get a specific greeting by time period
- */
-export function getGreetingByPeriod(
-  period: "morning" | "afternoon" | "evening" | "night"
-): string {
-  const messages = greetings[period];
-  return messages[Math.floor(Math.random() * messages.length)];
-}
+export function ClientGreeting() {
+  const [greeting, setGreeting] = useState<TimeGreeting | null>(null);
 
-/**
- * Get all available greetings for a specific period
- */
-export function getAllGreetingsForPeriod(
-  period: "morning" | "afternoon" | "evening" | "night"
-): string[] {
-  return [...greetings[period]];
+  useEffect(() => {
+    // Set the greeting on the client side to avoid hydration mismatch
+    setGreeting(getTimeBasedGreeting());
+  }, []);
+
+  // Show a fallback while loading to prevent hydration issues
+  if (!greeting) {
+    return <CardTitle className="text-xl">Welcome!</CardTitle>;
+  }
+
+  return <CardTitle className="text-xl">{greeting.message}</CardTitle>;
 }

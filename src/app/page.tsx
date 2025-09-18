@@ -1,11 +1,10 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
-import { getTimeBasedGreeting } from "@/lib/timeGreeting";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { ClientGreeting } from "@/components/ClientGreeting";
 import {
   Card,
   CardHeader,
-  CardTitle,
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
@@ -35,7 +34,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
       redirect(`/?error=${NOT_STAFF_ERROR}`);
     }
   }
-  const greeting = getTimeBasedGreeting();
 
   const getErrorMessage = (error: string) => {
     switch (error) {
@@ -81,7 +79,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
             <Card className="min-h-[100px]">
               <CardHeader className="text-center">
-                <CardTitle className="text-xl">{greeting.message}</CardTitle>
+                <ClientGreeting />
                 <CardDescription>Staff login</CardDescription>
               </CardHeader>
               <CardContent className="flex gap-6 items-center justify-center">

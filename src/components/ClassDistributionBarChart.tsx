@@ -1,6 +1,13 @@
 import { SalesInfo } from "@/constants/types";
 import { useMemo } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -60,11 +67,6 @@ const ClassDistributionBarChart = ({
     return config;
   }, [chartData]) satisfies ChartConfig;
 
-  const totalStudents = chartData.reduce(
-    (sum, item) => sum + item["Học sinh"],
-    0
-  );
-
   if (!salesInfo || salesInfo.length === 0) {
     return (
       <Card>
@@ -77,51 +79,71 @@ const ClassDistributionBarChart = ({
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-[50%] h-max">
       <CardHeader className="pb-3 flex items-center justify-center flex-col">
         <CardTitle className="text-lg text-center">Phân phối lớp</CardTitle>
         <CardDescription className="text-sm text-center">
-          {totalStudents} học sinh • {chartData.length} khối lớp
+          {chartData.length} khối lớp
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0 w-full">
-        <ChartContainer config={chartConfig} className=" w-full">
+        <ChartContainer config={chartConfig} className=" w-full max-h-[250px]">
           <BarChart
             data={chartData}
-            margin={{
-              top: 10,
-              right: 20,
-              left: 15,
-              bottom: chartData.length > 8 ? 40 : 15,
-            }}
             maxBarSize={40}
+            layout="vertical"
+            margin={{
+              left: 60,
+              right: 16,
+              top: 8,
+              bottom: 8,
+            }}
           >
-            <CartesianGrid
-              strokeDasharray="2 2"
-              className="stroke-muted-foreground/10"
-            />
+            <CartesianGrid horizontal={false} />
             <XAxis
-              dataKey="grade"
+              dataKey="Học sinh"
+              type="number"
               tickLine={false}
               tickMargin={6}
               axisLine={false}
+              hide
               className="text-xs"
-              angle={chartData.length > 8 ? -45 : 0}
-              textAnchor={chartData.length > 8 ? "end" : "middle"}
-              height={chartData.length > 8 ? 40 : 25}
             />
             <YAxis
+              type="category"
+              dataKey="grade"
               tickLine={false}
               axisLine={false}
+              hide
               tickMargin={6}
               tickFormatter={(value) => `${value}`}
               className="text-xs"
             />
             <ChartTooltip
-              cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
-              content={<ChartTooltipContent />}
+              cursor={false}
+              content={<ChartTooltipContent indicator="line" />}
             />
-            <Bar dataKey="Học sinh" radius={[6, 6, 0, 0]} strokeWidth={1} />
+            <Bar
+              dataKey="Học sinh"
+              layout="vertical"
+              radius={4}
+              minPointSize={50}
+            >
+              <LabelList
+                dataKey="grade"
+                position="insideLeft"
+                offset={8}
+                className="fill-white"
+                fontSize={12}
+              />
+              <LabelList
+                dataKey="Học sinh"
+                position="right"
+                offset={8}
+                className="fill-foreground"
+                fontSize={12}
+              />
+            </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>

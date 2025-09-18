@@ -27,7 +27,6 @@ import {
   Student,
   StudentInput,
   TicketInfo,
-  ValidChartTabs,
 } from "@/constants/types";
 import {
   cn,
@@ -95,9 +94,9 @@ import Image from "next/image";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
 import ClassDistributionBarChart from "@/components/ClassDistributionBarChart";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
 import TicketDistributionPieChart from "@/components/TicketDistributionPieChart";
-import { AnimatedBackground } from "@/components/ui/animated-background";
+import PaymentDistributionPieChart from "@/components/PaymentDistributionPieChart";
+import StaffContributionBarChart from "@/components/StaffContributionBarChart";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -137,8 +136,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
   const [isMoneyVisible, setIsMoneyVisible] = useState(true);
-  const [currentChartViewTab, setCurrentChartViewTab] =
-    useState<ValidChartTabs>("class distribution");
 
   // State for validation errors
   const [errors, setErrors] = useState({
@@ -864,43 +861,13 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </TooltipTrigger>
             <TooltipContent>Xem thống kê</TooltipContent>
           </Tooltip>
-          <DialogContent className="min-h-[80vh]">
+          <DialogContent className="min-h-[80vh] !max-w-[100vw] w-[90vw] flex ">
             <DialogTitle className="sr-only">Thống kế</DialogTitle>
-            <div className="mt-2 flex h-max w-full flex-wrap items-center justify-start gap-4 sm:flex-nowrap">
-              <AnimatedBackground
-                className=" h-full w-full border-[#0084ff] border-b-2"
-                defaultValue={currentChartViewTab}
-                transition={{
-                  type: "spring",
-                  bounce: 0.1,
-                  duration: 0.3,
-                }}
-                onValueChange={(newValue) => {
-                  setCurrentChartViewTab(newValue as ValidChartTabs);
-                }}
-              >
-                <div
-                  className="cursor-pointer rounded-none bg-transparent p-2 text-primary shadow-none hover:bg-transparent hover:text-primary"
-                  data-id={"class distribution"}
-                >
-                  Phân khối lớp
-                </div>
-                <div
-                  className="cursor-pointer rounded-none bg-transparent p-2 text-primary shadow-none hover:bg-transparent hover:text-primary"
-                  data-id={"ticket distribution"}
-                >
-                  Phân khối vé
-                </div>
-              </AnimatedBackground>
-            </div>
-            <Tabs value={currentChartViewTab}>
-              <TabsContent value="class distribution">
-                <ClassDistributionBarChart salesInfo={salesInfo} />
-              </TabsContent>
-              <TabsContent value="ticket distribution">
-                <TicketDistributionPieChart />
-              </TabsContent>
-            </Tabs>
+
+            <ClassDistributionBarChart salesInfo={salesInfo} />
+            <TicketDistributionPieChart salesInfo={salesInfo} />
+            <PaymentDistributionPieChart salesInfo={salesInfo} />
+            <StaffContributionBarChart salesInfo={salesInfo} />
           </DialogContent>
         </Dialog>
       </div>

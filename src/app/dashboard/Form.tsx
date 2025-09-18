@@ -936,12 +936,18 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               </Button>
             </div>
             <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
-              <div className="flex flex-wrap  items-center justify-center gap-2 w-full">
-                <ClassDistributionBarChart salesInfo={salesInfo} />
-                <TicketDistributionPieChart salesInfo={salesInfo} />
-                <PaymentDistributionPieChart salesInfo={salesInfo} />
-                <StaffContributionBarChart salesInfo={salesInfo} />
-              </div>
+              {salesInfo && salesInfo.length > 0 ? (
+                <div className="flex flex-wrap  items-center justify-center gap-2 w-full">
+                  <ClassDistributionBarChart salesInfo={salesInfo} />
+                  <TicketDistributionPieChart salesInfo={salesInfo} />
+                  <PaymentDistributionPieChart salesInfo={salesInfo} />
+                  <StaffContributionBarChart salesInfo={salesInfo} />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  Không có đủ dữ kiện để trình bày
+                </div>
+              )}
             </ScrollArea>
             <DialogFooter>
               <Button

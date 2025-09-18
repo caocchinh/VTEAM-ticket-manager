@@ -47,6 +47,7 @@ import {
   useState,
 } from "react";
 import {
+  Calculator,
   CloudDownload,
   Eye,
   EyeOff,
@@ -630,7 +631,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
 
   return (
     <>
-      <div className="flex flex-row m-auto w-max flex-wrap items-center justify-start gap-4">
+      <div className="flex flex-row m-auto w-full flex-wrap items-center justify-center gap-4">
         <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1 ">
           <div className="flex items-center">
             <div className="relative">
@@ -830,10 +831,10 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           </Button>
         </div>
       </div>
-      <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap">
-        <div className="flex flex-col items-center  gap-2 justify-center">
+      <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">
+        <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">
           <h2 className="font-semibold">Điền thông tin người mua</h2>
-          <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-[90%] md:w-[420px] relative">
+          <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-full relative">
             {(isTicketInfoFetching || isStudentListFetching) && (
               <div className="absolute w-full h-full bg-black/40 z-[10] top-0 left-0 rounded-md flex items-center justify-center flex-col">
                 <p className="text-white">
@@ -1239,9 +1240,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </Dialog>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex flex-col items-center justify-center gap-2 w-[90%] sm:w-[425px]">
           <h2 className="font-semibold">Thông tin order</h2>
-          <div className="flex flex-col gap-2 w-[400px] border rounded-md shadow-sm p-4">
+          <div className="flex flex-col gap-2 w-full border rounded-md shadow-sm p-4">
             {currentOrder.length === 0 && (
               <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
             )}
@@ -1413,6 +1414,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </Accordion>
               )}
             </ScrollArea>
+            <p className="font-semibold">
+              Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
+            </p>
           </div>
           <AlertDialog
             open={isConfirmingOrderAlertDialogOpen}
@@ -1489,6 +1493,20 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               </DialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          <Dialog>
+            <DialogTrigger asChild className="calculator_dialog_trigger hidden">
+              <Button className="w-full bg-[#0084ff] hover:bg-[#0084ff] cursor-pointer">
+                Tính tiền <Calculator />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="!py-2">
+              <DialogTitle className="sr-only">Tính tiền</DialogTitle>
+              <div className="flex-col items-center justify-center w-full flex gap-2 ">
+                <ChangeCalculator totalAmount={orderSubtotal} />
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Dialog
             open={isDeleteAllDialogOpen}
             onOpenChange={setIsDeleteAllDialogOpen}
@@ -1532,7 +1550,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           </Dialog>
         </div>
 
-        <div className="flex flex-col items-center justify-start gap-2">
+        <div className="flex-col items-center justify-start gap-2 change_calculator">
           <ChangeCalculator totalAmount={orderSubtotal} />
         </div>
       </div>

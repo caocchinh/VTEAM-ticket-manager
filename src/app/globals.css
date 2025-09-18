@@ -120,3 +120,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media (max-width: 1250px) {
+  .change_calculator {
+    display: none;
+  }
+  .calculator_dialog_trigger {
+    display: flex;
+  }
+}

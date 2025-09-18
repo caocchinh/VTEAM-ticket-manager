@@ -1,8 +1,6 @@
 "use client";
 
 import { LabelList, Pie, PieChart } from "recharts";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -64,15 +62,12 @@ export default function PaymentDistributionPieChart({
   }, [chartData]) satisfies ChartConfig;
 
   return (
-    <Card className="flex flex-col w-[50%] h-max">
-      <CardHeader className="items-center pb-0 flex justify-center flex-col">
-        <CardTitle className="text-lg -mb-10">Hình thức</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
+    <div className="flex flex-col w-[90%] md:w-[500px] !p-2">
+      <div className="items-center pb-0 flex justify-center flex-col">
+        <h3 className="text-lg -mb-10">Hình thức</h3>
+      </div>
+      <div className="flex-1 pb-0">
+        <ChartContainer config={chartConfig} className="mx-auto aspect-square ">
           <PieChart>
             <Pie
               data={chartData}
@@ -95,7 +90,7 @@ export default function PaymentDistributionPieChart({
             />
           </PieChart>
         </ChartContainer>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -854,20 +854,29 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <DialogTrigger asChild>
-                <Button className="cursor-pointer w-[35px]">
+                <Button
+                  className="cursor-pointer w-[35px]"
+                  disabled={!salesInfo}
+                >
                   <ChartSpline />
                 </Button>
               </DialogTrigger>
             </TooltipTrigger>
             <TooltipContent>Xem thống kê</TooltipContent>
           </Tooltip>
-          <DialogContent className="min-h-[80vh] !max-w-[100vw] w-[90vw] flex ">
+          <DialogContent className="max-h-[95vh] !max-w-[100vw] w-[90vw]">
             <DialogTitle className="sr-only">Thống kế</DialogTitle>
-
-            <ClassDistributionBarChart salesInfo={salesInfo} />
-            <TicketDistributionPieChart salesInfo={salesInfo} />
-            <PaymentDistributionPieChart salesInfo={salesInfo} />
-            <StaffContributionBarChart salesInfo={salesInfo} />
+            <h3 className="text-center font-semibold text-xl uppercase">
+              Có tổng cộng {salesInfo?.length} đơn thành công
+            </h3>
+            <ScrollArea className="h-[80dvh] pr-4 w-full" type="always">
+              <div className="flex flex-wrap  items-center justify-center gap-2 w-full">
+                <ClassDistributionBarChart salesInfo={salesInfo} />
+                <TicketDistributionPieChart salesInfo={salesInfo} />
+                <PaymentDistributionPieChart salesInfo={salesInfo} />
+                <StaffContributionBarChart salesInfo={salesInfo} />
+              </div>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       </div>

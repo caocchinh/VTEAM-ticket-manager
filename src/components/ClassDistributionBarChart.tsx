@@ -14,13 +14,6 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 const ClassDistributionBarChart = ({
   salesInfo,
@@ -67,27 +60,14 @@ const ClassDistributionBarChart = ({
     return config;
   }, [chartData]) satisfies ChartConfig;
 
-  if (!salesInfo || salesInfo.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Phân phối lớp</CardTitle>
-          <CardDescription>Không có dữ kiện để tạo biểu đồ!</CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="w-[50%] h-max">
-      <CardHeader className="pb-3 flex items-center justify-center flex-col">
-        <CardTitle className="text-lg text-center">Phân phối lớp</CardTitle>
-        <CardDescription className="text-sm text-center">
-          {chartData.length} khối lớp
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-0 w-full">
-        <ChartContainer config={chartConfig} className=" w-full max-h-[250px]">
+    <div className="  w-[90%] md:w-[500px] h-max !p-2">
+      <div className="pb-3 flex items-center justify-center flex-col">
+        <h3 className="text-lg text-center">Phân phối lớp</h3>
+        <p className="text-sm text-center">{chartData.length} khối lớp</p>
+      </div>
+      <div className="pt-0 w-full">
+        <ChartContainer config={chartConfig} className=" w-full ">
           <BarChart
             data={chartData}
             maxBarSize={40}
@@ -146,8 +126,8 @@ const ClassDistributionBarChart = ({
             </Bar>
           </BarChart>
         </ChartContainer>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

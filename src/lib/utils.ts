@@ -17,7 +17,7 @@ export const sucessToast = ({
   message: string;
   description?: string;
 }) => {
-  toast.success(message, {
+  const toastId = toast.success(message, {
     description: description,
     duration: 3000,
     style: {
@@ -33,17 +33,25 @@ export const sucessToast = ({
     actionButtonStyle: {
       backgroundColor: "white",
       color: "black",
+      border: "none",
+      padding: "8px 16px",
       width: "100%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      borderRadius: "4px",
       cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: "500",
+      pointerEvents: "auto",
+      zIndex: 9999,
     },
     action: {
       label: "Đóng",
-      onClick: () => toast.dismiss(),
+      onClick: () => toast.dismiss(toastId),
     },
   });
+  return toastId;
 };
 
 export const errorToast = ({
@@ -53,7 +61,7 @@ export const errorToast = ({
   message: string;
   description?: string;
 }) => {
-  toast.error(message, {
+  const toastId = toast.error(message, {
     description: description,
     duration: 3000,
     style: {
@@ -69,17 +77,25 @@ export const errorToast = ({
     actionButtonStyle: {
       backgroundColor: "white",
       color: "black",
+      border: "none",
+      padding: "8px 16px",
       width: "100%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      borderRadius: "4px",
       cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: "500",
+      pointerEvents: "auto",
+      zIndex: 9999,
     },
     action: {
       label: "Đóng",
-      onClick: () => toast.dismiss(),
+      onClick: () => toast.dismiss(toastId),
     },
   });
+  return toastId;
 };
 
 export const truncateText = (text: string, maxLength: number = 50): string => {

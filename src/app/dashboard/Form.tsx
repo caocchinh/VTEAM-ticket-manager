@@ -27,6 +27,7 @@ import {
   Student,
   StudentInput,
   TicketInfo,
+  ValidChartTabs,
 } from "@/constants/types";
 import {
   cn,
@@ -94,7 +95,9 @@ import Image from "next/image";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
 import ClassDistributionBarChart from "@/components/ClassDistributionBarChart";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import TicketDistributionPieChart from "@/components/TicketDistributionPieChart";
+import { AnimatedBackground } from "@/components/ui/animated-background";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -134,6 +137,8 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
   const [isMoneyVisible, setIsMoneyVisible] = useState(true);
+  const [currentChartViewTab, setCurrentChartViewTab] =
+    useState<ValidChartTabs>("class distribution");
 
   // State for validation errors
   const [errors, setErrors] = useState({
@@ -691,23 +696,27 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           open={isRefreshDialogOpen}
           onOpenChange={setIsRefreshDialogOpen}
         >
-          <DialogTrigger asChild>
-            <Button
-              className="h-[50px] border cursor-pointer"
-              variant="ghost"
-              disabled={isStudentListFetching || isTicketInfoFetching}
-            >
-              Update thông tin vé & học sinh
-              <CloudDownload />
-            </Button>
-          </DialogTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  className="h-[50px] w-[50px] border cursor-pointer"
+                  variant="ghost"
+                  disabled={isStudentListFetching || isTicketInfoFetching}
+                >
+                  <CloudDownload />
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Cập nhật dữ liệu</TooltipContent>
+          </Tooltip>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Xác nhận cập nhật dữ liệu</DialogTitle>
               <DialogDescription>
                 Hành động này sẽ xóa tất cả dữ liệu đã nhập trong phiên làm việc
-                hiện tại và tải lại thông tin mới từ cơ sở dữ liệu. Bạn có chắc
-                chắn muốn tiếp tục?
+                hiện tại và tải lại thông tin mới (danh sách học sinh & thông
+                tin vé) từ cơ sở dữ liệu. Bạn có chắc chắn muốn tiếp tục?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -780,7 +789,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </div>
               </Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent className="bg-white z-[100]">
               <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1">
                 <div className="flex items-center justify-center gap-1 flex-col">
                   <CardTitle className="text-sm">Doanh thu bạn kiếm </CardTitle>
@@ -855,9 +864,43 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             </TooltipTrigger>
             <TooltipContent>Xem thống kê</TooltipContent>
           </Tooltip>
-          <DialogContent>
-            <DialogTitle></DialogTitle>
-            <Tabs></Tabs>
+          <DialogContent className="min-h-[80vh]">
+            <DialogTitle className="sr-only">Thống kế</DialogTitle>
+            <div className="mt-2 flex h-max w-full flex-wrap items-center justify-start gap-4 sm:flex-nowrap">
+              <AnimatedBackground
+                className=" h-full w-full border-[#0084ff] border-b-2"
+                defaultValue={currentChartViewTab}
+                transition={{
+                  type: "spring",
+                  bounce: 0.1,
+                  duration: 0.3,
+                }}
+                onValueChange={(newValue) => {
+                  setCurrentChartViewTab(newValue as ValidChartTabs);
+                }}
+              >
+                <div
+                  className="cursor-pointer rounded-none bg-transparent p-2 text-primary shadow-none hover:bg-transparent hover:text-primary"
+                  data-id={"class distribution"}
+                >
+                  Phân khối lớp
+                </div>
+                <div
+                  className="cursor-pointer rounded-none bg-transparent p-2 text-primary shadow-none hover:bg-transparent hover:text-primary"
+                  data-id={"ticket distribution"}
+                >
+                  Phân khối vé
+                </div>
+              </AnimatedBackground>
+            </div>
+            <Tabs value={currentChartViewTab}>
+              <TabsContent value="class distribution">
+                <ClassDistributionBarChart salesInfo={salesInfo} />
+              </TabsContent>
+              <TabsContent value="ticket distribution">
+                <TicketDistributionPieChart />
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
       </div>

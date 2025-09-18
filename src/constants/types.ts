@@ -38,3 +38,9 @@ export interface SalesInfo {
   buyerTicketType: string;
   buyerNotice: string;
 }
+
+export type ValidChartTabs =
+  | "class distribution"
+  | "staff contribution"
+  | "ticket distribution"
+  | "payment medium distribution";

@@ -42,6 +42,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Calculator,
+  ChartPie,
   ChartSpline,
   CloudDownload,
   Eye,
@@ -91,6 +92,7 @@ import ClassDistributionBarChart from "@/components/ClassDistributionBarChart";
 import TicketDistributionPieChart from "@/components/TicketDistributionPieChart";
 import PaymentDistributionPieChart from "@/components/PaymentDistributionPieChart";
 import StaffContributionBarChart from "@/components/StaffContributionBarChart";
+import SalesSummary from "@/components/SalesSummary";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -129,6 +131,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
+  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [isMoneyVisible, setIsMoneyVisible] = useState(true);
 
   // State for validation errors
@@ -901,10 +904,10 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             <TooltipTrigger asChild>
               <DialogTrigger asChild>
                 <Button
-                  className="cursor-pointer w-[35px]"
+                  className="cursor-pointer w-[35px] -mr-2"
                   disabled={!salesInfo || isSalesInfoError}
                 >
-                  <ChartSpline />
+                  <ChartPie />
                 </Button>
               </DialogTrigger>
             </TooltipTrigger>
@@ -946,6 +949,66 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 variant="outline"
                 className="w-full cursor-pointer"
                 onClick={() => setIsStatsDialogOpen(false)}
+              >
+                Đóng
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={isSummaryDialogOpen}
+          onOpenChange={setIsSummaryDialogOpen}
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  className="cursor-pointer w-[35px] !bg-[#0084ff] !text-white"
+                  disabled={!salesInfo || isSalesInfoError}
+                  variant="outline"
+                >
+                  <ChartSpline />
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Báo cáo doanh thu</TooltipContent>
+          </Tooltip>
+          <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
+            <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>
+            <div className="flex items-center justify-center gap-2">
+              <h3 className="text-center font-semibold text-xl uppercase">
+                Báo cáo doanh thu
+              </h3>
+              <Separator orientation="vertical" />
+              <Button
+                onClick={() => mutateRefetchSales()}
+                variant="ghost"
+                className="border border-black cursor-pointer"
+                disabled={isRefetchingSales || isSalesInfoFetching}
+              >
+                Cập nhật dữ liệu
+                {isRefetchingSales && <Loader2 className="animate-spin " />}
+              </Button>
+            </div>
+            <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
+              {salesInfo && salesInfo.length > 0 && ticketInfo ? (
+                <SalesSummary
+                  salesInfo={salesInfo}
+                  ticketInfo={ticketInfo}
+                  staffName={staffInfo.name}
+                />
+              ) : (
+                <div className="flex items-center justify-center">
+                  Không có đủ dữ kiện để trình bày
+                </div>
+              )}
+            </ScrollArea>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="w-full cursor-pointer"
+                onClick={() => setIsSummaryDialogOpen(false)}
               >
                 Đóng
               </Button>

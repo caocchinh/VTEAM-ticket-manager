@@ -1,5 +1,6 @@
 import "server-only";
 import { google } from "googleapis";
+import { randomUUID } from "crypto";
 import {
   STUDENT_LIST_SHEET_ID,
   STUDENT_LIST_SHEET_NAME,
@@ -34,6 +35,8 @@ import {
   TicketInfo,
 } from "@/constants/types";
 import { getCurrentTime } from "./utils";
+import { db } from "@/drizzle/db";
+import { backUpOrder } from "@/drizzle/schema";
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -174,6 +177,25 @@ export const sendOrder = async ({
       order.ticketType, // H: Ticket type
       order.notice, // I: Notice
     ]);
+
+    try {
+      // Insert backup orders into database
+      const backupData = ordersArray.map((order) => ({
+        id: randomUUID(), // Generate proper UUID
+        staffName: staffName,
+        paymentMedium: order.paymentMedium,
+        buyerName: order.nameInput,
+        email: order.email,
+        studentIdId: order.studentIdInput,
+        ticketType: order.ticketType,
+        notice: order.notice || "",
+      }));
+
+      await db.insert(backUpOrder).values(backupData);
+    } catch (dbError) {
+      console.error("Failed to insert backup order:", dbError);
+      // Continue with Google Sheets insertion even if DB backup fails
+    }
 
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId: SALES_SHEET_ID,

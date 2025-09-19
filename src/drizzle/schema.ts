@@ -62,3 +62,17 @@ export const verification = pgTable("verification", {
     () => /* @__PURE__ */ new Date()
   ),
 });
+
+export const backUpOrder = pgTable("backupOrder", {
+  id: text("id").primaryKey(),
+  staffName: text("staff_name").notNull(),
+  paymentMedium: text("payment_medium").notNull(),
+  buyerName: text("buyer_name").notNull(),
+  email: text("email").notNull(),
+  studentIdId: text("student_id_id").notNull(),
+  ticketType: text("ticket_type").notNull(),
+  notice: text("notice").notNull(),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});

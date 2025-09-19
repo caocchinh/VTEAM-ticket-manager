@@ -195,6 +195,35 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
         console.error("Failed to parse saved ticket colors:", error);
       }
     }
+
+    // Load current order list from localStorage
+    const savedOrderList = localStorage.getItem("currentOrderList");
+    if (savedOrderList) {
+      try {
+        const parsedOrderList = JSON.parse(savedOrderList) as StudentInput[];
+        setCurrentOrders(parsedOrderList);
+      } catch (error) {
+        console.error("Failed to parse saved order list:", error);
+      }
+    }
+
+    // Load form data from localStorage
+    const savedFormData = localStorage.getItem("currentFormData");
+    if (savedFormData) {
+      try {
+        const parsedFormData = JSON.parse(savedFormData);
+        setSelectedStudentIdInput(parsedFormData.selectedStudentIdInput || "");
+        setStudentNameInput(parsedFormData.studentNameInput || "");
+        setHomeroomInput(parsedFormData.homeroomInput || "");
+        setEmailInput(parsedFormData.emailInput || "");
+        setNoticeInput(parsedFormData.noticeInput || "");
+        setTicketType(parsedFormData.ticketType || "");
+        setLastValidTicketType(parsedFormData.lastValidTicketType || "");
+        setPaymentMedium(parsedFormData.paymentMedium || "Tiền mặt");
+      } catch (error) {
+        console.error("Failed to parse saved form data:", error);
+      }
+    }
   }, []);
 
   // Fuzzy search function to find the best matching student
@@ -316,6 +345,79 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     localStorage.removeItem("ticketColors");
   };
 
+  // Save current order list to localStorage whenever it changes
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("currentOrderList", JSON.stringify(currentOrder));
+    }
+  }, [currentOrder, mounted]);
+
+  // Save form data to localStorage whenever any form field changes
+  useEffect(() => {
+    if (mounted) {
+      const formData = {
+        selectedStudentIdInput,
+        studentNameInput,
+        homeroomInput,
+        emailInput,
+        noticeInput,
+        ticketType,
+        lastValidTicketType,
+        paymentMedium,
+      };
+      localStorage.setItem("currentFormData", JSON.stringify(formData));
+    }
+  }, [
+    mounted,
+    selectedStudentIdInput,
+    studentNameInput,
+    homeroomInput,
+    emailInput,
+    noticeInput,
+    ticketType,
+    lastValidTicketType,
+    paymentMedium,
+  ]);
+
+  // Update autocomplete when studentList becomes available or when student ID changes
+
+  const updateAutocompleteValues = useCallback(
+    (value: string, students: Student[]) => {
+      if (!value.trim()) {
+        setStudentNameAutoCompleteValue("");
+        setHomeroomAutoCompleteValue("");
+        setEmailAutoCompleteValue("");
+        setBestMatchStudentId("");
+        return;
+      }
+
+      const bestMatch = findBestMatch(value.trim(), students);
+      if (bestMatch && bestMatch.studentId.includes("VS")) {
+        setStudentNameAutoCompleteValue(bestMatch.name);
+        setHomeroomAutoCompleteValue(bestMatch.homeroom);
+        setBestMatchStudentId(bestMatch.studentId);
+        const numericalValue = bestMatch.studentId.replace(/\D/g, "");
+        const splited = bestMatch.name.split(" ");
+        const lastName = removeVietnameseAccents(splited[splited.length - 1]);
+        setEmailAutoCompleteValue(
+          `${lastName}${numericalValue}@stu.vinschool.edu.vn`
+        );
+      } else {
+        setStudentNameAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
+        setHomeroomAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
+        setEmailAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
+        setBestMatchStudentId("");
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (studentList && mounted) {
+      updateAutocompleteValues(selectedStudentIdInput, studentList);
+    }
+  }, [studentList, selectedStudentIdInput, mounted, updateAutocompleteValues]);
+
   const getTicketColor = (ticketType: string) => {
     // If user has set a custom color, use it
     if (ticketColors[ticketType]) {
@@ -369,6 +471,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       homeroom: false,
       email: false,
     });
+
+    // Clear saved form data from localStorage
+    localStorage.removeItem("currentFormData");
   };
 
   const handleConfirmClear = () => {
@@ -393,7 +498,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       setPaymentMedium(orderToEdit.paymentMedium);
 
       setCurrentOrders((prev) => prev.filter((_, i) => i !== editingIndex));
-      handleStudentIdChange(orderToEdit.studentIdInput);
+      // The autocomplete will be updated by the useEffect when selectedStudentIdInput changes
     }
     setIsEditDialogOpen(false);
     setEditingIndex(null);
@@ -448,33 +553,16 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   const handleStudentIdChange = (value: string) => {
     setSelectedStudentIdInput(value);
 
-    if (studentList && value.trim() && value.toLowerCase()) {
-      const bestMatch = findBestMatch(value.trim(), studentList);
-      if (bestMatch && bestMatch.studentId.includes("VS")) {
-        setStudentNameAutoCompleteValue(bestMatch.name);
-        setHomeroomAutoCompleteValue(bestMatch.homeroom);
-        setBestMatchStudentId(bestMatch.studentId);
-        const numericalValue = bestMatch.studentId.replace(/\D/g, "");
-        const splited = bestMatch.name.split(" ");
-        const lastName = removeVietnameseAccents(splited[splited.length - 1]);
-        setEmailAutoCompleteValue(
-          `${lastName}${numericalValue}@stu.vinschool.edu.vn`
-        );
-      } else {
-        setStudentNameAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
-        setHomeroomAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
-        setEmailAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
-      }
-    } else {
-      if (value.trim() === "") {
-        if (studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL) {
-          clearForm({ clearNotice: false });
-        } else {
-          setStudentNameAutoCompleteValue("");
-          setHomeroomAutoCompleteValue("");
-          setEmailAutoCompleteValue("");
-        }
-      }
+    if (studentList) {
+      updateAutocompleteValues(value, studentList);
+    }
+
+    // Handle clearing form when input is empty
+    if (
+      value.trim() === "" &&
+      studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL
+    ) {
+      clearForm({ clearNotice: false });
     }
   };
 
@@ -659,6 +747,8 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     onSuccess: () => {
       clearForm({ clearNotice: true });
       setCurrentOrders([]);
+      localStorage.removeItem("currentOrderList"); // Clear saved order list after successful submission
+      localStorage.removeItem("currentFormData"); // Clear saved form data after successful submission
       sucessToast({ message: "Chốt deal thành công!" });
       setIsConfirmingOrderAlertDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["sales_info"] });
@@ -837,6 +927,8 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   setIsRefreshDialogOpen(false);
                   clearForm({ clearNotice: true });
                   setCurrentOrders([]);
+                  localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
+                  localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
                 }}
                 disabled={isStudentListFetching || isTicketInfoFetching}
               >
@@ -1814,6 +1906,8 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   variant="destructive"
                   onClick={() => {
                     setCurrentOrders([]);
+                    localStorage.removeItem("currentOrderList"); // Clear saved order list when deleting all
+                    localStorage.removeItem("currentFormData"); // Clear saved form data when deleting all
                     setIsDeleteAllDialogOpen(false);
                   }}
                 >
@@ -1850,7 +1944,7 @@ const OrderInfoAccordionItem = ({
       value={order.nameInput + order.studentIdInput + index}
       className="flex-1 w-full"
     >
-      <AccordionTrigger className="!p-0 ml-2 cursor-pointer flex items-center gap-2">
+      <AccordionTrigger className="!p-0 ml-2 mb-2 cursor-pointer flex items-center gap-2">
         <div className="flex items-center gap-2">
           {ticketColor && (
             <div
@@ -1866,14 +1960,16 @@ const OrderInfoAccordionItem = ({
           </span>
         </div>
       </AccordionTrigger>
-      <AccordionContent
-        className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border rounded-md mb-2"
-        style={{
-          borderColor: ticketColor || "#0084ff",
-          backgroundColor: ticketColor ? `${ticketColor}08` : undefined,
-        }}
-      >
-        <OrderItemInfo order={order} price={price} />
+      <AccordionContent className="p-0">
+        <div
+          className="flex w-full flex-col gap-4 p-2 text-balance border rounded-sm overflow-hidden"
+          style={{
+            borderColor: ticketColor || "#0084ff",
+            backgroundColor: ticketColor ? `${ticketColor}08` : undefined,
+          }}
+        >
+          <OrderItemInfo order={order} price={price} />
+        </div>
       </AccordionContent>
     </AccordionItem>
   );

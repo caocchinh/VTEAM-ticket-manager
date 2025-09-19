@@ -972,7 +972,12 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </Button>
               </DialogTrigger>
             </TooltipTrigger>
-            <TooltipContent>Báo cáo doanh thu</TooltipContent>
+            <TooltipContent
+              className="!bg-[#0084ff] !text-white "
+              arrowClassName="fill-[#0084ff] bg-[#0084ff]"
+            >
+              Báo cáo doanh thu
+            </TooltipContent>
           </Tooltip>
           <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
             <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>

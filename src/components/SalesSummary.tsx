@@ -12,6 +12,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Calendar, TrendingUp, Users, DollarSign, Clock } from "lucide-react";
 import SalesTrendChart from "@/components/SalesTrendChart";
 import {
@@ -35,7 +41,12 @@ interface DailySummary {
   totalOrders: number;
   cashOrders: number;
   transferOrders: number;
+  cashRevenue: number;
+  transferRevenue: number;
   ticketBreakdown: Record<string, number>;
+  ticketRevenueBreakdown: Record<string, number>;
+  cashTicketBreakdown: Record<string, { count: number; revenue: number }>;
+  transferTicketBreakdown: Record<string, { count: number; revenue: number }>;
   staffBreakdown: Record<string, { orders: number; revenue: number }>;
 }
 
@@ -72,6 +83,37 @@ const SalesSummary = ({
     return startDate === expectedStartDate && endDate === expectedEndDate;
   }, [startDate, endDate]);
 
+  // Get date range for all data
+  const allDataRange = useMemo(() => {
+    if (!salesInfo || salesInfo.length === 0) return null;
+
+    const dates = salesInfo
+      .map((sale) => {
+        try {
+          return parse(sale.time, "dd/MM/yyyy HH:mm:ss", new Date());
+        } catch {
+          return null;
+        }
+      })
+      .filter((date): date is Date => date !== null)
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    if (dates.length === 0) return null;
+
+    return {
+      earliest: format(dates[0], "yyyy-MM-dd"),
+      latest: format(dates[dates.length - 1], "yyyy-MM-dd"),
+    };
+  }, [salesInfo]);
+
+  // Check if current date range matches "all data"
+  const isAllData = useMemo(() => {
+    if (!allDataRange) return false;
+    return (
+      startDate === allDataRange.earliest && endDate === allDataRange.latest
+    );
+  }, [startDate, endDate, allDataRange]);
+
   const filteredSales = useMemo(() => {
     if (!salesInfo || !startDate || !endDate) return [];
 
@@ -107,7 +149,12 @@ const SalesSummary = ({
             totalOrders: 0,
             cashOrders: 0,
             transferOrders: 0,
+            cashRevenue: 0,
+            transferRevenue: 0,
             ticketBreakdown: {},
+            ticketRevenueBreakdown: {},
+            cashTicketBreakdown: {},
+            transferTicketBreakdown: {},
             staffBreakdown: {},
           };
         }
@@ -122,18 +169,41 @@ const SalesSummary = ({
         summary.totalRevenue += numericPrice;
         summary.totalOrders += 1;
 
-        // Update payment method counts
-        if (sale.paymentMedium === "Tiền mặt") {
+        // Update payment method counts and revenue
+        const isCash = sale.paymentMedium === "Tiền mặt";
+        if (isCash) {
           summary.cashOrders += 1;
+          summary.cashRevenue += numericPrice;
         } else {
           summary.transferOrders += 1;
+          summary.transferRevenue += numericPrice;
         }
 
-        // Update ticket breakdown
+        // Update ticket breakdown (count)
         if (!summary.ticketBreakdown[sale.buyerTicketType]) {
           summary.ticketBreakdown[sale.buyerTicketType] = 0;
         }
         summary.ticketBreakdown[sale.buyerTicketType] += 1;
+
+        // Update ticket revenue breakdown
+        if (!summary.ticketRevenueBreakdown[sale.buyerTicketType]) {
+          summary.ticketRevenueBreakdown[sale.buyerTicketType] = 0;
+        }
+        summary.ticketRevenueBreakdown[sale.buyerTicketType] += numericPrice;
+
+        // Update payment method specific ticket breakdown
+        const ticketBreakdownKey = isCash
+          ? "cashTicketBreakdown"
+          : "transferTicketBreakdown";
+        if (!summary[ticketBreakdownKey][sale.buyerTicketType]) {
+          summary[ticketBreakdownKey][sale.buyerTicketType] = {
+            count: 0,
+            revenue: 0,
+          };
+        }
+        summary[ticketBreakdownKey][sale.buyerTicketType].count += 1;
+        summary[ticketBreakdownKey][sale.buyerTicketType].revenue +=
+          numericPrice;
 
         // Update staff breakdown
         if (!summary.staffBreakdown[sale.staffName]) {
@@ -210,6 +280,13 @@ const SalesSummary = ({
     setEndDate(format(today, "yyyy-MM-dd"));
   };
 
+  const setAllData = () => {
+    if (allDataRange) {
+      setStartDate(allDataRange.earliest);
+      setEndDate(allDataRange.latest);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Date Range Controls */}
@@ -247,7 +324,7 @@ const SalesSummary = ({
                 variant={isToday ? "default" : "outline"}
                 onClick={setToday}
                 size="sm"
-                className={isToday ? "bg-blue-600 hover:bg-blue-700" : ""}
+                className={isToday ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
               >
                 Hôm nay
               </Button>
@@ -258,6 +335,15 @@ const SalesSummary = ({
                 className={isThisWeek ? "bg-green-600 hover:bg-green-700" : ""}
               >
                 Tuần này
+              </Button>
+              <Button
+                variant={isAllData ? "default" : "outline"}
+                onClick={setAllData}
+                size="sm"
+                disabled={!allDataRange}
+                className={isAllData ? "bg-purple-600 hover:bg-purple-700" : ""}
+              >
+                Tất cả
               </Button>
             </div>
           </div>
@@ -322,7 +408,7 @@ const SalesSummary = ({
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-[#0084ff]">
                   {formatVietnameseCurrency(currentStaffSummary.revenue)}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -385,25 +471,125 @@ const SalesSummary = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
                     <div>
-                      <p className="font-medium mb-1">Hình thức thanh toán:</p>
-                      <p>• Tiền mặt: {day.cashOrders} đơn</p>
-                      <p>• Chuyển khoản: {day.transferOrders} đơn</p>
+                      <p className="font-medium mb-2">Hình thức thanh toán:</p>
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span>• Tiền mặt:</span>
+                          <span className="font-medium">
+                            {formatVietnameseCurrency(day.cashRevenue)} (
+                            {day.cashOrders} đơn)
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>• Chuyển khoản:</span>
+                          <span className="font-medium">
+                            {formatVietnameseCurrency(day.transferRevenue)} (
+                            {day.transferOrders} đơn)
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <div>
-                      <p className="font-medium mb-1">Loại vé bán chạy:</p>
-                      {Object.entries(day.ticketBreakdown)
-                        .sort(([, a], [, b]) => b - a)
-                        .slice(0, 3)
-                        .map(([ticket, count]) => (
-                          <p key={ticket}>
-                            • {ticket}: {count} vé
-                          </p>
-                        ))}
+                      <p className="font-medium mb-2">Tổng quan loại vé:</p>
+                      <div className="space-y-1">
+                        {Object.entries(day.ticketBreakdown)
+                          .sort(([, a], [, b]) => b - a)
+                          .slice(0, 3)
+                          .map(([ticket, count]) => (
+                            <div key={ticket} className="flex justify-between">
+                              <span>• {ticket}:</span>
+                              <span className="font-medium">{count} vé</span>
+                            </div>
+                          ))}
+                      </div>
                     </div>
                   </div>
+
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value={`details-${day.date}`}>
+                      <AccordionTrigger className="text-sm cursor-pointer">
+                        Chi tiết theo loại vé và hình thức thanh toán
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-4">
+                          {/* Cash Payment Details */}
+                          {day.cashRevenue > 0 && (
+                            <div>
+                              <h5 className="font-medium text-sm mb-2 text-green-700">
+                                Tiền mặt -{" "}
+                                {formatVietnameseCurrency(day.cashRevenue)}
+                              </h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {Object.entries(day.cashTicketBreakdown)
+                                  .sort(([, a], [, b]) => b.revenue - a.revenue)
+                                  .map(([ticket, data]) => {
+                                    const ticketPrice =
+                                      ticketInfo.find(
+                                        (info) => ticket === info.ticketName
+                                      )?.price ?? "0";
+                                    return (
+                                      <div
+                                        key={`cash-${ticket}`}
+                                        className="flex justify-between bg-green-50 p-2 rounded"
+                                      >
+                                        <span>
+                                          {ticket} ({ticketPrice}):
+                                        </span>
+                                        <span className="font-medium">
+                                          {formatVietnameseCurrency(
+                                            data.revenue
+                                          )}{" "}
+                                          ({data.count} vé)
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Transfer Payment Details */}
+                          {day.transferRevenue > 0 && (
+                            <div>
+                              <h5 className="font-medium text-sm mb-2 text-blue-700">
+                                Chuyển khoản -{" "}
+                                {formatVietnameseCurrency(day.transferRevenue)}
+                              </h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {Object.entries(day.transferTicketBreakdown)
+                                  .sort(([, a], [, b]) => b.revenue - a.revenue)
+                                  .map(([ticket, data]) => {
+                                    const ticketPrice =
+                                      ticketInfo.find(
+                                        (info) => ticket === info.ticketName
+                                      )?.price ?? "0";
+                                    return (
+                                      <div
+                                        key={`transfer-${ticket}`}
+                                        className="flex justify-between bg-blue-50 p-2 rounded"
+                                      >
+                                        <span>
+                                          {ticket} ({ticketPrice}):
+                                        </span>
+                                        <span className="font-medium">
+                                          {formatVietnameseCurrency(
+                                            data.revenue
+                                          )}{" "}
+                                          ({data.count} vé)
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
 
                   {index < summaryData.length - 1 && (
                     <Separator className="mt-4" />

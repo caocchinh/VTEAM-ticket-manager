@@ -93,6 +93,7 @@ import TicketDistributionPieChart from "@/components/TicketDistributionPieChart"
 import PaymentDistributionPieChart from "@/components/PaymentDistributionPieChart";
 import StaffContributionBarChart from "@/components/StaffContributionBarChart";
 import SalesSummary from "@/components/SalesSummary";
+import TicketColorManager from "@/components/TicketColorManager";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -133,6 +134,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [isMoneyVisible, setIsMoneyVisible] = useState(true);
+  const [ticketColors, setTicketColors] = useState<Record<string, string>>({});
 
   // State for validation errors
   const [errors, setErrors] = useState({
@@ -182,6 +184,16 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     const savedVisibility = localStorage.getItem("moneyVisibility");
     if (savedVisibility !== null) {
       setIsMoneyVisible(JSON.parse(savedVisibility));
+    }
+
+    // Load ticket colors from localStorage
+    const savedColors = localStorage.getItem("ticketColors");
+    if (savedColors) {
+      try {
+        setTicketColors(JSON.parse(savedColors));
+      } catch (error) {
+        console.error("Failed to parse saved ticket colors:", error);
+      }
     }
   }, []);
 
@@ -291,6 +303,50 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     const newVisibility = !isMoneyVisible;
     setIsMoneyVisible(newVisibility);
     localStorage.setItem("moneyVisibility", JSON.stringify(newVisibility));
+  };
+
+  const handleTicketColorChange = (ticketType: string, color: string) => {
+    const newColors = { ...ticketColors, [ticketType]: color };
+    setTicketColors(newColors);
+    localStorage.setItem("ticketColors", JSON.stringify(newColors));
+  };
+
+  const handleResetTicketColors = () => {
+    setTicketColors({});
+    localStorage.removeItem("ticketColors");
+  };
+
+  const getTicketColor = (ticketType: string) => {
+    // If user has set a custom color, use it
+    if (ticketColors[ticketType]) {
+      return ticketColors[ticketType];
+    }
+
+    // Otherwise, generate a consistent default color based on ticket type
+    const defaultColors = [
+      "#3b82f6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#8b5cf6",
+      "#06b6d4",
+      "#84cc16",
+      "#f97316",
+      "#ec4899",
+      "#6b7280",
+    ];
+
+    // Get all unique ticket types from ticketInfo to ensure consistency
+    const uniqueTicketTypes = ticketInfo
+      ? Array.from(
+          new Set(ticketInfo.map((ticket) => ticket.ticketName))
+        ).sort()
+      : [];
+
+    const ticketIndex = uniqueTicketTypes.indexOf(ticketType);
+    return defaultColors[
+      ticketIndex >= 0 ? ticketIndex % defaultColors.length : 0
+    ];
   };
 
   const clearForm = ({ clearNotice }: { clearNotice: boolean }) => {
@@ -1302,12 +1358,22 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
 
             <div className="flex flex-row items-center justify-between gap-5 w-full">
               <div className="w-full flex flex-col items-start gap-3 ">
-                <Label
-                  htmlFor="ticket-type"
-                  className={errors.studentId ? "text-red-500" : ""}
-                >
-                  Hạng vé
-                </Label>
+                <div className="flex items-center gap-2">
+                  <Label
+                    htmlFor="ticket-type"
+                    className={errors.studentId ? "text-red-500" : ""}
+                  >
+                    Hạng vé
+                  </Label>
+                  {ticketType &&
+                    ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS && (
+                      <div
+                        className="w-3 h-3 rounded-full border border-gray-300"
+                        style={{ backgroundColor: getTicketColor(ticketType) }}
+                        title={`Màu cho ${ticketType}`}
+                      />
+                    )}
+                </div>
                 <EnhancedSelect
                   prerequisite={
                     !!ticketInfo &&
@@ -1430,7 +1496,17 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center gap-2 w-[90%] sm:w-[425px]">
-          <h2 className="font-semibold">Thông tin order</h2>
+          <div className="flex items-center justify-between w-full">
+            <h2 className="font-semibold">Thông tin order</h2>
+            {ticketInfo && (
+              <TicketColorManager
+                ticketInfo={ticketInfo}
+                ticketColors={ticketColors}
+                onColorChange={handleTicketColorChange}
+                onResetColors={handleResetTicketColors}
+              />
+            )}
+          </div>
           <div className="flex flex-col gap-2 w-full border rounded-md shadow-sm p-4">
             {currentOrder.length === 0 && (
               <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
@@ -1595,6 +1671,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                           }
                           index={index}
                           order={order}
+                          ticketColor={getTicketColor(order.ticketType)}
                         />
                       </div>
                       <Separator className="my-3" />
@@ -1640,6 +1717,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                         }
                         index={index}
                         order={order}
+                        ticketColor={getTicketColor(order.ticketType)}
                       />
                       <div className="my-4"></div>
                     </Fragment>
@@ -1760,22 +1838,41 @@ const OrderInfoAccordionItem = ({
   order,
   index,
   price,
+  ticketColor,
 }: {
   order: StudentInput;
   index: number;
   price: number;
+  ticketColor?: string;
 }) => {
   return (
     <AccordionItem
       value={order.nameInput + order.studentIdInput + index}
       className="flex-1 w-full"
     >
-      <AccordionTrigger className="!p-0 ml-2 cursor-pointer">
-        {index + 1}
-        {": "}
-        {order.nameInput} - {order.studentIdInput}
+      <AccordionTrigger className="!p-0 ml-2 cursor-pointer flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {ticketColor && (
+            <div
+              className="w-3 h-3 rounded-full border border-gray-300"
+              style={{ backgroundColor: ticketColor }}
+              title={`Màu cho ${order.ticketType}`}
+            />
+          )}
+          <span>
+            {index + 1}
+            {": "}
+            {order.nameInput} - {order.studentIdInput}
+          </span>
+        </div>
       </AccordionTrigger>
-      <AccordionContent className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border border-[#0084ff] rounded-md mb-2">
+      <AccordionContent
+        className="mt-1 flex w-full flex-col gap-4 p-2 text-balance border rounded-md mb-2"
+        style={{
+          borderColor: ticketColor || "#0084ff",
+          backgroundColor: ticketColor ? `${ticketColor}08` : undefined,
+        }}
+      >
         <OrderItemInfo order={order} price={price} />
       </AccordionContent>
     </AccordionItem>

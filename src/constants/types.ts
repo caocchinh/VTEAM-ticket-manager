@@ -27,6 +27,10 @@ export interface Staff {
   name: string;
 }
 
+export interface EventInfo {
+  eventName: string;
+}
+
 export interface SalesInfo {
   time: string;
   staffName: string;

@@ -26,8 +26,10 @@ import {
   SALES_ORDER_STAFF_NAME_INDEX,
   SALES_ORDER_SUBMIT_TIME_INDEX,
   SALES_ORDER_TICKET_TYPE_INDEX,
+  SALES_EVENT_INFO_SHEET_NAME,
 } from "@/constants/constants";
 import {
+  EventInfo,
   SalesInfo,
   Staff,
   Student,
@@ -256,6 +258,28 @@ export const fetchSales = async (): Promise<{
     }));
     if (data) {
       return { error: false, data: data };
+    }
+    return { error: true, data: undefined };
+  } catch (error) {
+    console.error(error);
+    return { error: true, data: undefined };
+  }
+};
+
+export const fetchEventInfo = async (): Promise<{
+  error: boolean;
+  data: EventInfo | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SALES_SHEET_ID,
+      range: `${SALES_EVENT_INFO_SHEET_NAME}!A:Z`,
+    });
+
+    if (response.data.values) {
+      return { error: false, data: response.data.values[1][0] as EventInfo };
     }
     return { error: true, data: undefined };
   } catch (error) {

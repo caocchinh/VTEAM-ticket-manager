@@ -23,6 +23,7 @@ import {
   SALES_SHEET_ID,
 } from "@/constants/constants";
 import {
+  EventInfo,
   SalesInfo,
   Staff,
   Student,
@@ -57,6 +58,9 @@ import {
   WandSparkles,
   X,
   Zap,
+  Banknote,
+  CreditCard,
+  Check,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -65,7 +69,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import EnhancedSelect from "@/components/EnhancedSelect";
-import { Checkbox } from "@/components/ui/checkbox";
 import { deleteCache, getCache, setCache } from "@/drizzle/idb";
 import {
   Accordion,
@@ -94,6 +97,7 @@ import PaymentDistributionPieChart from "@/components/PaymentDistributionPieChar
 import StaffContributionBarChart from "@/components/StaffContributionBarChart";
 import SalesSummary from "@/components/SalesSummary";
 import TicketColorManager from "@/components/TicketColorManager";
+import { TextShimmer } from "@/components/ui/text-shimmer";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -252,6 +256,42 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
 
     return fuzzyMatch || null;
   };
+
+  const fetchEventInfo = async () => {
+    const response = await fetch("/api/event-info");
+    if (!response.ok) {
+      throw new Error("Failed to fetch event information");
+    }
+    const data = await response.json();
+    return { eventName: data.data } as EventInfo;
+  };
+
+  const {
+    data: eventInfo,
+    isFetching: isEventInfoFetching,
+    isError: isEventInfoError,
+    refetch: refetchEventInfo,
+  } = useQuery({
+    queryKey: ["event_info"],
+    queryFn: async () => {
+      try {
+        const cachedData = await getCache<string>("event_info");
+        if (cachedData) {
+          return JSON.parse(cachedData) as EventInfo;
+        } else {
+          const freshData = await fetchEventInfo();
+          await setCache("event_info", JSON.stringify(freshData));
+          return freshData;
+        }
+      } catch (error) {
+        if (error == "Failed to fetch event information") {
+          throw new Error("Failed to fetch  event information");
+        }
+        return fetchEventInfo();
+      }
+    },
+    enabled: mounted,
+  });
 
   const fetchStudentList = async () => {
     const response = await fetch("/api/studentList");
@@ -833,6 +873,49 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   return (
     <>
       <div className="flex flex-row m-auto w-full flex-wrap items-center justify-center gap-4">
+        <div
+          className={cn(
+            "flex p-2 h-[54px]  shadow-sm bg-card border-1 text-white rounded-md items-center gap-3  relative",
+            isEventInfoError && !isEventInfoFetching && "bg-red-500"
+          )}
+        >
+          <div className="flex items-center ">
+            {!isEventInfoError && (
+              <CardTitle className="text-sm flex items-center justify-center">
+                <Image
+                  src="/assets/logo.webp"
+                  width={50}
+                  height={50}
+                  className="-mt-2 -mr-1 -ml-2"
+                  alt="VTEAM Logo"
+                />
+                {isEventInfoFetching ? (
+                  <span className="text-gray-500">
+                    Đang tải thông tin sự kiện...
+                  </span>
+                ) : eventInfo?.eventName ? (
+                  <TextShimmer className="text-sm" duration={5}>
+                    {truncateText(eventInfo.eventName, 30)}
+                  </TextShimmer>
+                ) : null}
+              </CardTitle>
+            )}
+          </div>
+
+          {isEventInfoError && !isEventInfoFetching && (
+            <div className=" w-full h-full  rounded-md flex items-center justify-center gap-2">
+              <p className="text-white text-xs">Lỗi tải thông tin sự kiện</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="border-white border text-white mt-1 cursor-pointer text-xs h-6"
+                onClick={() => refetchEventInfo()}
+              >
+                Thử lại
+              </Button>
+            </div>
+          )}
+        </div>
         <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1 ">
           <div className="flex items-center">
             <div className="relative">
@@ -865,6 +948,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           </div>
           <LogoutButton />
         </div>
+
         <Tooltip>
           <TooltipTrigger asChild>
             <a
@@ -908,7 +992,8 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               <DialogDescription>
                 Hành động này sẽ xóa tất cả dữ liệu đã nhập trong phiên làm việc
                 hiện tại và tải lại thông tin mới (danh sách học sinh & thông
-                tin vé) từ cơ sở dữ liệu. Bạn có chắc chắn muốn tiếp tục?
+                tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có chắc chắn
+                muốn tiếp tục?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -922,7 +1007,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 onClick={async () => {
                   await deleteCache("ticket_info");
                   await deleteCache("student_list");
+                  await deleteCache("event_info");
                   refetchStudentList();
+                  refetchEventInfo();
                   refetchTicketInfo();
                   setIsRefreshDialogOpen(false);
                   clearForm({ clearNotice: true });
@@ -1328,65 +1415,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </Tooltip>
               </div>
             </div>
-            <div className="w-full flex flex-col items-start gap-2">
-              <Label
-                htmlFor="homeroom"
-                className={errors.homeroom ? "text-red-500" : ""}
-              >
-                Lớp
-              </Label>
-              <div className="relative w-full">
-                <Input
-                  id="homeroom"
-                  onFocus={() => {
-                    setWhichInputIsBeingFocused("homeroom");
-                  }}
-                  value={homeroomInput}
-                  onChange={(e) => {
-                    setHomeroomInput(e.target.value.toUpperCase());
-                  }}
-                  placeholder={
-                    homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
-                  }
-                  className={cn(
-                    errors.homeroom
-                      ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-                      : homeroomAutoCompleteValue &&
-                        homeroomAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
-                        homeroomInput === ""
-                      ? "placeholder:text-[#0084ff]  placeholder:opacity-50  "
-                      : "",
-                    "pl-10"
-                  )}
-                />
-                <X
-                  className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
-                  size={17}
-                  onClick={() => {
-                    setHomeroomInput("");
-                  }}
-                />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      disabled={
-                        homeroomAutoCompleteValue === "" ||
-                        homeroomAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
-                        homeroomAutoCompleteValue === homeroomInput
-                      }
-                      onClick={() => {
-                        setHomeroomInput(homeroomAutoCompleteValue);
-                      }}
-                      tabIndex={-1}
-                      className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
-                    >
-                      <Sparkle size={8} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Autocomplete lớp</TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
 
             <div className="w-full flex flex-col items-start gap-2">
               <Label
@@ -1447,8 +1475,66 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </Tooltip>
               </div>
             </div>
-
-            <div className="flex flex-row items-center justify-between gap-5 w-full">
+            <div className="flex flex-row items-center justify-between gap-2">
+              <div className="w-full flex flex-col items-start gap-2">
+                <Label
+                  htmlFor="homeroom"
+                  className={errors.homeroom ? "text-red-500" : ""}
+                >
+                  Lớp
+                </Label>
+                <div className="relative w-full">
+                  <Input
+                    id="homeroom"
+                    onFocus={() => {
+                      setWhichInputIsBeingFocused("homeroom");
+                    }}
+                    value={homeroomInput}
+                    onChange={(e) => {
+                      setHomeroomInput(e.target.value.toUpperCase());
+                    }}
+                    placeholder={
+                      homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
+                    }
+                    className={cn(
+                      errors.homeroom
+                        ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+                        : homeroomAutoCompleteValue &&
+                          homeroomAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
+                          homeroomInput === ""
+                        ? "placeholder:text-[#0084ff]  placeholder:opacity-50  "
+                        : "",
+                      "pl-10"
+                    )}
+                  />
+                  <X
+                    className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
+                    size={17}
+                    onClick={() => {
+                      setHomeroomInput("");
+                    }}
+                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        disabled={
+                          homeroomAutoCompleteValue === "" ||
+                          homeroomAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
+                          homeroomAutoCompleteValue === homeroomInput
+                        }
+                        onClick={() => {
+                          setHomeroomInput(homeroomAutoCompleteValue);
+                        }}
+                        tabIndex={-1}
+                        className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
+                      >
+                        <Sparkle size={8} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Autocomplete lớp</TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
               <div className="w-full flex flex-col items-start gap-3 ">
                 <div className="flex items-center gap-2">
                   <Label
@@ -1488,44 +1574,106 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   }
                 />
               </div>
-              <div className="flex flex-col w-full items-center gap-2 justify-center">
-                <div className="flex flex-row items-center justify-between gap-1 w-full">
-                  <Label
-                    htmlFor="offline"
-                    className={cn(
-                      paymentMedium === "Tiền mặt" && "text-[#0084ff]",
-                      "cursor-pointer"
-                    )}
-                  >
-                    Tiền mặt
-                  </Label>
-                  <Checkbox
-                    id="offline"
-                    checked={paymentMedium == "Tiền mặt"}
-                    onCheckedChange={() => {
-                      setPaymentMedium("Tiền mặt");
-                    }}
-                    className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] cursor-pointer"
+            </div>
+
+            <div className="flex flex-col w-full items-center gap-3 justify-center">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 self-start">
+                Phương thức thanh toán
+              </Label>
+              <div className="flex flex-row gap-3 w-full">
+                <div
+                  className={cn(
+                    "relative flex w-1/2 items-center justify-center p-2 rounded-lg border-2 transition-all duration-200 cursor-pointer hover:shadow-md",
+                    paymentMedium === "Tiền mặt"
+                      ? "border-[#0084ff] bg-[#0084ff]/5 shadow-sm"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                  )}
+                  onClick={() => setPaymentMedium("Tiền mặt")}
+                >
+                  <div className="flex flex-row items-center gap-2">
+                    <div
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center",
+                        paymentMedium === "Tiền mặt"
+                          ? "bg-[#0084ff] text-white"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                      )}
+                    >
+                      <Banknote className="w-4 h-4" />
+                    </div>
+                    <Label
+                      htmlFor="cash-payment"
+                      className={cn(
+                        "text-sm font-medium cursor-pointer transition-colors",
+                        paymentMedium === "Tiền mặt"
+                          ? "text-[#0084ff]"
+                          : "text-gray-700 dark:text-gray-300"
+                      )}
+                    >
+                      Tiền mặt
+                    </Label>
+                  </div>
+                  <input
+                    type="radio"
+                    id="cash-payment"
+                    name="payment-method"
+                    checked={paymentMedium === "Tiền mặt"}
+                    onChange={() => setPaymentMedium("Tiền mặt")}
+                    className="absolute opacity-0  cursor-pointer"
+                    aria-label="Thanh toán bằng tiền mặt"
                   />
+                  {paymentMedium === "Tiền mặt" && (
+                    <div className="absolute top-2 right-2 w-4 h-4 bg-[#0084ff] rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                  )}
                 </div>
-                <div className="flex flex-row items-center justify-between gap-1 w-full">
-                  <Label
-                    htmlFor="bank-transfer"
-                    className={cn(
-                      paymentMedium === "Chuyển khoản" && "text-[#0084ff]",
-                      "cursor-pointer"
-                    )}
-                  >
-                    Chuyển khoản
-                  </Label>
-                  <Checkbox
+
+                <div
+                  className={cn(
+                    "relative flex w-1/2 items-center justify-center p-2 rounded-lg border-2 transition-all duration-200 cursor-pointer hover:shadow-md",
+                    paymentMedium === "Chuyển khoản"
+                      ? "border-[#0084ff] bg-[#0084ff]/5 shadow-sm"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                  )}
+                  onClick={() => setPaymentMedium("Chuyển khoản")}
+                >
+                  <div className="flex flex-row items-center gap-2">
+                    <div
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center",
+                        paymentMedium === "Chuyển khoản"
+                          ? "bg-[#0084ff] text-white"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                      )}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                    </div>
+                    <Label
+                      htmlFor="bank-transfer"
+                      className={cn(
+                        "text-sm font-medium cursor-pointer transition-colors",
+                        paymentMedium === "Chuyển khoản"
+                          ? "text-[#0084ff]"
+                          : "text-gray-700 dark:text-gray-300"
+                      )}
+                    >
+                      Chuyển khoản
+                    </Label>
+                  </div>
+                  <input
                     id="bank-transfer"
-                    checked={paymentMedium == "Chuyển khoản"}
-                    onCheckedChange={() => {
-                      setPaymentMedium("Chuyển khoản");
-                    }}
-                    className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] cursor-pointer"
+                    name="payment-method"
+                    checked={paymentMedium === "Chuyển khoản"}
+                    onChange={() => setPaymentMedium("Chuyển khoản")}
+                    className="absolute opacity-0  cursor-pointer"
+                    aria-label="Thanh toán bằng chuyển khoản"
                   />
+                  {paymentMedium === "Chuyển khoản" && (
+                    <div className="absolute top-2 right-2 w-4 h-4 bg-[#0084ff] rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

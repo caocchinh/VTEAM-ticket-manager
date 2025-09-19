@@ -26,6 +26,13 @@ export const SALES_SHEET_ID = "1K3kNv-klSmu2TT3_fKwFJ9IDHkeZIeGRDFoOWzMVUT8";
 export const SALES_STAFF_SHEET_NAME = "Staff";
 export const SALES_ORDER_SHEET_NAME = "Thông tin bán vé";
 export const SALES_TICKET_INFO_SHEET_NAME = "Thông tin vé";
+export const SALES_EVENT_INFO_SHEET_NAME = "Thông tin sự kiện";
+
+export const SALES_EVENT_INFO_INFO_COLUMN = "A";
+
+export const SALES_EVENT_INFO_INFO_INDEX = getColumnNumber(
+  SALES_EVENT_INFO_INFO_COLUMN
+);
 
 export const SALES_STAFF_EMAIL_COLUMN = "A";
 export const SALES_STAFF_NAME_COLUMN = "B";

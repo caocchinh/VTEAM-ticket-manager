@@ -297,6 +297,11 @@ const SalesSummary = ({
             Chọn khoảng thời gian
           </CardTitle>
         </CardHeader>
+        <Separator
+          orientation="vertical"
+          className="!h-[55px] w-1 mx-3 block"
+          id="day_picker_separ"
+        />
         <CardContent>
           <div className="flex flex-wrap items-end gap-4 justify-center sm:justify-start">
             <div className="flex flex-col gap-2">
@@ -471,8 +476,8 @@ const SalesSummary = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                    <div>
+                  <div className="flex items-stretch justify-center gap-4 md:gap-2 flex-col md:flex-row text-sm mb-4">
+                    <div className="w-full md:w-1/2">
                       <p className="font-medium mb-2">Hình thức thanh toán:</p>
                       <div className="space-y-1">
                         <div className="flex justify-between">
@@ -491,8 +496,12 @@ const SalesSummary = ({
                         </div>
                       </div>
                     </div>
+                    <Separator
+                      orientation="vertical"
+                      className="!h-[100px] w-1 mx-3 hidden md:block"
+                    />
 
-                    <div>
+                    <div className="w-full md:w-1/2">
                       <p className="font-medium mb-2">Tổng quan loại vé:</p>
                       <div className="space-y-1">
                         {Object.entries(day.ticketBreakdown)
@@ -605,7 +614,7 @@ const SalesSummary = ({
         <Card>
           <CardContent className="text-center py-8">
             <p className="text-muted-foreground">
-              Không có dữ liệu bán hàng trong khoảng thời gian đã chọn
+              Không có dữ liệu bán vé trong khoảng thời gian đã chọn
             </p>
           </CardContent>
         </Card>

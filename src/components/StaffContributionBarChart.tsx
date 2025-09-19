@@ -55,7 +55,7 @@ const StaffContributionBarChart = ({
   return (
     <div className=" w-[90%] md:w-[500px] h-max !p-2">
       <div className="pb-3 flex items-center justify-center flex-col">
-        <h1 className="text-lg text-center">Staff</h1>
+        <h3 className="text-lg text-center font-semibold">Staff</h3>
         <p className="text-sm text-center">
           Có {chartData.length} staff điền form
         </p>

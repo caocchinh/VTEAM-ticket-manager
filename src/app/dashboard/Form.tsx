@@ -920,7 +920,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               <Button
                 onClick={() => mutateRefetchSales()}
                 variant="ghost"
-                className="border border-blac cursor-pointer"
+                className="border border-black cursor-pointer"
                 disabled={isRefetchingSales || isSalesInfoFetching}
               >
                 Cập nhật dữ liệu
@@ -1589,9 +1589,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   &quot;Chốt&quot;
                 </span>
               </p>
-              <DialogFooter className="flex flex-col md:flex-row items-center justify-center gap-2 ">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-2 ">
                 <Button
-                  className="w-full md:w-1/2 border cursor-pointer"
+                  className="w-full md:order-0 order-1 md:w-1/2 border cursor-pointer"
                   disabled={isOrderMutating}
                   variant="ghost"
                   onClick={() => {
@@ -1602,7 +1602,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 </Button>
                 <Button
                   disabled={isOrderMutating}
-                  className="w-full md:w-1/2 border cursor-pointer"
+                  className="w-full md:order-1 order-0 md:w-1/2 border cursor-pointer"
                   onClick={() => {
                     mutateOrder();
                   }}
@@ -1611,7 +1611,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   {!isOrderMutating && <Zap />}
                   {isOrderMutating && <Loader2 className="animate-spin" />}
                 </Button>
-              </DialogFooter>
+              </div>
             </AlertDialogContent>
           </AlertDialog>
           <Dialog>

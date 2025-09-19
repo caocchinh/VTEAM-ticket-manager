@@ -880,7 +880,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           )}
         >
           <div className="flex items-center ">
-            {!isEventInfoError && (
+            {(eventInfo?.eventName || isEventInfoFetching) && (
               <CardTitle className="text-sm flex items-center justify-center">
                 <Image
                   src="/assets/logo.webp"
@@ -893,11 +893,11 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                   <span className="text-gray-500">
                     Đang tải thông tin sự kiện...
                   </span>
-                ) : eventInfo?.eventName ? (
+                ) : (
                   <TextShimmer className="text-sm" duration={5}>
-                    {truncateText(eventInfo.eventName, 30)}
+                    {truncateText(eventInfo?.eventName || "", 30)}
                   </TextShimmer>
-                ) : null}
+                )}
               </CardTitle>
             )}
           </div>
@@ -1033,7 +1033,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           )}
           {isSalesInfoError && !isSalesInfoFetching && (
             <div className="absolute top-0 left-0 flex  w-full h-full rounded-md items-center justify-center bg-red-500/70 z-[10] text-white gap-2">
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center gap-2">
                 Lỗi
                 <TriangleAlert />
               </div>
@@ -1041,7 +1041,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="border w-[30px] border-white cursor-pointer"
+                    className="border w-[42px] border-white cursor-pointer"
                     onClick={() => {
                       refetchSalesInfo();
                     }}

@@ -52,7 +52,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
     : null;
 
   return (
-    <div className="h-screen overflow-hidden w-full flex flex-row justify-between items-center gap-0 relative z-10">
+    <div className="h-[calc(100vh-40px)] -mb-4 overflow-hidden w-full flex flex-row justify-between items-center gap-0 relative z-10">
       <div className=" w-full items-center justify-center lg:w-1/2 p-6">
         <div className="flex w-full flex-col gap-6 items-center">
           <div className="flex flex-col items-center gap-2 self-center font-medium">

@@ -457,13 +457,16 @@ const SalesSummary = ({
       )}
 
       {/* Sales Trend Chart */}
-      {filteredSales && filteredSales.length > 1 && startDate !== endDate && (
-        <SalesTrendChart
-          salesInfo={filteredSales}
-          ticketInfo={ticketInfo}
-          staffName={staffName}
-        />
-      )}
+      {filteredSales &&
+        filteredSales.length > 1 &&
+        summaryData &&
+        summaryData.length > 1 && (
+          <SalesTrendChart
+            salesInfo={filteredSales}
+            ticketInfo={ticketInfo}
+            staffName={staffName}
+          />
+        )}
 
       {/* Daily Breakdown */}
       {summaryData && summaryData.length > 0 && (

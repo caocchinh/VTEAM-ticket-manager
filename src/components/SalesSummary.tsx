@@ -457,7 +457,7 @@ const SalesSummary = ({
       )}
 
       {/* Sales Trend Chart */}
-      {filteredSales && filteredSales.length > 1 && (
+      {filteredSales && filteredSales.length > 1 && startDate !== endDate && (
         <SalesTrendChart
           salesInfo={filteredSales}
           ticketInfo={ticketInfo}

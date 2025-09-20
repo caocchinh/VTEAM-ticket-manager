@@ -880,15 +880,15 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           )}
         >
           <div className="flex items-center ">
+            <Image
+              src="/assets/logo.webp"
+              width={50}
+              height={50}
+              className="-mt-2 -mr-1 "
+              alt="VTEAM Logo"
+            />
             {(eventInfo?.eventName || isEventInfoFetching) && (
               <CardTitle className="text-sm flex items-center justify-center">
-                <Image
-                  src="/assets/logo.webp"
-                  width={50}
-                  height={50}
-                  className="-mt-2 -mr-1 -ml-2"
-                  alt="VTEAM Logo"
-                />
                 {isEventInfoFetching ? (
                   <span className="text-gray-500">
                     Đang tải thông tin sự kiện...
@@ -1005,17 +1005,24 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               </Button>
               <Button
                 onClick={async () => {
-                  await deleteCache("ticket_info");
-                  await deleteCache("student_list");
-                  await deleteCache("event_info");
-                  refetchStudentList();
-                  refetchEventInfo();
-                  refetchTicketInfo();
+                  try {
+                    localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
+                    localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
+                    await Promise.all([
+                      deleteCache("ticket_info"),
+                      deleteCache("student_list"),
+                      deleteCache("event_info"),
+                    ]);
+                  } catch (error) {
+                    console.log(error);
+                  }
                   setIsRefreshDialogOpen(false);
                   clearForm({ clearNotice: true });
                   setCurrentOrders([]);
-                  localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
-                  localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
+
+                  refetchStudentList();
+                  refetchEventInfo();
+                  refetchTicketInfo();
                 }}
                 disabled={isStudentListFetching || isTicketInfoFetching}
               >
@@ -1216,6 +1223,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           </Tooltip>
           <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
             <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>
+            <DialogDescription className="sr-only">
+              Báo cáo doanh thu bán vé
+            </DialogDescription>
             <div className="flex items-center justify-center gap-2">
               <h3 className="text-center font-semibold text-xl uppercase">
                 Báo cáo doanh thu

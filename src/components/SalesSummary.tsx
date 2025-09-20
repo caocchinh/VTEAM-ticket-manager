@@ -1,6 +1,6 @@
 import { SalesInfo, TicketInfo } from "@/constants/types";
 import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,15 +55,48 @@ const SalesSummary = ({
   ticketInfo,
   staffName,
 }: SalesSummaryProps) => {
-  const [startDate, setStartDate] = useState(() => {
-    const today = new Date();
-    return format(today, "yyyy-MM-dd");
-  });
+  // Get date range for all data
+  const allDataRange = useMemo(() => {
+    if (!salesInfo || salesInfo.length === 0) return null;
 
-  const [endDate, setEndDate] = useState(() => {
-    const today = new Date();
-    return format(today, "yyyy-MM-dd");
-  });
+    const dates = salesInfo
+      .map((sale) => {
+        try {
+          const parsedDate = parse(
+            sale.time,
+            "dd/MM/yyyy HH:mm:ss",
+            new Date()
+          );
+          // Check if the parsed date is valid
+          if (isNaN(parsedDate.getTime())) {
+            return null;
+          }
+          return parsedDate;
+        } catch {
+          return null;
+        }
+      })
+      .filter((date): date is Date => date !== null && !isNaN(date.getTime()))
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    if (dates.length === 0) return null;
+
+    return {
+      earliest: format(dates[0], "yyyy-MM-dd"),
+      latest: format(dates[dates.length - 1], "yyyy-MM-dd"),
+    };
+  }, [salesInfo]);
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // Set default dates to all data range when data is available
+  useEffect(() => {
+    if (allDataRange && !startDate && !endDate) {
+      setStartDate(allDataRange.earliest);
+      setEndDate(allDataRange.latest);
+    }
+  }, [allDataRange, startDate, endDate]);
 
   // Check if current date range matches "today"
   const isToday = useMemo(() => {
@@ -83,29 +116,6 @@ const SalesSummary = ({
     return startDate === expectedStartDate && endDate === expectedEndDate;
   }, [startDate, endDate]);
 
-  // Get date range for all data
-  const allDataRange = useMemo(() => {
-    if (!salesInfo || salesInfo.length === 0) return null;
-
-    const dates = salesInfo
-      .map((sale) => {
-        try {
-          return parse(sale.time, "dd/MM/yyyy HH:mm:ss", new Date());
-        } catch {
-          return null;
-        }
-      })
-      .filter((date): date is Date => date !== null)
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    if (dates.length === 0) return null;
-
-    return {
-      earliest: format(dates[0], "yyyy-MM-dd"),
-      latest: format(dates[dates.length - 1], "yyyy-MM-dd"),
-    };
-  }, [salesInfo]);
-
   // Check if current date range matches "all data"
   const isAllData = useMemo(() => {
     if (!allDataRange) return false;
@@ -124,6 +134,10 @@ const SalesSummary = ({
       try {
         // Parse DD/MM/YYYY HH:mm:ss format
         const saleDate = parse(sale.time, "dd/MM/yyyy HH:mm:ss", new Date());
+        // Check if the parsed date is valid
+        if (isNaN(saleDate.getTime())) {
+          return false;
+        }
         return isWithinInterval(saleDate, { start, end });
       } catch {
         return false;
@@ -140,6 +154,11 @@ const SalesSummary = ({
       try {
         // Parse DD/MM/YYYY HH:mm:ss format
         const saleDate = parse(sale.time, "dd/MM/yyyy HH:mm:ss", new Date());
+        // Check if the parsed date is valid
+        if (isNaN(saleDate.getTime())) {
+          console.error("Invalid date found:", sale.time);
+          return;
+        }
         const dateKey = format(saleDate, "yyyy-MM-dd");
 
         if (!dailySummaries[dateKey]) {
@@ -326,6 +345,15 @@ const SalesSummary = ({
             </div>
             <div className="flex gap-2">
               <Button
+                variant={isAllData ? "default" : "outline"}
+                onClick={setAllData}
+                size="sm"
+                disabled={!allDataRange}
+                className={isAllData ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
+              >
+                Tất cả
+              </Button>
+              <Button
                 variant={isToday ? "default" : "outline"}
                 onClick={setToday}
                 size="sm"
@@ -337,18 +365,9 @@ const SalesSummary = ({
                 variant={isThisWeek ? "default" : "outline"}
                 onClick={setThisWeek}
                 size="sm"
-                className={isThisWeek ? "bg-green-600 hover:bg-green-700" : ""}
+                className={isThisWeek ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
               >
                 Tuần này
-              </Button>
-              <Button
-                variant={isAllData ? "default" : "outline"}
-                onClick={setAllData}
-                size="sm"
-                disabled={!allDataRange}
-                className={isAllData ? "bg-purple-600 hover:bg-purple-700" : ""}
-              >
-                Tất cả
               </Button>
             </div>
           </div>
@@ -427,7 +446,7 @@ const SalesSummary = ({
                           totalSummary.totalRevenue) *
                           100
                       )}
-                      %
+                      % tổng
                     </span>
                   )}
                 </p>

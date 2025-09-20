@@ -27,6 +27,7 @@ import {
   SALES_ORDER_SUBMIT_TIME_INDEX,
   SALES_ORDER_TICKET_TYPE_INDEX,
   SALES_EVENT_INFO_SHEET_NAME,
+  SALES_EVENT_CHECKIN_SHEET_NAME,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -155,6 +156,197 @@ export const fetchStaffInfo = async ({
   }
 };
 
+export const createSheetIfNotExists = async ({
+  spreadsheetId,
+  sheetName,
+}: {
+  spreadsheetId: string;
+  sheetName: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    // Check if sheet already exists
+    const spreadsheet = await sheets.spreadsheets.get({
+      spreadsheetId,
+    });
+
+    const existingSheet = spreadsheet.data.sheets?.find(
+      (sheet) => sheet.properties?.title === sheetName
+    );
+
+    if (existingSheet) {
+      return {
+        success: true,
+      };
+    }
+
+    // Create new sheet
+    const response = await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addSheet: {
+              properties: {
+                title: sheetName,
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    const sheetId = response.data.replies?.[0]?.addSheet?.properties?.sheetId;
+
+    if (sheetId !== undefined) {
+      // Add header row values
+      await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: `${sheetName}!A1`,
+        valueInputOption: "RAW",
+        requestBody: {
+          values: [
+            [
+              "Thời gian mua",
+              "Tên người điền",
+              "Hình thức",
+              "Tên người mua",
+              "Lớp",
+              "Email",
+              "Mã số HS",
+              "Hạng vé",
+              "Lưu ý (nếu có)",
+            ],
+          ],
+        },
+      });
+
+      // Format the header row with colors and borders
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: [
+            // Light green for first 3 columns (A, B, C)
+            {
+              repeatCell: {
+                range: {
+                  sheetId: sheetId,
+                  startRowIndex: 0,
+                  endRowIndex: 1,
+                  startColumnIndex: 0,
+                  endColumnIndex: 3,
+                },
+                cell: {
+                  userEnteredFormat: {
+                    backgroundColor: {
+                      green: 0.843,
+                      red: 0.714,
+                      blue: 0.659,
+                    },
+                    textFormat: {
+                      bold: true,
+                    },
+                    borders: {
+                      top: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                      bottom: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                      left: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                      right: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                    },
+                  },
+                },
+                fields: "userEnteredFormat(backgroundColor,textFormat,borders)",
+              },
+            },
+            // Orange for remaining columns (D, E, F, G, H, I)
+            {
+              repeatCell: {
+                range: {
+                  sheetId: sheetId,
+                  startRowIndex: 0,
+                  endRowIndex: 1,
+                  startColumnIndex: 3,
+                  endColumnIndex: 9,
+                },
+                cell: {
+                  userEnteredFormat: {
+                    backgroundColor: {
+                      red: 0.965,
+                      green: 0.698,
+                      blue: 0.419,
+                    },
+                    textFormat: {
+                      bold: true,
+                    },
+                    borders: {
+                      top: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                      bottom: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                      left: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                      right: {
+                        style: "SOLID",
+                        width: 1,
+                        color: { red: 0, green: 0, blue: 0 },
+                      },
+                    },
+                  },
+                },
+                fields: "userEnteredFormat(backgroundColor,textFormat,borders)",
+              },
+            },
+          ],
+        },
+      });
+
+      return {
+        success: true,
+      };
+    }
+
+    // Add header row to the new sheet
+
+    return {
+      success: false,
+    };
+  } catch (error: unknown) {
+    console.error("Error creating sheet:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create sheet",
+    };
+  }
+};
+
 export const sendOrder = async ({
   orders,
   staffName,
@@ -169,7 +361,7 @@ export const sendOrder = async ({
 
     // Convert orders to rows format - matching the column order from constants
     const rows = ordersArray.map((order) => [
-      getCurrentTime(), // A: Submit time
+      getCurrentTime({ includeTime: true }), // A: Submit time
       staffName, // B: Staff name (to be filled separately if needed)
       order.paymentMedium, // C: Payment medium
       order.nameInput, // D: Buyer name
@@ -199,16 +391,61 @@ export const sendOrder = async ({
       // Continue with Google Sheets insertion even if DB backup fails
     }
 
-    const response = await sheets.spreadsheets.values.append({
+    const todaySalesSheetName =
+      "Sales " + getCurrentTime({ includeTime: false });
+
+    // Ensure today's sheet exists before append operations
+    await createSheetIfNotExists({
       spreadsheetId: SALES_SHEET_ID,
-      range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
-      valueInputOption: "RAW",
-      requestBody: {
-        values: rows,
-      },
+      sheetName: todaySalesSheetName,
     });
 
-    return { success: response.status === 200 };
+    // Run both append operations concurrently for better performance
+    const [mainSheetResult, todaySheetResult, checkinSheetResult] =
+      await Promise.allSettled([
+        sheets.spreadsheets.values.append({
+          spreadsheetId: SALES_SHEET_ID,
+          range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
+          valueInputOption: "RAW",
+          requestBody: {
+            values: rows,
+          },
+        }),
+        sheets.spreadsheets.values.append({
+          spreadsheetId: SALES_SHEET_ID,
+          range: `${todaySalesSheetName}!A:Z`,
+          valueInputOption: "RAW",
+          requestBody: {
+            values: rows,
+          },
+        }),
+        // First append the data
+        sheets.spreadsheets.values.append({
+          spreadsheetId: SALES_SHEET_ID,
+          range: `${SALES_EVENT_CHECKIN_SHEET_NAME}!A:Z`,
+          valueInputOption: "USER_ENTERED",
+          requestBody: {
+            values: ordersArray.map((order) => [
+              order.ticketType, // A: Ticket type
+              order.nameInput, // B: Buyer name
+              order.homeroomInput, // C: Buyer class
+              order.studentIdInput, // D: Buyer ID
+              order.email, // E: Buyer email
+              false, // F: Set is checkin to false
+            ]),
+          },
+        }),
+      ]);
+
+    return {
+      success:
+        (mainSheetResult.status === "fulfilled" &&
+          mainSheetResult.value.status === 200) ||
+        (todaySheetResult.status === "fulfilled" &&
+          todaySheetResult.value.status === 200) ||
+        (checkinSheetResult.status === "fulfilled" &&
+          checkinSheetResult.value.status === 200),
+    };
   } catch (error) {
     console.error(error);
     return { success: false };

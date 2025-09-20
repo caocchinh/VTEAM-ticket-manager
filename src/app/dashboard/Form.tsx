@@ -1672,6 +1672,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                     </Label>
                   </div>
                   <input
+                    type="radio"
                     id="bank-transfer"
                     name="payment-method"
                     checked={paymentMedium === "Chuyển khoản"}

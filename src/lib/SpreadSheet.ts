@@ -230,6 +230,18 @@ export const createSheetIfNotExists = async ({
         spreadsheetId,
         requestBody: {
           requests: [
+            // Freeze the header row
+            {
+              updateSheetProperties: {
+                properties: {
+                  sheetId: sheetId,
+                  gridProperties: {
+                    frozenRowCount: 1,
+                  },
+                },
+                fields: "gridProperties.frozenRowCount",
+              },
+            },
             // Light green for first 3 columns (A, B, C)
             {
               repeatCell: {
@@ -250,31 +262,9 @@ export const createSheetIfNotExists = async ({
                     textFormat: {
                       bold: true,
                     },
-                    borders: {
-                      top: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                      bottom: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                      left: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                      right: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                    },
                   },
                 },
-                fields: "userEnteredFormat(backgroundColor,textFormat,borders)",
+                fields: "userEnteredFormat(backgroundColor,textFormat)",
               },
             },
             // Orange for remaining columns (D, E, F, G, H, I)
@@ -297,31 +287,41 @@ export const createSheetIfNotExists = async ({
                     textFormat: {
                       bold: true,
                     },
-                    borders: {
-                      top: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                      bottom: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                      left: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
-                      },
-                      right: {
-                        style: "SOLID",
-                        width: 1,
-                        color: { red: 0, green: 0, blue: 0 },
+                  },
+                },
+                fields: "userEnteredFormat(backgroundColor,textFormat)",
+              },
+            },
+            {
+              addConditionalFormatRule: {
+                rule: {
+                  ranges: [
+                    {
+                      sheetId: sheetId,
+                      startRowIndex: 1,
+                      startColumnIndex: 0,
+                      endColumnIndex: 9,
+                    },
+                  ],
+                  booleanRule: {
+                    condition: {
+                      type: "CUSTOM_FORMULA",
+                      values: [
+                        {
+                          userEnteredValue: "=ISEVEN(ROW())",
+                        },
+                      ],
+                    },
+                    format: {
+                      backgroundColor: {
+                        red: 0.972,
+                        green: 0.976,
+                        blue: 0.98,
                       },
                     },
                   },
                 },
-                fields: "userEnteredFormat(backgroundColor,textFormat,borders)",
+                index: 0,
               },
             },
           ],
@@ -332,8 +332,6 @@ export const createSheetIfNotExists = async ({
         success: true,
       };
     }
-
-    // Add header row to the new sheet
 
     return {
       success: false,

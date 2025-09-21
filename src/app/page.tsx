@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { ClientGreeting } from "@/components/ClientGreeting";
+import { ErrorCard } from "@/components/ErrorCard";
 import {
   Card,
   CardHeader,
@@ -21,36 +22,63 @@ type HomeProps = {
 };
 
 export default async function HomePage({ searchParams }: HomeProps) {
-  const session = await verifySession();
+  let unexpectedErrorMessage =
+    "An unexpected error occurred. Please try again later.";
 
-  if (session) {
-    const staffInfo = await fetchStaffInfo({ email: session.user.email });
+  try {
+    const session = await verifySession();
 
-    if (staffInfo.data) {
-      redirect("/dashboard");
-    } else {
-      await auth.api.signOut({
-        headers: await headers(),
-      });
-      redirect(`/?error=${NOT_STAFF_ERROR}`);
+    if (session) {
+      try {
+        const staffInfo = await fetchStaffInfo({ email: session.user.email });
+        if (staffInfo.data) {
+          redirect("/dashboard");
+        } else {
+          if (staffInfo.error) {
+            throw new Error("Failed to fetch staff info");
+          }
+          try {
+            await auth.api.signOut({
+              headers: await headers(),
+            });
+          } catch (signOutError) {
+            console.error("Failed to sign out user:", signOutError);
+            // Continue with redirect even if sign out fails
+          }
+          redirect(`/?error=${NOT_STAFF_ERROR}`);
+        }
+      } catch (staffInfoError) {
+        console.error("Failed to fetch staff info:", staffInfoError);
+        unexpectedErrorMessage =
+          "Unable to verify staff credentials. Please try again later.";
+      }
     }
+  } catch (sessionError) {
+    console.error("Failed to verify session:", sessionError);
+    return <ErrorCard message={unexpectedErrorMessage} />;
   }
 
   const getErrorMessage = (error: string) => {
     switch (error) {
       case NOT_STAFF_ERROR:
-        return "You are not a staff";
+        return "You are not authorized as staff. Please contact your administrator.";
       case NOT_LOGGED_IN_ERROR:
-        return "Please sign in";
+        return "Authentication failed. Please try signing in again.";
       default:
-        return null;
+        return "An unexpected error occurred. Please try again.";
     }
   };
 
-  const resolvedSearchParams = await searchParams;
-  const errorMessage = resolvedSearchParams.error
-    ? getErrorMessage(resolvedSearchParams.error as string)
-    : null;
+  let errorMessage = null;
+  try {
+    const resolvedSearchParams = await searchParams;
+    errorMessage = resolvedSearchParams.error
+      ? getErrorMessage(resolvedSearchParams.error as string)
+      : null;
+  } catch (searchParamsError) {
+    console.error("Failed to resolve search params:", searchParamsError);
+    errorMessage = "An unexpected error occurred. Please try again.";
+  }
 
   return (
     <>

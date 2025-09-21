@@ -150,7 +150,7 @@ export const fetchStaffInfo = async ({
     if (data) {
       return { error: false, data: data };
     }
-    return { error: true, data: undefined };
+    return { error: false, data: undefined };
   } catch (error) {
     console.error(error);
     return { error: true, data: undefined };

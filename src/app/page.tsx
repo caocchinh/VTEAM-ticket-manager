@@ -45,14 +45,15 @@ export default async function HomePage({ searchParams }: HomeProps) {
       if (staffInfo.error) {
         return <ErrorCard message={"Failed to fetch staff info"} />;
       }
+
       try {
         await auth.api.signOut({
           headers: await headers(),
         });
       } catch (signOutError) {
         console.error("Failed to sign out user:", signOutError);
-        // Continue with redirect even if sign out fails
       }
+
       redirect(`/?error=${NOT_STAFF_ERROR}`);
     }
   }

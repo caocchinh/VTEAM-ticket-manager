@@ -958,7 +958,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               className="border rounded-md shadow-sm p-2"
             >
               <Image
-                src="/assets/sheet_logo.png"
+                src="/assets/sheet_logo.webp"
                 className="w-[35px] h-[35px] object-contain"
                 alt="Google Sheet logo"
                 width={35}

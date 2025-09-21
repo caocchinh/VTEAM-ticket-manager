@@ -25,7 +25,7 @@ export const STUDENT_LIST_STUDENT_HOMEROOM_INDEX = getColumnNumber(
 export const SALES_SHEET_ID = "1K3kNv-klSmu2TT3_fKwFJ9IDHkeZIeGRDFoOWzMVUT8";
 export const SALES_STAFF_SHEET_NAME = "Staff";
 export const SALES_ORDER_SHEET_NAME = "Tổng sales bán vé";
-export const SALES_TICKET_INFO_SHEET_NAME = "Thông tin vé";
+export const SALES_TICKET_INFO_SHEET_NAME = "Thông tin vé offline";
 export const SALES_EVENT_INFO_SHEET_NAME = "Thông tin sự kiện";
 export const SALES_EVENT_CHECKIN_SHEET_NAME = "Check-in";
 

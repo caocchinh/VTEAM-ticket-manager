@@ -22,36 +22,39 @@ type HomeProps = {
 };
 
 export default async function HomePage({ searchParams }: HomeProps) {
+  let session;
   try {
-    const session = await verifySession();
-
-    if (session) {
-      try {
-        const staffInfo = await fetchStaffInfo({ email: session.user.email });
-        if (staffInfo.data) {
-          redirect("/dashboard");
-        } else {
-          if (staffInfo.error) {
-            return <ErrorCard message={"Failed to fetch staff info"} />;
-          }
-          try {
-            await auth.api.signOut({
-              headers: await headers(),
-            });
-          } catch (signOutError) {
-            console.error("Failed to sign out user:", signOutError);
-            // Continue with redirect even if sign out fails
-          }
-          redirect(`/?error=${NOT_STAFF_ERROR}`);
-        }
-      } catch (staffInfoError) {
-        console.error("Failed to fetch staff info:", staffInfoError);
-        return <ErrorCard message={"Failed to fetch staff info"} />;
-      }
-    }
+    session = await verifySession();
   } catch (sessionError) {
     console.error("Failed to verify session:", sessionError);
     return <ErrorCard message={"Failed to verify session"} />;
+  }
+
+  if (session) {
+    let staffInfo;
+    try {
+      staffInfo = await fetchStaffInfo({ email: session.user.email });
+    } catch (staffInfoError) {
+      console.error("Failed to fetch staff info:", staffInfoError);
+      return <ErrorCard message={"Failed to fetch staff info"} />;
+    }
+
+    if (staffInfo.data) {
+      redirect("/dashboard");
+    } else {
+      if (staffInfo.error) {
+        return <ErrorCard message={"Failed to fetch staff info"} />;
+      }
+      try {
+        await auth.api.signOut({
+          headers: await headers(),
+        });
+      } catch (signOutError) {
+        console.error("Failed to sign out user:", signOutError);
+        // Continue with redirect even if sign out fails
+      }
+      redirect(`/?error=${NOT_STAFF_ERROR}`);
+    }
   }
 
   const getErrorMessage = (error: string) => {

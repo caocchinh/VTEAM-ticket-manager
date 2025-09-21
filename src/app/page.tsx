@@ -22,9 +22,6 @@ type HomeProps = {
 };
 
 export default async function HomePage({ searchParams }: HomeProps) {
-  let unexpectedErrorMessage =
-    "An unexpected error occurred. Please try again later.";
-
   try {
     const session = await verifySession();
 
@@ -35,7 +32,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
           redirect("/dashboard");
         } else {
           if (staffInfo.error) {
-            throw new Error("Failed to fetch staff info");
+            return <ErrorCard message={"Failed to fetch staff info"} />;
           }
           try {
             await auth.api.signOut({
@@ -49,13 +46,12 @@ export default async function HomePage({ searchParams }: HomeProps) {
         }
       } catch (staffInfoError) {
         console.error("Failed to fetch staff info:", staffInfoError);
-        unexpectedErrorMessage =
-          "Unable to verify staff credentials. Please try again later.";
+        return <ErrorCard message={"Failed to fetch staff info"} />;
       }
     }
   } catch (sessionError) {
     console.error("Failed to verify session:", sessionError);
-    return <ErrorCard message={unexpectedErrorMessage} />;
+    return <ErrorCard message={"Failed to verify session"} />;
   }
 
   const getErrorMessage = (error: string) => {

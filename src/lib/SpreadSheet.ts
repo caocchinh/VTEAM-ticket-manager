@@ -27,7 +27,8 @@ import {
   SALES_ORDER_SUBMIT_TIME_INDEX,
   SALES_ORDER_TICKET_TYPE_INDEX,
   SALES_EVENT_INFO_SHEET_NAME,
-  SALES_EVENT_CHECKIN_SHEET_NAME,
+  CHECKIN_SHEET_NAME,
+  CHECKIN_SHEET_ID,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -419,8 +420,8 @@ export const sendOrder = async ({
         }),
         // First append the data
         sheets.spreadsheets.values.append({
-          spreadsheetId: SALES_SHEET_ID,
-          range: `${SALES_EVENT_CHECKIN_SHEET_NAME}!A:Z`,
+          spreadsheetId: CHECKIN_SHEET_ID,
+          range: `${CHECKIN_SHEET_NAME}!A:Z`,
           valueInputOption: "USER_ENTERED",
           requestBody: {
             values: ordersArray.map((order) => [

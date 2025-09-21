@@ -2,6 +2,9 @@ import { getColumnNumber } from "@/lib/utils";
 
 export const STUDENT_LIST_SHEET_ID =
   "1mLvMGOdNAo8nne1pytHe6xAIAAucnk9pDdRb3lzecxg";
+export const CHECKIN_SHEET_ID = "1Tds2lU1PDyu6nhFzQPO6TnA1jIoU38I8yWurPQD3oVE";
+export const CHECKIN_SHEET_NAME = "Check-in";
+
 export const STUDENT_LIST_SHEET_NAME = "Student list";
 
 export const STUDENT_LIST_STUDENT_NAME_COLUMN = "C";
@@ -27,7 +30,6 @@ export const SALES_STAFF_SHEET_NAME = "Staff điền form";
 export const SALES_ORDER_SHEET_NAME = "Tổng sales offline";
 export const SALES_TICKET_INFO_SHEET_NAME = "Thông tin vé offline";
 export const SALES_EVENT_INFO_SHEET_NAME = "Thông tin sự kiện";
-export const SALES_EVENT_CHECKIN_SHEET_NAME = "Check-in";
 
 export const SALES_EVENT_INFO_INFO_COLUMN = "A";
 

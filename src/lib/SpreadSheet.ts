@@ -390,7 +390,7 @@ export const sendOrder = async ({
     }
 
     const todaySalesSheetName =
-      "Sales " + getCurrentTime({ includeTime: false });
+      "Sales offline " + getCurrentTime({ includeTime: false });
 
     // Ensure today's sheet exists before append operations
     await createSheetIfNotExists({

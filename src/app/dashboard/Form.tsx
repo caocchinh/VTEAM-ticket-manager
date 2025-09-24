@@ -20,7 +20,7 @@ import {
 import {
   INVALID_TICKET_DUE_TO_INVALID_CLASS,
   NOT_STUDENT_IN_SCHOOL,
-  SALES_SHEET_ID,
+  OFFLINE_SALES_SHEET_ID,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -674,40 +674,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     };
   }, [handleTabKeyPress]);
 
-  // Prevent accidental page refresh/close when there's unsaved data
-  useEffect(() => {
-    const hasUnsavedData =
-      selectedStudentIdInput.trim() ||
-      studentNameInput.trim() ||
-      homeroomInput.trim() ||
-      emailInput.trim() ||
-      noticeInput.trim() ||
-      currentOrder.length > 0;
-
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedData) {
-        e.preventDefault();
-        e.returnValue =
-          "Bạn có dữ liệu chưa được lưu. Bạn có chắc chắn muốn rời khỏi trang?";
-        return e.returnValue;
-      }
-    };
-
-    if (hasUnsavedData) {
-      window.addEventListener("beforeunload", handleBeforeUnload);
-    }
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [
-    selectedStudentIdInput,
-    studentNameInput,
-    homeroomInput,
-    emailInput,
-    noticeInput,
-    currentOrder.length,
-  ]);
+  
 
   const availableTicketsType = useMemo(() => {
     if (ticketInfo) {
@@ -870,6 +837,35 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     return { revenue: 0, orderCount: 0 };
   }, [salesInfo, ticketInfo, staffInfo]);
 
+
+  // Prevent accidental page refresh/close when there's unsaved data
+  useEffect(() => {
+    const hasUnsavedData =
+      selectedStudentIdInput.trim() ||
+      studentNameInput.trim() ||
+      homeroomInput.trim() ||
+      emailInput.trim() ||
+      noticeInput.trim() ||
+      currentOrder.length > 0
+      || isOrderMutating
+      
+      ;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedData) {
+        e.preventDefault();
+      }
+    };
+
+    if (hasUnsavedData) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [selectedStudentIdInput, studentNameInput, homeroomInput, emailInput, noticeInput, currentOrder.length, isOrderMutating]);
+
   return (
     <>
       <div className="flex flex-row m-auto w-full flex-wrap items-center justify-center gap-4">
@@ -954,7 +950,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             <a
               target="_blank"
               rel="noopener"
-              href={`https://docs.google.com/spreadsheets/d/${SALES_SHEET_ID}`}
+              href={`https://docs.google.com/spreadsheets/d/${OFFLINE_SALES_SHEET_ID}`}
               className="border rounded-md shadow-sm p-2"
             >
               <Image

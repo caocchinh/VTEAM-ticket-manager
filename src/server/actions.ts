@@ -2,7 +2,7 @@
 
 import { StudentInput } from "@/constants/types";
 import { verifySession } from "@/dal/verifySession";
-import { fetchStaffInfo, sendOrder } from "@/lib/SpreadSheet";
+import { fetchOfflineStaffInfo, sendOfflineOrder } from "@/lib/SpreadSheet";
 
 export const sendOrderAction = async ({
   orders,
@@ -16,13 +16,13 @@ export const sendOrderAction = async ({
       return { success: false, message: "Unauthorized" };
     }
 
-    const staffInfo = await fetchStaffInfo({ email: session.user.email });
+    const staffInfo = await fetchOfflineStaffInfo({ email: session.user.email });
 
     if (!staffInfo.data) {
       return { success: false, message: "Unauthorized" };
     }
 
-    const result = await sendOrder({ orders, staffName: staffInfo.data.name });
+    const result = await sendOfflineOrder({ orders, staffName: staffInfo.data.name });
     return { success: result.success };
   } catch (error) {
     if (error instanceof Error) {

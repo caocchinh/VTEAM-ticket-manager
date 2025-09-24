@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { verifySession } from "@/dal/verifySession";
-import { fetchStaffInfo } from "@/lib/SpreadSheet";
+import { fetchOfflineStaffInfo } from "@/lib/SpreadSheet";
 import { auth } from "@/lib/auth/auth";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
 import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
@@ -28,7 +28,7 @@ export default async function Dashboard() {
   }
 
   try {
-    staffInfo = await fetchStaffInfo({ email: session.user.email });
+    staffInfo = await fetchOfflineStaffInfo({ email: session.user.email });
   } catch (staffInfoError) {
     console.error("Failed to fetch staff info:", staffInfoError);
     return (

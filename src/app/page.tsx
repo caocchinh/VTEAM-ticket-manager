@@ -10,7 +10,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { verifySession } from "@/dal/verifySession";
-import { fetchStaffInfo } from "@/lib/SpreadSheet";
+import { fetchOfflineStaffInfo } from "@/lib/SpreadSheet";
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
@@ -38,7 +38,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
   if (session) {
     let staffInfo;
     try {
-      staffInfo = await fetchStaffInfo({ email: session.user.email });
+      staffInfo = await fetchOfflineStaffInfo({ email: session.user.email });
     } catch (staffInfoError) {
       console.error("Failed to fetch staff info:", staffInfoError);
       return (

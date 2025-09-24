@@ -8,25 +8,25 @@ import {
   STUDENT_LIST_STUDENT_HOMEROOM_INDEX,
   STUDENT_LIST_STUDENT_ID_INDEX,
   STUDENT_LIST_STUDENT_NAME_INDEX,
-  SALES_SHEET_ID,
-  SALES_STAFF_EMAIL_INDEX,
-  SALES_STAFF_NAME_INDEX,
-  SALES_STAFF_SHEET_NAME,
-  SALES_TICKET_INFO_SHEET_NAME,
-  SALES_TICKET_INFO_NAME_INDEX,
-  SALES_TICKET_INFO_PRICE_INDEX,
-  SALES_TICKET_INFO_CLASS_RANGE_INDEX,
-  SALES_ORDER_SHEET_NAME,
-  SALES_ORDER_BUYER_CLASS_INDEX,
-  SALES_ORDER_BUYER_EMAIL_INDEX,
-  SALES_ORDER_BUYER_ID_INDEX,
-  SALES_ORDER_BUYER_NAME_INDEX,
-  SALES_ORDER_MEDIUM_TYPE_INDEX,
-  SALES_ORDER_NOTICE_INDEX,
-  SALES_ORDER_STAFF_NAME_INDEX,
-  SALES_ORDER_SUBMIT_TIME_INDEX,
-  SALES_ORDER_TICKET_TYPE_INDEX,
-  SALES_EVENT_INFO_SHEET_NAME,
+  OFFLINE_SALES_SHEET_ID,
+  OFFLINE_SALES_STAFF_EMAIL_INDEX,
+  OFFLINE_SALES_STAFF_NAME_INDEX,
+  OFFLINE_SALES_STAFF_SHEET_NAME,
+  OFFLINE_SALES_TICKET_INFO_SHEET_NAME,
+  OFFLINE_SALES_TICKET_INFO_NAME_INDEX,
+  OFFLINE_SALES_TICKET_INFO_PRICE_INDEX,
+  OFFLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX,
+  OFFLINE_SALES_ORDER_SHEET_NAME,
+  OFFLINE_SALES_ORDER_BUYER_CLASS_INDEX,
+  OFFLINE_SALES_ORDER_BUYER_EMAIL_INDEX,
+  OFFLINE_SALES_ORDER_BUYER_ID_INDEX,
+  OFFLINE_SALES_ORDER_BUYER_NAME_INDEX,
+  OFFLINE_SALES_ORDER_MEDIUM_TYPE_INDEX,
+  OFFLINE_SALES_ORDER_NOTICE_INDEX,
+  OFFLINE_SALES_ORDER_STAFF_NAME_INDEX,
+  OFFLINE_SALES_ORDER_SUBMIT_TIME_INDEX,
+  OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX,
+  OFFLINE_SALES_EVENT_INFO_SHEET_NAME,
   CHECKIN_SHEET_NAME,
   CHECKIN_SHEET_ID,
 } from "@/constants/constants";
@@ -98,20 +98,20 @@ export const fetchStudentList = async (): Promise<{
   }
 };
 
-export const fetchTicketInfo = async (): Promise<{
+export const fetchOfflineTicketInfo = async (): Promise<{
   error: boolean;
   data: TicketInfo[] | undefined;
 }> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   try {
-    console.log(`[SPREADSHEET] Starting fetchTicketInfo from sheet: ${SALES_SHEET_ID}`);
+    console.log(`[SPREADSHEET] Starting fetchTicketInfo from sheet: ${OFFLINE_SALES_SHEET_ID}`);
     
     const response = await retryExternalApi(
       async () => {
         return await sheets.spreadsheets.values.get({
-          spreadsheetId: SALES_SHEET_ID,
-          range: `${SALES_TICKET_INFO_SHEET_NAME}!A:Z`,
+          spreadsheetId: OFFLINE_SALES_SHEET_ID,
+          range: `${OFFLINE_SALES_TICKET_INFO_SHEET_NAME}!A:Z`,
         });
       },
       "fetchTicketInfo"
@@ -119,14 +119,14 @@ export const fetchTicketInfo = async (): Promise<{
 
     // Ignore the first row
     const data = response.data.values?.slice(1).map((value) => ({
-      ticketName: value[SALES_TICKET_INFO_NAME_INDEX]
-        ? value[SALES_TICKET_INFO_NAME_INDEX].trim()
+      ticketName: value[OFFLINE_SALES_TICKET_INFO_NAME_INDEX]
+        ? value[OFFLINE_SALES_TICKET_INFO_NAME_INDEX].trim()
         : "",
-      price: value[SALES_TICKET_INFO_PRICE_INDEX]
-        ? value[SALES_TICKET_INFO_PRICE_INDEX].trim()
+      price: value[OFFLINE_SALES_TICKET_INFO_PRICE_INDEX]
+        ? value[OFFLINE_SALES_TICKET_INFO_PRICE_INDEX].trim()
         : "",
-      classRange: value[SALES_TICKET_INFO_CLASS_RANGE_INDEX]
-        ? value[SALES_TICKET_INFO_CLASS_RANGE_INDEX].split(",").map(
+      classRange: value[OFFLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX]
+        ? value[OFFLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX].split(",").map(
             (_value: string) => parseInt(_value)
           )
         : [],
@@ -145,7 +145,7 @@ export const fetchTicketInfo = async (): Promise<{
   }
 };
 
-export const fetchStaffInfo = async ({
+export const fetchOfflineStaffInfo = async ({
   email,
 }: {
   email: string;
@@ -161,21 +161,21 @@ export const fetchStaffInfo = async ({
     const response = await retryExternalApi(
       async () => {
         return await sheets.spreadsheets.values.get({
-          spreadsheetId: SALES_SHEET_ID,
-          range: `${SALES_STAFF_SHEET_NAME}!A:Z`,
+          spreadsheetId: OFFLINE_SALES_SHEET_ID,
+          range: `${OFFLINE_SALES_STAFF_SHEET_NAME}!A:Z`,
         });
       },
       "fetchStaffInfo"
     );
 
     const foundValue = response.data.values?.find(
-      (value) => value[SALES_STAFF_EMAIL_INDEX] === email
+      (value) => value[OFFLINE_SALES_STAFF_EMAIL_INDEX] === email
     );
 
     const data = foundValue
       ? {
           email,
-          name: foundValue[SALES_STAFF_NAME_INDEX],
+          name: foundValue[OFFLINE_SALES_STAFF_NAME_INDEX],
         }
       : undefined;
 
@@ -412,7 +412,7 @@ export const createSheetIfNotExists = async ({
   }
 };
 
-export const sendOrder = async ({
+export const sendOfflineOrder = async ({
   orders,
   staffName,
 }: {
@@ -424,7 +424,7 @@ export const sendOrder = async ({
     // Convert single order to array for consistent handling
     const ordersArray = Array.isArray(orders) ? orders : [orders];
     
-    console.log(`[SPREADSHEET] Starting sendOrder for ${ordersArray.length} orders by staff: ${staffName}`);
+    console.log(`[SPREADSHEET] Starting sendOfflineOrder for ${ordersArray.length} orders by staff: ${staffName}`);
 
     // Convert orders to rows format - matching the column order from constants
     const rows = ordersArray.map((order) => [
@@ -458,7 +458,7 @@ export const sendOrder = async ({
         async () => {
           return await db.insert(backUpOrder).values(backupData);
         },
-        "sendOrder - database backup"
+        "sendOfflineOrder - database backup"
       );
       
       console.log(`[SPREADSHEET] Successfully backed up ${backupData.length} orders to database`);
@@ -474,7 +474,7 @@ export const sendOrder = async ({
     
     // Ensure today's sheet exists before append operations
     await createSheetIfNotExists({
-      spreadsheetId: SALES_SHEET_ID,
+      spreadsheetId: OFFLINE_SALES_SHEET_ID,
       sheetName: todaySalesSheetName,
     });
 
@@ -486,20 +486,20 @@ export const sendOrder = async ({
         retryExternalApi(
           async () => {
             return await sheets.spreadsheets.values.append({
-              spreadsheetId: SALES_SHEET_ID,
-              range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
+              spreadsheetId: OFFLINE_SALES_SHEET_ID,
+              range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
               valueInputOption: "RAW",
               requestBody: {
                 values: rows,
               },
             });
           },
-          "sendOrder - main sales sheet"
+          "sendOfflineOrder - main sales sheet"
         ),
         retryExternalApi(
           async () => {
             return await sheets.spreadsheets.values.append({
-              spreadsheetId: SALES_SHEET_ID,
+              spreadsheetId: OFFLINE_SALES_SHEET_ID,
               range: `${todaySalesSheetName}!A:Z`,
               valueInputOption: "RAW",
               requestBody: {
@@ -507,7 +507,7 @@ export const sendOrder = async ({
               },
             });
           },
-          "sendOrder - today sales sheet"
+          "sendOfflineOrder - today sales sheet"
         ),
         retryExternalApi(
           async () => {
@@ -527,7 +527,7 @@ export const sendOrder = async ({
               },
             });
           },
-          "sendOrder - checkin sheet"
+          "sendOfflineOrder - checkin sheet"
         ),
       ]);
 
@@ -557,64 +557,64 @@ export const sendOrder = async ({
                    (checkinSheetResult.status === "fulfilled" &&
                     checkinSheetResult.value.status === 200);
 
-    console.log(`[SPREADSHEET] sendOrder completed with success: ${success}`);
+    console.log(`[SPREADSHEET] sendOfflineOrder completed with success: ${success}`);
     
     return {
       success,
     };
   } catch (error) {
-    console.error("[SPREADSHEET] sendOrder failed after all retries:", error);
+    console.error("[SPREADSHEET] sendOfflineOrder failed after all retries:", error);
     return { success: false };
   }
 };
 
-export const fetchSales = async (): Promise<{
+export const fetchOfflineSales = async (): Promise<{
   error: boolean;
   data: SalesInfo[] | undefined;
 }> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   try {
-    console.log(`[SPREADSHEET] Starting fetchSales from sheet: ${SALES_SHEET_ID}`);
+    console.log(`[SPREADSHEET] Starting fetchSales from sheet: ${OFFLINE_SALES_SHEET_ID}`);
     
     const response = await retryExternalApi(
       async () => {
         return await sheets.spreadsheets.values.get({
-          spreadsheetId: SALES_SHEET_ID,
-          range: `${SALES_ORDER_SHEET_NAME}!A:Z`,
+          spreadsheetId: OFFLINE_SALES_SHEET_ID,
+          range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
         });
       },
-      "fetchSales"
+      "fetchOfflineSales"
     );
 
     // Ignore the first row
     const data = response.data.values?.slice(1).map((value) => ({
-      time: value[SALES_ORDER_SUBMIT_TIME_INDEX]
-        ? value[SALES_ORDER_SUBMIT_TIME_INDEX].trim()
+      time: value[OFFLINE_SALES_ORDER_SUBMIT_TIME_INDEX]
+        ? value[OFFLINE_SALES_ORDER_SUBMIT_TIME_INDEX].trim()
         : "",
-      staffName: value[SALES_ORDER_STAFF_NAME_INDEX]
-        ? value[SALES_ORDER_STAFF_NAME_INDEX].trim()
+      staffName: value[OFFLINE_SALES_ORDER_STAFF_NAME_INDEX]
+        ? value[OFFLINE_SALES_ORDER_STAFF_NAME_INDEX].trim()
         : "",
-      paymentMedium: value[SALES_ORDER_MEDIUM_TYPE_INDEX]
-        ? value[SALES_ORDER_MEDIUM_TYPE_INDEX].trim()
+      paymentMedium: value[OFFLINE_SALES_ORDER_MEDIUM_TYPE_INDEX]
+        ? value[OFFLINE_SALES_ORDER_MEDIUM_TYPE_INDEX].trim()
         : "",
-      buyerName: value[SALES_ORDER_BUYER_NAME_INDEX]
-        ? value[SALES_ORDER_BUYER_NAME_INDEX].trim()
+      buyerName: value[OFFLINE_SALES_ORDER_BUYER_NAME_INDEX]
+        ? value[OFFLINE_SALES_ORDER_BUYER_NAME_INDEX].trim()
         : "",
-      buyerClass: value[SALES_ORDER_BUYER_CLASS_INDEX]
-        ? value[SALES_ORDER_BUYER_CLASS_INDEX].trim()
+      buyerClass: value[OFFLINE_SALES_ORDER_BUYER_CLASS_INDEX]
+        ? value[OFFLINE_SALES_ORDER_BUYER_CLASS_INDEX].trim()
         : "",
-      buyerEmail: value[SALES_ORDER_BUYER_EMAIL_INDEX]
-        ? value[SALES_ORDER_BUYER_EMAIL_INDEX].trim()
+      buyerEmail: value[OFFLINE_SALES_ORDER_BUYER_EMAIL_INDEX]
+        ? value[OFFLINE_SALES_ORDER_BUYER_EMAIL_INDEX].trim()
         : "",
-      buyerId: value[SALES_ORDER_BUYER_ID_INDEX]
-        ? value[SALES_ORDER_BUYER_ID_INDEX].trim()
+      buyerId: value[OFFLINE_SALES_ORDER_BUYER_ID_INDEX]
+        ? value[OFFLINE_SALES_ORDER_BUYER_ID_INDEX].trim()
         : "",
-      buyerTicketType: value[SALES_ORDER_TICKET_TYPE_INDEX]
-        ? value[SALES_ORDER_TICKET_TYPE_INDEX].trim()
+      buyerTicketType: value[OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX]
+        ? value[OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX].trim()
         : "",
-      buyerNotice: value[SALES_ORDER_NOTICE_INDEX]
-        ? value[SALES_ORDER_NOTICE_INDEX].trim()
+      buyerNotice: value[OFFLINE_SALES_ORDER_NOTICE_INDEX]
+        ? value[OFFLINE_SALES_ORDER_NOTICE_INDEX].trim()
         : "",
     }));
 
@@ -631,23 +631,23 @@ export const fetchSales = async (): Promise<{
   }
 };
 
-export const fetchEventInfo = async (): Promise<{
+export const fetchOfflineEventInfo = async (): Promise<{
   error: boolean;
   data: EventInfo | undefined;
 }> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   try {
-    console.log(`[SPREADSHEET] Starting fetchEventInfo from sheet: ${SALES_SHEET_ID}`);
+    console.log(`[SPREADSHEET] Starting fetchOfflineEventInfo from sheet: ${OFFLINE_SALES_SHEET_ID}`);
     
     const response = await retryExternalApi(
       async () => {
         return await sheets.spreadsheets.values.get({
-          spreadsheetId: SALES_SHEET_ID,
-          range: `${SALES_EVENT_INFO_SHEET_NAME}!A:Z`,
+          spreadsheetId: OFFLINE_SALES_SHEET_ID,
+          range: `${OFFLINE_SALES_EVENT_INFO_SHEET_NAME}!A:Z`,
         });
       },
-      "fetchEventInfo"
+      "fetchOfflineEventInfo"
     );
 
     if (response.data.values) {

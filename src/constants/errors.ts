@@ -30,7 +30,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.NOT_LOGGED_IN]: "Xác thực thất bại. Vui lòng thử đăng nhập lại.",
   [ERROR_CODES.SESSION_VERIFICATION_FAILED]:
     "Không thể xác minh phiên đăng nhập. Vui lòng thử đăng nhập lại.",
-  [ERROR_CODES.UNAUTHORIZED]: "Bạn không có quyền truy cập tài nguyên này",
+  [ERROR_CODES.UNAUTHORIZED]: "Bạn không có quyền truy cập",
   [ERROR_CODES.INVALID_STUDENT_CREDENTIALS]:
     "Thông tin học sinh không hợp lệ. Vui lòng xác minh tài khoản của bạn.",
   [ERROR_CODES.MISSING_REQUIRED_FIELDS]:

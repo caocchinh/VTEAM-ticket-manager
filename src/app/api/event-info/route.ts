@@ -1,5 +1,5 @@
 import { verifySession } from "@/dal/verifySession";
-import { fetchEventInfo, fetchStaffInfo } from "@/lib/SpreadSheet";
+import { fetchOfflineEventInfo, fetchOfflineStaffInfo } from "@/lib/SpreadSheet";
 import { createApiError, HTTP_STATUS } from "@/constants/errors";
 
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
 
     let staffInfo;
     try {
-      staffInfo = await fetchStaffInfo({ email: session.user.email });
+      staffInfo = await fetchOfflineStaffInfo({ email: session.user.email });
     } catch (error) {
       return createApiError(
         "INTERNAL_SERVER_ERROR",
@@ -27,7 +27,7 @@ export async function GET() {
 
     let eventInfo;
     try {
-      eventInfo = await fetchEventInfo();
+      eventInfo = await fetchOfflineEventInfo();
     } catch (error) {
       return createApiError(
         "INTERNAL_SERVER_ERROR",

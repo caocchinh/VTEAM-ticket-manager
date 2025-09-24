@@ -2,11 +2,13 @@
 
 import { StudentInput } from "@/constants/types";
 import { verifySession } from "@/dal/verifySession";
-import { fetchOfflineStaffInfo, sendOfflineOrder } from "@/lib/SpreadSheet";
+import { sendOfflineOrder } from "@/lib/SpreadSheet";
+import { checkStaffAuthorization } from "@/dal/staff-auth";
 import {
   createActionError,
   createActionSuccess,
   type ActionResponse,
+  ERROR_CODES,
 } from "@/constants/errors";
 import { randomUUID } from "crypto";
 import { Cache } from "@/lib/cache";
@@ -55,28 +57,32 @@ export const sendOrderAction = async ({
 
     console.log(`[${operationId}] Input validation passed`);
 
-    // Fetch staff info
-    console.log(`[${operationId}] Fetching staff information...`);
-    const staffInfo = await fetchOfflineStaffInfo({
-      email: session.user.email,
-    });
+    // Check staff authorization
+    console.log(`[${operationId}] Checking staff authorization...`);
+    const staffAuth = await checkStaffAuthorization(session.user.email);
 
-    if (!staffInfo.data) {
+    if (!staffAuth.isStaff) {
       console.log(
-        `[${operationId}] Staff info not found for email: ${session.user.email}`
+        `[${operationId}] Staff authorization failed: ${
+          staffAuth.error || "Unknown error"
+        }`
       );
-      return createActionError("UNAUTHORIZED");
+      return createActionError(
+        staffAuth.error === ERROR_CODES.INTERNAL_SERVER_ERROR
+          ? "INTERNAL_SERVER_ERROR"
+          : "UNAUTHORIZED"
+      );
     }
 
     console.log(
-      `[${operationId}] Staff info retrieved for: ${staffInfo.data.name}`
+      `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
     );
 
     // Submit orders
     console.log(`[${operationId}] Submitting orders to spreadsheet...`);
     const result = await sendOfflineOrder({
       orders,
-      staffName: staffInfo.data.name,
+      staffName: staffAuth.staffInfo!.name,
     });
 
     if (result.success) {
@@ -122,55 +128,65 @@ export const updateOnlineDataAction = async (): Promise<ActionResponse> => {
       `[${operationId}] Session verified for user: ${session.user.email}`
     );
 
-    // Fetch staff info
-    console.log(`[${operationId}] Fetching staff information...`);
-    const staffInfo = await fetchOfflineStaffInfo({
-      email: session.user.email,
-    });
+    // Check staff authorization
+    console.log(`[${operationId}] Checking staff authorization...`);
+    const staffAuth = await checkStaffAuthorization(session.user.email);
 
-    if (!staffInfo.data) {
+    if (!staffAuth.isStaff) {
       console.log(
-        `[${operationId}] Staff info not found for email: ${session.user.email}`
+        `[${operationId}] Staff authorization failed: ${
+          staffAuth.error || "Unknown error"
+        }`
       );
-      return createActionError("UNAUTHORIZED");
+      return createActionError(
+        staffAuth.error === ERROR_CODES.INTERNAL_SERVER_ERROR
+          ? "INTERNAL_SERVER_ERROR"
+          : "UNAUTHORIZED"
+      );
     }
 
     console.log(
-      `[${operationId}] Staff info retrieved for: ${staffInfo.data.name}`
+      `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
     );
 
     // Clear cache to force fresh data fetch
     console.log(`[${operationId}] Clearing cached data...`);
     try {
       await Promise.all([
-        async () => {
+        (async () => {
           const response = await Cache.delete("event-info");
           if (!response) {
-            console.error(`[${operationId}] Cache delete failed`);
+            console.error(
+              `[${operationId}] Cache delete failed for event-info`
+            );
             throw new Error("CACHE_DELETE_FAILED");
           }
-        },
-        async () => {
+        })(),
+        (async () => {
           const response = await Cache.delete("form-info");
           if (!response) {
-            console.error(`[${operationId}] Cache delete failed`);
+            console.error(`[${operationId}] Cache delete failed for form-info`);
             throw new Error("CACHE_DELETE_FAILED");
           }
-        },
-        async () => {
+        })(),
+        (async () => {
           const response = await Cache.delete("ticket-info");
           if (!response) {
-            console.error(`[${operationId}] Cache delete failed`);
+            console.error(
+              `[${operationId}] Cache delete failed for ticket-info`
+            );
             throw new Error("CACHE_DELETE_FAILED");
           }
-        },
-        async () => {
+        })(),
+        (async () => {
           const response = await Cache.delete("student-list");
           if (!response) {
-            console.error(`[${operationId}] Cache delete failed`);
+            console.error(
+              `[${operationId}] Cache delete failed for student-list`
+            );
             throw new Error("CACHE_DELETE_FAILED");
           }
-        },
+        })(),
       ]);
       console.log(`[${operationId}] Cache cleared successfully`);
     } catch (cacheError) {

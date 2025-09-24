@@ -9,6 +9,7 @@ export const ERROR_CODES = {
   SESSION_VERIFICATION_FAILED: "session-verification-failed",
   UNAUTHORIZED: "unauthorized",
   INVALID_STUDENT_CREDENTIALS: "invalid-student-credentials",
+  TICKET_INFO_FETCH_FAILED: "ticket-info-fetch-failed",
   MISSING_REQUIRED_FIELDS: "missing-required-fields",
   INVALID_FILE_TYPE: "invalid-file-type",
   FILE_SIZE_TOO_LARGE: "file-size-too-large",
@@ -33,6 +34,8 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.UNAUTHORIZED]: "Bạn không có quyền truy cập",
   [ERROR_CODES.INVALID_STUDENT_CREDENTIALS]:
     "Thông tin học sinh không hợp lệ. Vui lòng xác minh tài khoản của bạn.",
+  [ERROR_CODES.TICKET_INFO_FETCH_FAILED]:
+    "Không thể lấy thông tin vé. Vui lòng thử lại sau.",
   [ERROR_CODES.MISSING_REQUIRED_FIELDS]:
     "Vui lòng điền đầy đủ các trường bắt buộc",
   [ERROR_CODES.INVALID_FILE_TYPE]:

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { verifySession } from "@/dal/verifySession";
-import { fetchOfflineStaffInfo } from "@/lib/SpreadSheet";
+import { checkStaffAuthorization } from "@/dal/staff-auth";
 import { auth } from "@/lib/auth/auth";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
 import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
@@ -10,7 +10,6 @@ import { ErrorCard } from "@/components/ErrorCard";
 
 export default async function Dashboard() {
   let session;
-  let staffInfo;
 
   try {
     session = await verifySession();
@@ -27,38 +26,38 @@ export default async function Dashboard() {
     redirect(`/?error=${NOT_LOGGED_IN_ERROR}`);
   }
 
-  try {
-    staffInfo = await fetchOfflineStaffInfo({ email: session.user.email });
-  } catch (staffInfoError) {
-    console.error("Failed to fetch staff info:", staffInfoError);
-    return (
-      <ErrorCard
-        message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
-      />
-    );
-  }
+  const staffAuth = await checkStaffAuthorization(session.user.email);
 
-  if (!staffInfo.data) {
+  if (!staffAuth.isStaff) {
+    if (staffAuth.error) {
+      console.error("Staff authorization failed:", staffAuth.error);
+
+      // If it's an internal server error, show error page
+      if (staffAuth.error === ERROR_CODES.INTERNAL_SERVER_ERROR) {
+        return <ErrorCard message={getErrorMessage(staffAuth.error)} />;
+      }
+    }
+
+    // For unauthorized users, sign out and redirect
     try {
       await auth.api.signOut({
         headers: await headers(),
       });
     } catch (signOutError) {
       console.error("Failed to sign out user:", signOutError);
-      // Continue with redirect even if sign out fails
     }
     redirect(`/?error=${NOT_STAFF_ERROR}`);
-  } else if (staffInfo.error) {
-    return (
-      <ErrorCard
-        message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
-      />
-    );
   }
 
   return (
     <div className="min-h-screen p-2">
-      <Form staffInfo={staffInfo.data} session={session} />
+      <Form
+        staffInfo={{
+          name: staffAuth.staffInfo!.name,
+          email: staffAuth.staffInfo!.email,
+        }}
+        session={session}
+      />
     </div>
   );
 }

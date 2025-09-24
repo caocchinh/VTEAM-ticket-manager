@@ -10,7 +10,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { verifySession } from "@/dal/verifySession";
-import { fetchOfflineStaffInfo } from "@/lib/SpreadSheet";
+import { checkStaffAuthorization } from "@/dal/staff-auth";
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
@@ -36,38 +36,29 @@ export default async function HomePage({ searchParams }: HomeProps) {
   }
 
   if (session) {
-    let staffInfo;
-    try {
-      staffInfo = await fetchOfflineStaffInfo({ email: session.user.email });
-    } catch (staffInfoError) {
-      console.error("Failed to fetch staff info:", staffInfoError);
-      return (
-        <ErrorCard
-          message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
-        />
-      );
-    }
+    const staffAuth = await checkStaffAuthorization(session.user.email);
 
-    if (staffInfo.data) {
+    if (staffAuth.isStaff) {
       redirect("/dashboard");
     } else {
-      if (staffInfo.error) {
-        return (
-          <ErrorCard
-            message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
-          />
-        );
-      }
+      if (staffAuth.error) {
+        console.error("Staff authorization failed:", staffAuth.error);
 
-      try {
-        await auth.api.signOut({
-          headers: await headers(),
-        });
-      } catch (signOutError) {
-        console.error("Failed to sign out user:", signOutError);
-      }
+        // If it's an internal server error, show error page
+        if (staffAuth.error === ERROR_CODES.INTERNAL_SERVER_ERROR) {
+          return <ErrorCard message={getErrorMessage(staffAuth.error)} />;
+        }
 
-      redirect(`/?error=${NOT_STAFF_ERROR}`);
+        // For unauthorized users, sign out and show login page
+        try {
+          await auth.api.signOut({
+            headers: await headers(),
+          });
+        } catch (signOutError) {
+          console.error("Failed to sign out user:", signOutError);
+        }
+        redirect(`/?error=${NOT_STAFF_ERROR}`);
+      }
     }
   }
 

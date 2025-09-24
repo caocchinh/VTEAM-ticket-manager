@@ -15,14 +15,25 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { SalesInfo, TicketInfo } from "@/constants/types";
+import {
+  OfflineSalesInfo,
+  OnlineSalesInfo,
+  TicketInfo,
+} from "@/constants/types";
+
+// Type guard to check if sales info is offline
+const isOfflineSalesInfo = (
+  sale: OfflineSalesInfo | OnlineSalesInfo
+): sale is OfflineSalesInfo => {
+  return "staffName" in sale && "paymentMedium" in sale;
+};
 import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
 import { useMemo } from "react";
 import { format, parse } from "date-fns";
 import { vi } from "date-fns/locale";
 
 interface SalesTrendChartProps {
-  salesInfo: SalesInfo[];
+  salesInfo: (OfflineSalesInfo | OnlineSalesInfo)[];
   ticketInfo: TicketInfo[];
   staffName?: string;
 }
@@ -95,8 +106,13 @@ const SalesTrendChart = ({
         dailyData[dateKey].totalRevenue += numericPrice;
         dailyData[dateKey].totalOrders += 1;
 
-        // Update staff data if this sale belongs to the current staff
-        if (staffName && sale.staffName === staffName) {
+        // Update staff data if this sale belongs to the current staff (only for offline sales)
+        // For online sales, there's no staff contribution
+        if (
+          staffName &&
+          isOfflineSalesInfo(sale) &&
+          sale.staffName === staffName
+        ) {
           dailyData[dateKey].staffRevenue += numericPrice;
           dailyData[dateKey].staffOrders += 1;
         }
@@ -165,8 +181,12 @@ const SalesTrendChart = ({
         <div className="flex w-[65%]">
           {(Object.keys(chartConfig) as Array<keyof typeof chartConfig>).map(
             (key) => {
-              // Only show staff data if staffName is provided
-              if (key.includes("staff") && !staffName) return null;
+              // Only show staff data if staffName is provided and there are offline sales
+              if (
+                key.includes("staff") &&
+                (!staffName || !salesInfo.some(isOfflineSalesInfo))
+              )
+                return null;
 
               return (
                 <button

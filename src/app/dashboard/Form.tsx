@@ -7,6 +7,7 @@ import { CardTitle, CardDescription } from "@/components/ui/card";
 import { LogoutButton } from "@/components/LogoutButton";
 import { truncateText } from "@/lib/utils";
 import SpreadsheetQuickAccess from "@/components/SpreadsheetQuickAccess";
+import StatisticsDialog from "@/components/StatisticsDialog";
 import {
   Dialog,
   DialogClose,
@@ -43,7 +44,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Calculator,
-  ChartPie,
   ChartSpline,
   CloudDownload,
   Eye,
@@ -91,10 +91,6 @@ import { sendOrderAction, updateOnlineDataAction } from "@/server/actions";
 import Image from "next/image";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
-import ClassDistributionBarChart from "@/components/ClassDistributionBarChart";
-import TicketDistributionPieChart from "@/components/TicketDistributionPieChart";
-import PaymentDistributionPieChart from "@/components/PaymentDistributionPieChart";
-import StaffContributionBarChart from "@/components/StaffContributionBarChart";
 import SalesSummary from "@/components/SalesSummary";
 import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
@@ -136,7 +132,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     setIsConfirmingOrderAlertDialogOpen,
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
-  const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [isMoneyVisible, setIsMoneyVisible] = useState(true);
   const [ticketColors, setTicketColors] = useState<Record<string, string>>({});
@@ -779,9 +774,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       },
       onError: () => {
         errorToast({ message: "Cập nhật dữ liệu thất bại!" });
-        if (isStatsDialogOpen) {
-          setIsStatsDialogOpen(false);
-        }
       },
     });
 
@@ -879,18 +871,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     }
     return { revenue: 0, orderCount: 0 };
   }, [salesInfo, ticketInfo, staffInfo]);
-
-  const totalSuccessfulSales = useMemo(() => {
-    if (salesInfo) {
-      return (
-        salesInfo.offline.length +
-        salesInfo.online.filter(
-          (sale) => sale.hasBeenVerified === VERIFICATION_APPROVED
-        ).length
-      );
-    }
-    return 0;
-  }, [salesInfo]);
 
   // Prevent accidental page refresh/close when there's unsaved data
   useEffect(() => {
@@ -1235,62 +1215,13 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             <TooltipContent>Cập nhật dữ liệu</TooltipContent>
           </Tooltip>
         </div>
-        <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DialogTrigger asChild>
-                <Button
-                  className="cursor-pointer w-[35px] -mr-2"
-                  disabled={!salesInfo || isSalesInfoError}
-                >
-                  <ChartPie />
-                </Button>
-              </DialogTrigger>
-            </TooltipTrigger>
-            <TooltipContent>Xem thống kê</TooltipContent>
-          </Tooltip>
-          <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
-            <DialogTitle className="sr-only">Thống kê</DialogTitle>
-            <div className="flex items-center justify-center gap-2">
-              <h3 className="text-center font-semibold text-xl uppercase">
-                Tổng {totalSuccessfulSales} đơn
-              </h3>
-              <Separator orientation="vertical" />
-              <Button
-                onClick={() => mutateRefetchSales()}
-                variant="ghost"
-                className="border border-black cursor-pointer"
-                disabled={isRefetchingSales || isSalesInfoFetching}
-              >
-                Cập nhật dữ liệu
-                {isRefetchingSales && <Loader2 className="animate-spin " />}
-              </Button>
-            </div>
-            <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
-              {salesInfo && salesInfo.offline.length > 0 ? (
-                <div className="flex flex-wrap  items-center justify-center gap-2 w-full">
-                  <ClassDistributionBarChart salesInfo={salesInfo.offline} />
-                  <TicketDistributionPieChart salesInfo={salesInfo.offline} />
-                  <PaymentDistributionPieChart salesInfo={salesInfo.offline} />
-                  <StaffContributionBarChart salesInfo={salesInfo.offline} />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center">
-                  Không có đủ dữ kiện để trình bày
-                </div>
-              )}
-            </ScrollArea>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                className="w-full cursor-pointer"
-                onClick={() => setIsStatsDialogOpen(false)}
-              >
-                Đóng
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <StatisticsDialog
+          salesInfo={salesInfo}
+          isSalesInfoError={isSalesInfoError}
+          isSalesInfoFetching={isSalesInfoFetching}
+          onRefetchSales={() => mutateRefetchSales()}
+          isRefetchingSales={isRefetchingSales}
+        />
 
         <Dialog
           open={isSummaryDialogOpen}
@@ -1335,19 +1266,59 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 {isRefetchingSales && <Loader2 className="animate-spin " />}
               </Button>
             </div>
-            <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
-              {salesInfo && salesInfo.offline.length > 0 && ticketInfo ? (
-                <SalesSummary
-                  salesInfo={salesInfo.offline}
-                  ticketInfo={ticketInfo.offline}
-                  staffName={staffInfo.name}
-                />
-              ) : (
-                <div className="flex items-center justify-center">
-                  Không có đủ dữ kiện để trình bày
-                </div>
-              )}
-            </ScrollArea>
+            <Tabs defaultValue="offline" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="offline">
+                  Offline ({salesInfo?.offline.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="online">
+                  Online (
+                  {salesInfo?.online.filter(
+                    (order) => order.hasBeenVerified === VERIFICATION_APPROVED
+                  ).length || 0}
+                  )
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="offline" className="mt-4">
+                <ScrollArea className="h-[65dvh] pr-4 w-full" type="always">
+                  {salesInfo && salesInfo.offline.length > 0 && ticketInfo ? (
+                    <SalesSummary
+                      salesInfo={salesInfo.offline}
+                      ticketInfo={ticketInfo.offline}
+                      staffName={staffInfo.name}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      Không có đủ dữ kiện offline để trình bày
+                    </div>
+                  )}
+                </ScrollArea>
+              </TabsContent>
+
+              <TabsContent value="online" className="mt-4">
+                <ScrollArea className="h-[65dvh] pr-4 w-full" type="always">
+                  {salesInfo &&
+                  salesInfo.online.filter(
+                    (order) => order.hasBeenVerified === VERIFICATION_APPROVED
+                  ).length > 0 &&
+                  ticketInfo ? (
+                    <SalesSummary
+                      salesInfo={salesInfo.online.filter(
+                        (order) =>
+                          order.hasBeenVerified === VERIFICATION_APPROVED
+                      )}
+                      ticketInfo={ticketInfo.online}
+                      staffName={staffInfo.name}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      Không có đủ dữ kiện online đã xác minh để trình bày
+                    </div>
+                  )}
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
             <DialogFooter>
               <Button
                 variant="outline"

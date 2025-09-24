@@ -1,5 +1,20 @@
-import { SalesInfo, TicketInfo } from "@/constants/types";
-import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
+import {
+  OfflineSalesInfo,
+  OnlineSalesInfo,
+  TicketInfo,
+} from "@/constants/types";
+
+// Type guard to check if sales info is offline
+const isOfflineSalesInfo = (
+  sale: OfflineSalesInfo | OnlineSalesInfo
+): sale is OfflineSalesInfo => {
+  return "staffName" in sale && "paymentMedium" in sale;
+};
+import {
+  cn,
+  formatVietnameseCurrency,
+  parseVietnameseCurrency,
+} from "@/lib/utils";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +45,7 @@ import {
 import { vi } from "date-fns/locale";
 
 interface SalesSummaryProps {
-  salesInfo: SalesInfo[];
+  salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[];
   ticketInfo: TicketInfo[];
   staffName?: string;
 }
@@ -41,12 +56,15 @@ interface DailySummary {
   totalOrders: number;
   cashOrders: number;
   transferOrders: number;
+  onlineOrders: number;
   cashRevenue: number;
   transferRevenue: number;
+  onlineRevenue: number;
   ticketBreakdown: Record<string, number>;
   ticketRevenueBreakdown: Record<string, number>;
   cashTicketBreakdown: Record<string, { count: number; revenue: number }>;
   transferTicketBreakdown: Record<string, { count: number; revenue: number }>;
+  onlineTicketBreakdown: Record<string, { count: number; revenue: number }>;
   staffBreakdown: Record<string, { orders: number; revenue: number }>;
 }
 
@@ -168,12 +186,15 @@ const SalesSummary = ({
             totalOrders: 0,
             cashOrders: 0,
             transferOrders: 0,
+            onlineOrders: 0,
             cashRevenue: 0,
             transferRevenue: 0,
+            onlineRevenue: 0,
             ticketBreakdown: {},
             ticketRevenueBreakdown: {},
             cashTicketBreakdown: {},
             transferTicketBreakdown: {},
+            onlineTicketBreakdown: {},
             staffBreakdown: {},
           };
         }
@@ -189,13 +210,19 @@ const SalesSummary = ({
         summary.totalOrders += 1;
 
         // Update payment method counts and revenue
-        const isCash = sale.paymentMedium === "Tiền mặt";
-        if (isCash) {
-          summary.cashOrders += 1;
-          summary.cashRevenue += numericPrice;
+        if (isOfflineSalesInfo(sale)) {
+          const isCash = sale.paymentMedium === "Tiền mặt";
+          if (isCash) {
+            summary.cashOrders += 1;
+            summary.cashRevenue += numericPrice;
+          } else {
+            summary.transferOrders += 1;
+            summary.transferRevenue += numericPrice;
+          }
         } else {
-          summary.transferOrders += 1;
-          summary.transferRevenue += numericPrice;
+          // Online orders
+          summary.onlineOrders += 1;
+          summary.onlineRevenue += numericPrice;
         }
 
         // Update ticket breakdown (count)
@@ -211,25 +238,41 @@ const SalesSummary = ({
         summary.ticketRevenueBreakdown[sale.buyerTicketType] += numericPrice;
 
         // Update payment method specific ticket breakdown
-        const ticketBreakdownKey = isCash
-          ? "cashTicketBreakdown"
-          : "transferTicketBreakdown";
-        if (!summary[ticketBreakdownKey][sale.buyerTicketType]) {
-          summary[ticketBreakdownKey][sale.buyerTicketType] = {
-            count: 0,
-            revenue: 0,
-          };
+        if (isOfflineSalesInfo(sale)) {
+          const isCash = sale.paymentMedium === "Tiền mặt";
+          const ticketBreakdownKey = isCash
+            ? "cashTicketBreakdown"
+            : "transferTicketBreakdown";
+          if (!summary[ticketBreakdownKey][sale.buyerTicketType]) {
+            summary[ticketBreakdownKey][sale.buyerTicketType] = {
+              count: 0,
+              revenue: 0,
+            };
+          }
+          summary[ticketBreakdownKey][sale.buyerTicketType].count += 1;
+          summary[ticketBreakdownKey][sale.buyerTicketType].revenue +=
+            numericPrice;
+        } else {
+          // Online orders
+          if (!summary.onlineTicketBreakdown[sale.buyerTicketType]) {
+            summary.onlineTicketBreakdown[sale.buyerTicketType] = {
+              count: 0,
+              revenue: 0,
+            };
+          }
+          summary.onlineTicketBreakdown[sale.buyerTicketType].count += 1;
+          summary.onlineTicketBreakdown[sale.buyerTicketType].revenue +=
+            numericPrice;
         }
-        summary[ticketBreakdownKey][sale.buyerTicketType].count += 1;
-        summary[ticketBreakdownKey][sale.buyerTicketType].revenue +=
-          numericPrice;
 
-        // Update staff breakdown
-        if (!summary.staffBreakdown[sale.staffName]) {
-          summary.staffBreakdown[sale.staffName] = { orders: 0, revenue: 0 };
+        // Update staff breakdown (only for offline sales)
+        if (isOfflineSalesInfo(sale)) {
+          if (!summary.staffBreakdown[sale.staffName]) {
+            summary.staffBreakdown[sale.staffName] = { orders: 0, revenue: 0 };
+          }
+          summary.staffBreakdown[sale.staffName].orders += 1;
+          summary.staffBreakdown[sale.staffName].revenue += numericPrice;
         }
-        summary.staffBreakdown[sale.staffName].orders += 1;
-        summary.staffBreakdown[sale.staffName].revenue += numericPrice;
       } catch (error) {
         console.error("Error processing sale:", error);
       }
@@ -249,6 +292,7 @@ const SalesSummary = ({
         totalOrders: acc.totalOrders + day.totalOrders,
         cashOrders: acc.cashOrders + day.cashOrders,
         transferOrders: acc.transferOrders + day.transferOrders,
+        onlineOrders: acc.onlineOrders + day.onlineOrders,
         avgOrderValue: 0, // Will calculate after
       }),
       {
@@ -256,6 +300,7 @@ const SalesSummary = ({
         totalOrders: 0,
         cashOrders: 0,
         transferOrders: 0,
+        onlineOrders: 0,
         avgOrderValue: 0,
       }
     );
@@ -376,7 +421,14 @@ const SalesSummary = ({
 
       {/* Overall Summary */}
       {totalSummary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          className={cn(
+            "grid grid-cols-1 md:grid-cols-2 gap-4",
+            salesInfo.some((sale) => isOfflineSalesInfo(sale))
+              ? "lg:grid-cols-4"
+              : "lg:grid-cols-3"
+          )}
+        >
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -405,6 +457,9 @@ const SalesSummary = ({
               <p className="text-xs text-muted-foreground">
                 {totalSummary.cashOrders} tiền mặt,{" "}
                 {totalSummary.transferOrders} chuyển khoản
+                {totalSummary.onlineOrders > 0 && (
+                  <span>, {totalSummary.onlineOrders} online</span>
+                )}
               </p>
             </CardContent>
           </Card>
@@ -423,36 +478,37 @@ const SalesSummary = ({
             </CardContent>
           </Card>
 
-          {currentStaffSummary && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Doanh thu của bạn
-                </CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-[#0084ff]">
-                  {formatVietnameseCurrency(currentStaffSummary.revenue)}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {currentStaffSummary.orders} đơn hàng
-                  {totalSummary.totalRevenue > 0 && (
-                    <span>
-                      {" "}
-                      •{" "}
-                      {Math.round(
-                        (currentStaffSummary.revenue /
-                          totalSummary.totalRevenue) *
-                          100
-                      )}
-                      % tổng
-                    </span>
-                  )}
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {currentStaffSummary &&
+            salesInfo.some((sale) => isOfflineSalesInfo(sale)) && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Doanh thu của bạn
+                  </CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-[#0084ff]">
+                    {formatVietnameseCurrency(currentStaffSummary.revenue)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {currentStaffSummary.orders} đơn hàng
+                    {totalSummary.totalRevenue > 0 && (
+                      <span>
+                        {" "}
+                        •{" "}
+                        {Math.round(
+                          (currentStaffSummary.revenue /
+                            totalSummary.totalRevenue) *
+                            100
+                        )}
+                        % tổng
+                      </span>
+                    )}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
         </div>
       )}
 
@@ -502,20 +558,33 @@ const SalesSummary = ({
                     <div className="w-full md:w-1/2">
                       <p className="font-medium mb-2">Hình thức thanh toán:</p>
                       <div className="space-y-1">
-                        <div className="flex justify-between">
-                          <span>• Tiền mặt:</span>
-                          <span className="font-medium">
-                            {formatVietnameseCurrency(day.cashRevenue)} (
-                            {day.cashOrders} đơn)
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>• Chuyển khoản:</span>
-                          <span className="font-medium">
-                            {formatVietnameseCurrency(day.transferRevenue)} (
-                            {day.transferOrders} đơn)
-                          </span>
-                        </div>
+                        {day.cashOrders > 0 && (
+                          <div className="flex justify-between">
+                            <span>• Tiền mặt:</span>
+                            <span className="font-medium">
+                              {formatVietnameseCurrency(day.cashRevenue)} (
+                              {day.cashOrders} đơn)
+                            </span>
+                          </div>
+                        )}
+                        {day.transferOrders > 0 && (
+                          <div className="flex justify-between">
+                            <span>• Chuyển khoản:</span>
+                            <span className="font-medium">
+                              {formatVietnameseCurrency(day.transferRevenue)} (
+                              {day.transferOrders} đơn)
+                            </span>
+                          </div>
+                        )}
+                        {day.onlineOrders > 0 && (
+                          <div className="flex justify-between">
+                            <span>• Online:</span>
+                            <span className="font-medium">
+                              {formatVietnameseCurrency(day.onlineRevenue)} (
+                              {day.onlineOrders} đơn)
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <Separator
@@ -601,6 +670,42 @@ const SalesSummary = ({
                                       <div
                                         key={`transfer-${ticket}`}
                                         className="flex justify-between bg-blue-50 p-2 rounded"
+                                      >
+                                        <span>
+                                          {ticket} ({ticketPrice}):
+                                        </span>
+                                        <span className="font-medium">
+                                          {formatVietnameseCurrency(
+                                            data.revenue
+                                          )}{" "}
+                                          ({data.count} vé)
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Online Payment Details */}
+                          {day.onlineRevenue > 0 && (
+                            <div>
+                              <h5 className="font-medium text-sm mb-2 text-purple-700">
+                                Online -{" "}
+                                {formatVietnameseCurrency(day.onlineRevenue)}
+                              </h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {Object.entries(day.onlineTicketBreakdown)
+                                  .sort(([, a], [, b]) => b.revenue - a.revenue)
+                                  .map(([ticket, data]) => {
+                                    const ticketPrice =
+                                      ticketInfo.find(
+                                        (info) => ticket === info.ticketName
+                                      )?.price ?? "0";
+                                    return (
+                                      <div
+                                        key={`online-${ticket}`}
+                                        className="flex justify-between bg-purple-50 p-2 rounded"
                                       >
                                         <span>
                                           {ticket} ({ticketPrice}):

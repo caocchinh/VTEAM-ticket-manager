@@ -32,6 +32,8 @@ export interface Staff {
   name: string;
 }
 
+export type OnlineCoordinator = Staff;
+
 export interface EventInfo {
   eventName: string;
 }
@@ -59,4 +61,9 @@ export interface OnlineSalesInfo {
   confirmationImage: string;
   rejectionReason: string;
   hasBeenVerified: boolean;
+}
+
+export interface AllSalesInfo {
+  offline: OfflineSalesInfo[];
+  online: OnlineSalesInfo[];
 }

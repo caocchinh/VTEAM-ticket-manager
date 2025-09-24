@@ -1,8 +1,12 @@
-import { fetchOfflineStaffInfo } from "@/lib/SpreadSheet";
+import {
+  fetchOfflineStaffInfo,
+  fetchOnlineCoordinatorInfo,
+} from "@/lib/SpreadSheet";
 import { ERROR_CODES } from "@/constants/errors";
 
 export interface StaffAuthResult {
   isStaff: boolean;
+  isOnlineCoordinator: boolean;
   staffInfo?: {
     name: string;
     email: string;
@@ -20,32 +24,44 @@ export const checkStaffAuthorization = async (
 ): Promise<StaffAuthResult> => {
   try {
     // Fetch staff info for the provided email
-    const staffInfo = await fetchOfflineStaffInfo({ email });
+    const [offlineStaffInfo, onlineCoordinatorInfo] = await Promise.all([
+      fetchOfflineStaffInfo({ email }),
+      fetchOnlineCoordinatorInfo({ email }),
+    ]);
 
-    if (staffInfo.error) {
+    if (offlineStaffInfo.error || onlineCoordinatorInfo.error) {
       return {
         isStaff: false,
+        isOnlineCoordinator: false,
         error: ERROR_CODES.INTERNAL_SERVER_ERROR,
       };
     }
 
-    if (!staffInfo.data) {
+    if (!offlineStaffInfo.data && !onlineCoordinatorInfo.data) {
       return {
         isStaff: false,
+        isOnlineCoordinator: false,
         error: ERROR_CODES.UNAUTHORIZED,
+      };
+    }
+
+    if (onlineCoordinatorInfo.data) {
+      return {
+        isStaff: true,
+        isOnlineCoordinator: true,
+        staffInfo: onlineCoordinatorInfo.data,
       };
     }
 
     return {
       isStaff: true,
-      staffInfo: {
-        name: staffInfo.data.name,
-        email: email,
-      },
+      isOnlineCoordinator: false,
+      staffInfo: offlineStaffInfo.data,
     };
   } catch {
     return {
       isStaff: false,
+      isOnlineCoordinator: false,
       error: ERROR_CODES.INTERNAL_SERVER_ERROR,
     };
   }

@@ -1,7 +1,8 @@
-import { fetchOfflineSales } from "@/lib/SpreadSheet";
+import { fetchOfflineSales, fetchOnlineSales } from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
 import { createApiError, HTTP_STATUS, ERROR_CODES } from "@/constants/errors";
 import { verifySession } from "@/dal/verifySession";
+import { AllSalesInfo } from "@/constants/types";
 
 export async function GET() {
   try {
@@ -28,9 +29,27 @@ export async function GET() {
       return createApiError("UNAUTHORIZED", HTTP_STATUS.UNAUTHORIZED);
     }
 
-    let salesData;
     try {
-      salesData = await fetchOfflineSales();
+      const [offlineSales, onlineSales] = await Promise.all([
+        (async () => {
+          const response = await fetchOfflineSales();
+          if (response.error || !response.data) {
+            throw new Error(ERROR_CODES.SALES_INFO_FETCH_FAILED);
+          }
+          return response.data;
+        })(),
+        (async () => {
+          const response = await fetchOnlineSales();
+          if (response.error || !response.data) {
+            throw new Error(ERROR_CODES.SALES_INFO_FETCH_FAILED);
+          }
+          return response.data;
+        })(),
+      ]);
+      return Response.json({
+        offline: offlineSales,
+        online: onlineSales,
+      } as AllSalesInfo);
     } catch (error) {
       return createApiError(
         "INTERNAL_SERVER_ERROR",
@@ -38,8 +57,6 @@ export async function GET() {
         (error as Error).message
       );
     }
-
-    return Response.json(salesData);
   } catch (error) {
     console.error("Error fetching sales info:", error);
     return createApiError(

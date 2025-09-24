@@ -45,11 +45,15 @@ import {
   ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX,
   ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX,
   ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX,
+  ONLINE_SALES_COORDINATOR_SHEET_NAME,
+  ONLINE_SALES_COORDINATOR_EMAIL_INDEX,
+  ONLINE_SALES_COORDINATOR_NAME_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
   OfflineSalesInfo,
   OnlineSalesInfo,
+  OnlineCoordinator,
   Staff,
   Student,
   StudentInput,
@@ -221,6 +225,54 @@ export const fetchOfflineStaffInfo = async ({
   }
 };
 
+export const fetchOnlineCoordinatorInfo = async ({
+  email,
+}: {
+  email: string;
+}): Promise<{
+  error: boolean;
+  data: OnlineCoordinator | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    console.log(`[SPREADSHEET] Starting fetchStaffInfo for email: ${email}`);
+
+    const response = await retryExternalApi(async () => {
+      return await sheets.spreadsheets.values.get({
+        spreadsheetId: ONLINE_SALES_SHEET_ID,
+        range: `${ONLINE_SALES_COORDINATOR_SHEET_NAME}!A:Z`,
+      });
+    }, "fetchStaffInfo");
+
+    const foundValue = response.data.values?.find(
+      (value) => value[ONLINE_SALES_COORDINATOR_EMAIL_INDEX] === email
+    );
+
+    const data = foundValue
+      ? {
+          email,
+          name: foundValue[ONLINE_SALES_COORDINATOR_NAME_INDEX],
+        }
+      : undefined;
+
+    if (data) {
+      console.log(
+        `[SPREADSHEET] Successfully found staff info for: ${data.name} (${email})`
+      );
+      return { error: false, data: data };
+    }
+
+    console.log(`[SPREADSHEET] No staff found for email: ${email}`);
+    return { error: false, data: undefined };
+  } catch (error) {
+    console.error(
+      `[SPREADSHEET] Failed to fetch staff info for ${email} after all retries:`,
+      error
+    );
+    return { error: true, data: undefined };
+  }
+};
 export const createSheetIfNotExists = async ({
   spreadsheetId,
   sheetName,

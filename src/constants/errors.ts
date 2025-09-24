@@ -6,6 +6,7 @@
 export const ERROR_CODES = {
   NOT_STUDENT: "not-student",
   NOT_LOGGED_IN: "not-logged-in",
+  SALES_INFO_FETCH_FAILED: "sales-info-fetch-failed",
   SESSION_VERIFICATION_FAILED: "session-verification-failed",
   UNAUTHORIZED: "unauthorized",
   INVALID_STUDENT_CREDENTIALS: "invalid-student-credentials",
@@ -30,6 +31,8 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.NOT_STUDENT]:
     "Bạn không phải là học sinh của Vinschool Central Park",
   [ERROR_CODES.NOT_LOGGED_IN]: "Xác thực thất bại. Vui lòng thử đăng nhập lại.",
+  [ERROR_CODES.SALES_INFO_FETCH_FAILED]:
+    "Không thể lấy thông tin bán vé. Vui lòng thử lại sau.",
   [ERROR_CODES.SESSION_VERIFICATION_FAILED]:
     "Không thể xác minh phiên đăng nhập. Vui lòng thử đăng nhập lại.",
   [ERROR_CODES.UNAUTHORIZED]: "Bạn không có quyền truy cập",

@@ -1342,7 +1342,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             {(isTicketInfoError || isStudentListError) &&
               !isTicketInfoFetching &&
               !isStudentListFetching && (
-                <div className="absolute w-full h-full bg-red-600/60 z-[100] top-0 left-0 rounded-md flex items-center justify-center flex-col">
+                <div className="absolute w-full h-full bg-red-600/60 z-[1] top-0 left-0 rounded-md flex items-center justify-center flex-col">
                   <p className="text-white">
                     Lấy thông tin từ cơ sở dữ liệu thất bại
                   </p>

@@ -56,6 +56,7 @@ export default async function Dashboard() {
           name: staffAuth.staffInfo!.name,
           email: staffAuth.staffInfo!.email,
         }}
+        isOnlineCoordinator={staffAuth.isOnlineCoordinator}
         session={session}
       />
     </div>

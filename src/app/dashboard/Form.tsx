@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
+
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,8 +98,15 @@ import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
+const Form = ({
+  session,
+  staffInfo,
+  isOnlineCoordinator,
+}: {
+  session: any;
+  staffInfo: Staff;
+  isOnlineCoordinator: boolean;
+}) => {
   const [mounted, setMounted] = useState(false);
   const [selectedStudentIdInput, setSelectedStudentIdInput] = useState("");
   const [studentNameAutoCompleteValue, setStudentNameAutoCompleteValue] =
@@ -127,6 +136,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   const [paymentMedium, setPaymentMedium] = useState<
     "Tiền mặt" | "Chuyển khoản"
   >("Tiền mặt");
+  console.log(isOnlineCoordinator);
   const [
     isConfirmingOrderAlertDialogOpen,
     setIsConfirmingOrderAlertDialogOpen,

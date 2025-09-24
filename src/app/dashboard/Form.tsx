@@ -86,7 +86,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { sendOrderAction } from "@/server/actions";
+import { sendOrderAction, updateOnlineDataAction } from "@/server/actions";
 import Image from "next/image";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
@@ -758,8 +758,10 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       setIsConfirmingOrderAlertDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["sales_info"] });
     },
-    onError: () => {
-      errorToast({ message: "Chốt deal thất bại, vui lòng thử lại!" });
+    onError: (error: Error) => {
+      errorToast({
+        message: `Chốt deal thất bại, vui lòng thử lại! ${error.message}`,
+      });
     },
   });
 
@@ -780,6 +782,23 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
         }
       },
     });
+
+  const { mutate: refetchAllDataMutation } = useMutation({
+    mutationKey: ["refetch_all_data"],
+    mutationFn: async () => {
+      await Promise.all([
+        refetchStudentList(),
+        refetchEventInfo(),
+        refetchTicketInfo(),
+      ]);
+    },
+    onSuccess: () => {
+      sucessToast({ message: "Làm mới dữ liệu thành công!" });
+    },
+    onError: () => {
+      errorToast({ message: "Làm mới dữ liệu thất bại, vui lòng thử lại!" });
+    },
+  });
 
   const {
     data: salesInfo,
@@ -868,6 +887,26 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     currentOrder.length,
     isOrderMutating,
   ]);
+
+  const { mutate: mutateUpdateOnlineData, isPending: isOnlineDataUpdating } =
+    useMutation({
+      mutationKey: ["update_online_data"],
+      mutationFn: async () => {
+        const result = await updateOnlineDataAction();
+        if (!result.success) {
+          throw new Error(result.message);
+        }
+        return true;
+      },
+      onSuccess: () => {
+        sucessToast({ message: "Cập nhật dữ liệu thành công!" });
+      },
+      onError: (error: Error) => {
+        errorToast({
+          message: `Cập nhật dữ liệu thất bại, vui lòng thử lại! ${error.message}`,
+        });
+      },
+    });
 
   return (
     <>
@@ -959,7 +998,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                 <Button
                   className="h-[50px] w-[50px] border cursor-pointer"
                   variant="ghost"
-                  disabled={isStudentListFetching || isTicketInfoFetching}
                 >
                   <CloudDownload />
                 </Button>
@@ -980,19 +1018,21 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               </TabsList>
               <TabsContent value="offline">
                 <DialogDescription>
-                  Hành động này sẽ xóa tất cả dữ liệu đã nhập trong phiên làm
-                  việc hiện tại và tải lại thông tin mới (danh sách học sinh &
-                  thông tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có
+                  Hành động này sẽ xóa tất cả thông tin đang nhập trong phiên
+                  làm việc hiện tại và tải lại thông tin mới (danh sách học sinh
+                  & thông tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có
                   chắc chắn muốn tiếp tục?
                 </DialogDescription>
                 <DialogFooter className="mt-4">
                   <Button
                     variant="outline"
+                    className="cursor-pointer"
                     onClick={() => setIsRefreshDialogOpen(false)}
                   >
                     Hủy
                   </Button>
                   <Button
+                    disabled={isStudentListFetching || isTicketInfoFetching}
                     onClick={async () => {
                       try {
                         localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
@@ -1005,33 +1045,43 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                       } catch (error) {
                         console.log(error);
                       }
-                      setIsRefreshDialogOpen(false);
                       clearForm({ clearNotice: true });
                       setCurrentOrders([]);
-
-                      refetchStudentList();
-                      refetchEventInfo();
-                      refetchTicketInfo();
+                      refetchAllDataMutation();
                     }}
-                    disabled={isStudentListFetching || isTicketInfoFetching}
+                    className="cursor-pointer"
                   >
                     Xác nhận update dữ liệu offline
+                    {(isStudentListFetching || isTicketInfoFetching) && (
+                      <Loader2 className="animate-spin" />
+                    )}
                   </Button>
                 </DialogFooter>
               </TabsContent>
               <TabsContent value="online">
                 <DialogDescription>
-                  Hành động này sẽ update dữ liệu bán vé online từ cơ sở dữ
-                  liệu. Bạn có chắc chắn muốn tiếp tục?
+                  Hành động này sẽ update form bán vé online từ cơ sở dữ liệu
+                  (danh sách học sinh & thông tin vé & thông tin sự kiện & thông
+                  tin form). Bạn có chắc chắn muốn tiếp tục?
                 </DialogDescription>
                 <DialogFooter className="mt-4">
                   <Button
                     variant="outline"
+                    className="cursor-pointer"
                     onClick={() => setIsRefreshDialogOpen(false)}
                   >
                     Hủy
                   </Button>
-                  <Button>Xác nhận update dữ liệu offline</Button>
+                  <Button
+                    onClick={() => mutateUpdateOnlineData()}
+                    className="cursor-pointer"
+                    disabled={isOnlineDataUpdating}
+                  >
+                    Xác nhận update dữ liệu online
+                    {isOnlineDataUpdating && (
+                      <Loader2 className="animate-spin" />
+                    )}
+                  </Button>
                 </DialogFooter>
               </TabsContent>
             </Tabs>

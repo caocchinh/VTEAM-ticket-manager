@@ -97,6 +97,7 @@ import StaffContributionBarChart from "@/components/StaffContributionBarChart";
 import SalesSummary from "@/components/SalesSummary";
 import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
@@ -673,8 +674,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     };
   }, [handleTabKeyPress]);
 
-  
-
   const availableTicketsType = useMemo(() => {
     if (ticketInfo) {
       return (
@@ -836,7 +835,6 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     return { revenue: 0, orderCount: 0 };
   }, [salesInfo, ticketInfo, staffInfo]);
 
-
   // Prevent accidental page refresh/close when there's unsaved data
   useEffect(() => {
     const hasUnsavedData =
@@ -845,10 +843,8 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       homeroomInput.trim() ||
       emailInput.trim() ||
       noticeInput.trim() ||
-      currentOrder.length > 0
-      || isOrderMutating
-      
-      ;
+      currentOrder.length > 0 ||
+      isOrderMutating;
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedData) {
@@ -863,15 +859,23 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [selectedStudentIdInput, studentNameInput, homeroomInput, emailInput, noticeInput, currentOrder.length, isOrderMutating]);
+  }, [
+    selectedStudentIdInput,
+    studentNameInput,
+    homeroomInput,
+    emailInput,
+    noticeInput,
+    currentOrder.length,
+    isOrderMutating,
+  ]);
 
   return (
     <>
       <div className="flex flex-row m-auto w-full flex-wrap items-center justify-center gap-4">
         <div
           className={cn(
-            "flex p-2 h-[54px]  shadow-sm bg-card border-1 text-white rounded-md items-center gap-3  relative",
-            isEventInfoError && !isEventInfoFetching && "bg-red-500"
+            "flex p-2 min-h-[54px] flex-wrap shadow-sm justify-center border-1 text-white rounded-md items-center gap-3  relative",
+            isEventInfoError && !isEventInfoFetching && "bg-red-500/60"
           )}
         >
           <div className="flex items-center ">
@@ -879,7 +883,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               src="/assets/logo.webp"
               width={50}
               height={50}
-              className="-mt-2 -mr-1 "
+              className="-mt-2 -mr-1 -ml-1"
               alt="VTEAM Logo"
             />
             {(eventInfo?.eventName || isEventInfoFetching) && (
@@ -898,7 +902,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           </div>
 
           {isEventInfoError && !isEventInfoFetching && (
-            <div className=" w-full h-full  rounded-md flex items-center justify-center gap-2">
+            <div className=" w-max h-full  rounded-md flex items-center justify-center gap-2">
               <p className="text-white text-xs">Lỗi tải thông tin sự kiện</p>
               <Button
                 variant="ghost"
@@ -966,46 +970,71 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Xác nhận cập nhật dữ liệu</DialogTitle>
-              <DialogDescription>
-                Hành động này sẽ xóa tất cả dữ liệu đã nhập trong phiên làm việc
-                hiện tại và tải lại thông tin mới (danh sách học sinh & thông
-                tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có chắc chắn
-                muốn tiếp tục?
-              </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsRefreshDialogOpen(false)}
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={async () => {
-                  try {
-                    localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
-                    localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
-                    await Promise.all([
-                      deleteCache("ticket_info"),
-                      deleteCache("student_list"),
-                      deleteCache("event_info"),
-                    ]);
-                  } catch (error) {
-                    console.log(error);
-                  }
-                  setIsRefreshDialogOpen(false);
-                  clearForm({ clearNotice: true });
-                  setCurrentOrders([]);
+            <Tabs defaultValue="offline">
+              <TabsList>
+                <TabsTrigger value="offline">
+                  Dữ liệu bán vé offline
+                </TabsTrigger>
+                <TabsTrigger value="online">Dữ liệu bán vé online</TabsTrigger>
+              </TabsList>
+              <TabsContent value="offline">
+                <DialogDescription>
+                  Hành động này sẽ xóa tất cả dữ liệu đã nhập trong phiên làm
+                  việc hiện tại và tải lại thông tin mới (danh sách học sinh &
+                  thông tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có
+                  chắc chắn muốn tiếp tục?
+                </DialogDescription>
+                <DialogFooter className="mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsRefreshDialogOpen(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      try {
+                        localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
+                        localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
+                        await Promise.all([
+                          deleteCache("ticket_info"),
+                          deleteCache("student_list"),
+                          deleteCache("event_info"),
+                        ]);
+                      } catch (error) {
+                        console.log(error);
+                      }
+                      setIsRefreshDialogOpen(false);
+                      clearForm({ clearNotice: true });
+                      setCurrentOrders([]);
 
-                  refetchStudentList();
-                  refetchEventInfo();
-                  refetchTicketInfo();
-                }}
-                disabled={isStudentListFetching || isTicketInfoFetching}
-              >
-                Xác nhận
-              </Button>
-            </DialogFooter>
+                      refetchStudentList();
+                      refetchEventInfo();
+                      refetchTicketInfo();
+                    }}
+                    disabled={isStudentListFetching || isTicketInfoFetching}
+                  >
+                    Xác nhận update dữ liệu offline
+                  </Button>
+                </DialogFooter>
+              </TabsContent>
+              <TabsContent value="online">
+                <DialogDescription>
+                  Hành động này sẽ update dữ liệu bán vé online từ cơ sở dữ
+                  liệu. Bạn có chắc chắn muốn tiếp tục?
+                </DialogDescription>
+                <DialogFooter className="mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsRefreshDialogOpen(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button>Xác nhận update dữ liệu offline</Button>
+                </DialogFooter>
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
         <div className="flex p-2 h-[50px] shadow-sm bg-card rounded-md items-center justify-between gap-1 border-1 relative">

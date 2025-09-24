@@ -60,7 +60,7 @@ export interface OnlineSalesInfo {
   proofOfPaymentImage: string;
   confirmationImage: string;
   rejectionReason: string;
-  hasBeenVerified: boolean;
+  hasBeenVerified: string;
 }
 
 export interface AllSalesInfo {

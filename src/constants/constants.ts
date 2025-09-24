@@ -204,3 +204,7 @@ export const NOT_LOGGED_IN_ERROR = "not-logged-in";
 export const INVALID_TICKET_DUE_TO_INVALID_CLASS = "Lớp không hợp lệ!";
 export const NOT_STUDENT_IN_SCHOOL =
   "Không phải học sinh trong trường, vui lòng tự điền";
+
+export const VERIFICATION_FAILED = "Đã bị từ chối";
+export const VERIFICATION_PENDING = "Đang đợi xác minh";
+export const VERIFICATION_APPROVED = "Xác minh thành công";

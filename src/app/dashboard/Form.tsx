@@ -20,14 +20,15 @@ import {
 import {
   INVALID_TICKET_DUE_TO_INVALID_CLASS,
   NOT_STUDENT_IN_SCHOOL,
+  VERIFICATION_APPROVED,
 } from "@/constants/constants";
 import {
+  AllSalesInfo,
+  AllTicketInfo,
   EventInfo,
-  OfflineSalesInfo,
   Staff,
   Student,
   StudentInput,
-  TicketInfo,
 } from "@/constants/types";
 import {
   cn,
@@ -263,7 +264,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       throw new Error("Failed to fetch event information");
     }
     const data = await response.json();
-    return { eventName: data.data } as EventInfo;
+    return { eventName: data } as EventInfo;
   };
 
   const {
@@ -299,7 +300,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       throw new Error("Failed to fetch student list");
     }
     const data = await response.json();
-    return data.data as Student[];
+    return data as Student[];
   };
 
   const {
@@ -335,7 +336,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       throw new Error("Failed to fetch ticket info");
     }
     const data = await response.json();
-    return data.data as TicketInfo[];
+    return data as AllTicketInfo;
   };
 
   const {
@@ -349,7 +350,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       try {
         const cachedData = await getCache<string>("ticket_info");
         if (cachedData) {
-          return JSON.parse(cachedData) as TicketInfo[];
+          return JSON.parse(cachedData) as AllTicketInfo;
         } else {
           const freshData = await fetchTicketInfo();
           await setCache("ticket_info", JSON.stringify(freshData));
@@ -481,7 +482,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     // Get all unique ticket types from ticketInfo to ensure consistency
     const uniqueTicketTypes = ticketInfo
       ? Array.from(
-          new Set(ticketInfo.map((ticket) => ticket.ticketName))
+          new Set(ticketInfo.offline.map((ticket) => ticket.ticketName))
         ).sort()
       : [];
 
@@ -677,7 +678,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   const availableTicketsType = useMemo(() => {
     if (ticketInfo) {
       return (
-        ticketInfo
+        ticketInfo.offline
           ?.filter((value) =>
             value.classRange.includes(extractFirstNumber(homeroomInput) ?? 0)
           )
@@ -729,8 +730,9 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
       let subTotal = 0;
       currentOrder.forEach((order) => {
         const ticketPrice =
-          ticketInfo.find((info) => order.ticketType === info.ticketName)
-            ?.price ?? 0;
+          ticketInfo.offline.find(
+            (info) => order.ticketType === info.ticketName
+          )?.price ?? 0;
         const numericPrice = parseVietnameseCurrency(ticketPrice);
         subTotal += numericPrice;
       });
@@ -813,18 +815,35 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
         throw new Error("Failed to fetch sales info");
       }
       const data = await response.json();
-      return data.data as OfflineSalesInfo[];
+      return data as AllSalesInfo;
     },
     enabled: mounted,
   });
 
   const totalSalesAmount = useMemo(() => {
-    if (salesInfo && salesInfo.length > 0 && ticketInfo) {
+    if (
+      salesInfo &&
+      salesInfo.offline.length + salesInfo.online.length > 0 &&
+      ticketInfo &&
+      ticketInfo.offline.length > 0 &&
+      ticketInfo.online.length > 0
+    ) {
       let total = 0;
-      salesInfo.forEach((sale) => {
+      salesInfo.offline.forEach((sale) => {
         const ticketPrice =
-          ticketInfo.find((info) => sale.buyerTicketType === info.ticketName)
-            ?.price ?? 0;
+          ticketInfo.offline.find(
+            (info) => sale.buyerTicketType === info.ticketName
+          )?.price ?? 0;
+        const numericPrice = parseVietnameseCurrency(ticketPrice);
+        total += numericPrice;
+      });
+      salesInfo.online.forEach((sale) => {
+        const ticketPrice =
+          ticketInfo.online.find(
+            (info) =>
+              sale.buyerTicketType === info.ticketName &&
+              sale.hasBeenVerified === VERIFICATION_APPROVED
+          )?.price ?? 0;
         const numericPrice = parseVietnameseCurrency(ticketPrice);
         total += numericPrice;
       });
@@ -834,16 +853,23 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
   }, [salesInfo, ticketInfo]);
 
   const currentStaffStats = useMemo(() => {
-    if (salesInfo && salesInfo.length > 0 && ticketInfo && staffInfo) {
+    if (
+      salesInfo &&
+      salesInfo.offline &&
+      salesInfo.offline.length > 0 &&
+      ticketInfo &&
+      staffInfo
+    ) {
       let staffRevenue = 0;
       let staffOrderCount = 0;
 
-      salesInfo.forEach((sale) => {
+      salesInfo.offline.forEach((sale) => {
         if (sale.staffName === staffInfo.name) {
           staffOrderCount++;
           const ticketPrice =
-            ticketInfo.find((info) => sale.buyerTicketType === info.ticketName)
-              ?.price ?? 0;
+            ticketInfo.offline.find(
+              (info) => sale.buyerTicketType === info.ticketName
+            )?.price ?? 0;
           const numericPrice = parseVietnameseCurrency(ticketPrice);
           staffRevenue += numericPrice;
         }
@@ -853,6 +879,18 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
     }
     return { revenue: 0, orderCount: 0 };
   }, [salesInfo, ticketInfo, staffInfo]);
+
+  const totalSuccessfulSales = useMemo(() => {
+    if (salesInfo) {
+      return (
+        salesInfo.offline.length +
+        salesInfo.online.filter(
+          (sale) => sale.hasBeenVerified === VERIFICATION_APPROVED
+        ).length
+      );
+    }
+    return 0;
+  }, [salesInfo]);
 
   // Prevent accidental page refresh/close when there's unsaved data
   useEffect(() => {
@@ -1212,10 +1250,10 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             <TooltipContent>Xem thống kê</TooltipContent>
           </Tooltip>
           <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
-            <DialogTitle className="sr-only">Thống kế</DialogTitle>
+            <DialogTitle className="sr-only">Thống kê</DialogTitle>
             <div className="flex items-center justify-center gap-2">
               <h3 className="text-center font-semibold text-xl uppercase">
-                Tổng {salesInfo?.length} đơn
+                Tổng {totalSuccessfulSales} đơn
               </h3>
               <Separator orientation="vertical" />
               <Button
@@ -1229,12 +1267,12 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               </Button>
             </div>
             <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
-              {salesInfo && salesInfo.length > 0 ? (
+              {salesInfo && salesInfo.offline.length > 0 ? (
                 <div className="flex flex-wrap  items-center justify-center gap-2 w-full">
-                  <ClassDistributionBarChart salesInfo={salesInfo} />
-                  <TicketDistributionPieChart salesInfo={salesInfo} />
-                  <PaymentDistributionPieChart salesInfo={salesInfo} />
-                  <StaffContributionBarChart salesInfo={salesInfo} />
+                  <ClassDistributionBarChart salesInfo={salesInfo.offline} />
+                  <TicketDistributionPieChart salesInfo={salesInfo.offline} />
+                  <PaymentDistributionPieChart salesInfo={salesInfo.offline} />
+                  <StaffContributionBarChart salesInfo={salesInfo.offline} />
                 </div>
               ) : (
                 <div className="flex items-center justify-center">
@@ -1298,10 +1336,10 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
               </Button>
             </div>
             <ScrollArea className="h-[73dvh] pr-4 w-full" type="always">
-              {salesInfo && salesInfo.length > 0 && ticketInfo ? (
+              {salesInfo && salesInfo.offline.length > 0 && ticketInfo ? (
                 <SalesSummary
-                  salesInfo={salesInfo}
-                  ticketInfo={ticketInfo}
+                  salesInfo={salesInfo.offline}
+                  ticketInfo={ticketInfo.offline}
                   staffName={staffInfo.name}
                 />
               ) : (
@@ -1807,7 +1845,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
             <h2 className="font-semibold">Thông tin order</h2>
             {ticketInfo && (
               <TicketColorManager
-                ticketInfo={ticketInfo}
+                ticketInfo={ticketInfo.offline}
                 ticketColors={ticketColors}
                 onColorChange={handleTicketColorChange}
                 onResetColors={handleResetTicketColors}
@@ -1870,7 +1908,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                                   <OrderItemInfo
                                     order={currentOrder[editingIndex]}
                                     price={
-                                      ticketInfo?.find(
+                                      ticketInfo?.offline.find(
                                         (info) =>
                                           currentOrder[editingIndex!]
                                             ?.ticketType === info.ticketName
@@ -1942,7 +1980,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                                   <OrderItemInfo
                                     order={currentOrder[deletingIndex]}
                                     price={
-                                      ticketInfo?.find(
+                                      ticketInfo?.offline.find(
                                         (info) =>
                                           currentOrder[deletingIndex]
                                             ?.ticketType === info.ticketName
@@ -1972,7 +2010,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                         </div>
                         <OrderInfoAccordionItem
                           price={
-                            ticketInfo?.find(
+                            ticketInfo?.offline.find(
                               (info) => order.ticketType === info.ticketName
                             )?.price ?? 0
                           }
@@ -2018,7 +2056,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
                     <Fragment key={index}>
                       <OrderInfoAccordionItem
                         price={
-                          ticketInfo?.find(
+                          ticketInfo?.offline.find(
                             (info) => order.ticketType === info.ticketName
                           )?.price ?? 0
                         }

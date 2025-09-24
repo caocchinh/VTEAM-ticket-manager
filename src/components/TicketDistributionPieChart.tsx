@@ -10,13 +10,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { SalesInfo } from "@/constants/types";
 import { useMemo } from "react";
+import { OfflineSalesInfo, OnlineSalesInfo } from "@/constants/types";
 
 export default function TicketDistributionPieChart({
   salesInfo,
 }: {
-  salesInfo: SalesInfo[] | undefined;
+  salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[] | undefined;
 }) {
   const chartData = useMemo(() => {
     if (!salesInfo || salesInfo.length === 0) return [];

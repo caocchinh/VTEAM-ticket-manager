@@ -1,4 +1,3 @@
-import { SalesInfo } from "@/constants/types";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
@@ -7,11 +6,12 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { OfflineSalesInfo } from "@/constants/types";
 
 const StaffContributionBarChart = ({
   salesInfo,
 }: {
-  salesInfo: SalesInfo[] | undefined;
+  salesInfo: OfflineSalesInfo[] | undefined;
 }) => {
   const chartData = useMemo(() => {
     if (!salesInfo || salesInfo.length === 0) return [];

@@ -1,4 +1,3 @@
-import { SalesInfo } from "@/constants/types";
 import { useMemo } from "react";
 import {
   Bar,
@@ -14,11 +13,12 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { OfflineSalesInfo, OnlineSalesInfo } from "@/constants/types";
 
 const ClassDistributionBarChart = ({
   salesInfo,
 }: {
-  salesInfo: SalesInfo[] | undefined;
+  salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[] | undefined;
 }) => {
   const chartData = useMemo(() => {
     if (!salesInfo || salesInfo.length === 0) return [];

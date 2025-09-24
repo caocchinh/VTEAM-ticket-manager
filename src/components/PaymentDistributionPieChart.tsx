@@ -9,13 +9,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { SalesInfo } from "@/constants/types";
 import { useMemo } from "react";
+import { OfflineSalesInfo } from "@/constants/types";
 
 export default function PaymentDistributionPieChart({
   salesInfo,
 }: {
-  salesInfo: SalesInfo[] | undefined;
+  salesInfo: OfflineSalesInfo[] | undefined;
 }) {
   const chartData = useMemo(() => {
     if (!salesInfo || salesInfo.length === 0) return [];

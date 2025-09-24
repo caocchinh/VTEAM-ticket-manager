@@ -22,6 +22,7 @@ export const ERROR_CODES = {
   UNKNOWN_ERROR: "unknown-error",
   ORDER_NOT_FOUND: "order-not-found",
   R2_CREDENTIALS_MISSING: "r2-credentials-missing",
+  EVENT_INFO_FETCH_FAILED: "event-info-fetch-failed",
 } as const;
 
 // User-friendly error messages
@@ -59,6 +60,8 @@ export const ERROR_MESSAGES = {
     "Không tìm thấy đơn hàng cho tài khoản của bạn",
   [ERROR_CODES.R2_CREDENTIALS_MISSING]:
     "Thông tin xác thực lưu trữ file không được cấu hình đúng cách",
+  [ERROR_CODES.EVENT_INFO_FETCH_FAILED]:
+    "Không thể lấy thông tin sự kiện. Vui lòng thử lại sau.",
 } as const;
 
 // HTTP status codes for API responses

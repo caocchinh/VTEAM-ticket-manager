@@ -23,7 +23,7 @@ import {
 } from "@/constants/constants";
 import {
   EventInfo,
-  SalesInfo,
+  OfflineSalesInfo,
   Staff,
   Student,
   StudentInput,
@@ -813,7 +813,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
         throw new Error("Failed to fetch sales info");
       }
       const data = await response.json();
-      return data.data as SalesInfo[];
+      return data.data as OfflineSalesInfo[];
     },
     enabled: mounted,
   });

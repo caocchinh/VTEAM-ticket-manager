@@ -2,6 +2,7 @@ import { fetchStudentList } from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
 import { createApiError, HTTP_STATUS, ERROR_CODES } from "@/constants/errors";
 import { verifySession } from "@/dal/verifySession";
+import { Student } from "@/constants/types";
 
 export async function GET() {
   try {
@@ -28,17 +29,15 @@ export async function GET() {
       return createApiError("UNAUTHORIZED", HTTP_STATUS.UNAUTHORIZED);
     }
 
-    let studentList;
     try {
       const response = await fetchStudentList();
-      if (response.error) {
+      if (response.error || !response.data) {
         return createApiError(
           "STUDENT_LIST_FETCH_FAILED",
           HTTP_STATUS.BAD_REQUEST
         );
-      } else {
-        studentList = response.data;
       }
+      return Response.json(response.data as Student[]);
     } catch (error) {
       return createApiError(
         "STUDENT_LIST_FETCH_FAILED",
@@ -46,8 +45,6 @@ export async function GET() {
         (error as Error).message
       );
     }
-
-    return Response.json(studentList);
   } catch (error) {
     console.error("Error fetching student list:", error);
     return createApiError(

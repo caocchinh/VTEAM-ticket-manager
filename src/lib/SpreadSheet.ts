@@ -34,10 +34,22 @@ import {
   ONLINE_SALES_TICKET_INFO_NAME_INDEX,
   ONLINE_SALES_TICKET_INFO_PRICE_INDEX,
   ONLINE_SALES_TICKET_INFO_SHEET_NAME,
+  ONLINE_SALES_ORDER_SHEET_NAME,
+  ONLINE_SALES_ORDER_BUYER_ID_INDEX,
+  ONLINE_SALES_ORDER_SUBMIT_TIME_INDEX,
+  ONLINE_SALES_ORDER_BUYER_CLASS_INDEX,
+  ONLINE_SALES_ORDER_BUYER_NAME_INDEX,
+  ONLINE_SALES_ORDER_BUYER_EMAIL_INDEX,
+  ONLINE_SALES_ORDER_TICKET_TYPE_INDEX,
+  ONLINE_SALES_ORDER_REJECTION_REASON_INDEX,
+  ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX,
+  ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX,
+  ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
-  SalesInfo,
+  OfflineSalesInfo,
+  OnlineSalesInfo,
   Staff,
   Student,
   StudentInput,
@@ -462,7 +474,9 @@ export const sendOfflineOrder = async ({
     ]);
 
     try {
-      console.log("[SPREADSHEET] Attempting to backup orders to database");
+      console.log(
+        "[SPREADSHEET] Attempting to backup offline orders to database"
+      );
 
       // Insert backup orders into database with retry
       const backupData = ordersArray.map((order) => ({
@@ -481,18 +495,18 @@ export const sendOfflineOrder = async ({
       }, "sendOfflineOrder - database backup");
 
       console.log(
-        `[SPREADSHEET] Successfully backed up ${backupData.length} orders to database`
+        `[SPREADSHEET] Successfully backed up ${backupData.length} offline orders to database`
       );
     } catch (dbError) {
       console.error(
-        "[SPREADSHEET] Failed to insert backup order after all retries:",
+        "[SPREADSHEET] Failed to insert backup offline order after all retries:",
         dbError
       );
       // Continue with Google Sheets insertion even if DB backup fails
     }
 
     const todaySalesSheetName =
-      "Sales offline " + getCurrentTime({ includeTime: false });
+      "Offline sales " + getCurrentTime({ includeTime: false });
 
     console.log(`[SPREADSHEET] Ensuring sheet exists: ${todaySalesSheetName}`);
 
@@ -502,7 +516,9 @@ export const sendOfflineOrder = async ({
       sheetName: todaySalesSheetName,
     });
 
-    console.log("[SPREADSHEET] Inserting orders into sheets concurrently");
+    console.log(
+      "[SPREADSHEET] Inserting offline orders into sheets concurrently"
+    );
 
     // Run both append operations concurrently for better performance with retry
     const [mainSheetResult, todaySheetResult, checkinSheetResult] =
@@ -516,7 +532,7 @@ export const sendOfflineOrder = async ({
               values: rows,
             },
           });
-        }, "sendOfflineOrder - main sales sheet"),
+        }, "sendOfflineOrder - main offline sales sheet"),
         retryExternalApi(async () => {
           return await sheets.spreadsheets.values.append({
             spreadsheetId: OFFLINE_SALES_SHEET_ID,
@@ -526,7 +542,7 @@ export const sendOfflineOrder = async ({
               values: rows,
             },
           });
-        }, "sendOfflineOrder - today sales sheet"),
+        }, "sendOfflineOrder - today offline sales sheet"),
         retryExternalApi(async () => {
           return await sheets.spreadsheets.values.append({
             spreadsheetId: CHECKIN_SHEET_ID,
@@ -543,39 +559,39 @@ export const sendOfflineOrder = async ({
               ]),
             },
           });
-        }, "sendOfflineOrder - checkin sheet"),
+        }, "sendOfflineOrder - checkin offline sales sheet"),
       ]);
 
     // Log individual results
     if (mainSheetResult.status === "fulfilled") {
       console.log(
-        `[SPREADSHEET] Main sales sheet update: SUCCESS (${mainSheetResult.value.status})`
+        `[SPREADSHEET] Main offline sales sheet update: SUCCESS (${mainSheetResult.value.status})`
       );
     } else {
       console.error(
-        "[SPREADSHEET] Main sales sheet update: FAILED",
+        "[SPREADSHEET] Main offline sales sheet update: FAILED",
         mainSheetResult.reason
       );
     }
 
     if (todaySheetResult.status === "fulfilled") {
       console.log(
-        `[SPREADSHEET] Today sales sheet update: SUCCESS (${todaySheetResult.value.status})`
+        `[SPREADSHEET] Today offline sales sheet update: SUCCESS (${todaySheetResult.value.status})`
       );
     } else {
       console.error(
-        "[SPREADSHEET] Today sales sheet update: FAILED",
+        "[SPREADSHEET] Today offline sales sheet update: FAILED",
         todaySheetResult.reason
       );
     }
 
     if (checkinSheetResult.status === "fulfilled") {
       console.log(
-        `[SPREADSHEET] Checkin sheet update: SUCCESS (${checkinSheetResult.value.status})`
+        `[SPREADSHEET] Checkin offline sales sheet update: SUCCESS (${checkinSheetResult.value.status})`
       );
     } else {
       console.error(
-        "[SPREADSHEET] Checkin sheet update: FAILED",
+        "[SPREADSHEET] Checkin offline sales sheet update: FAILED",
         checkinSheetResult.reason
       );
     }
@@ -606,13 +622,13 @@ export const sendOfflineOrder = async ({
 
 export const fetchOfflineSales = async (): Promise<{
   error: boolean;
-  data: SalesInfo[] | undefined;
+  data: OfflineSalesInfo[] | undefined;
 }> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   try {
     console.log(
-      `[SPREADSHEET] Starting fetchSales from sheet: ${OFFLINE_SALES_SHEET_ID}`
+      `[SPREADSHEET] Starting fetchOfflineSales from sheet: ${OFFLINE_SALES_SHEET_ID}`
     );
 
     const response = await retryExternalApi(async () => {
@@ -655,16 +671,89 @@ export const fetchOfflineSales = async (): Promise<{
 
     if (data) {
       console.log(
-        `[SPREADSHEET] Successfully fetched ${data.length} sales records`
+        `[SPREADSHEET] Successfully fetched ${data.length} offline sales records`
       );
       return { error: false, data: data };
     }
 
-    console.warn("[SPREADSHEET] No sales data found in response");
+    console.warn("[SPREADSHEET] No offline sales data found in response");
     return { error: true, data: undefined };
   } catch (error) {
     console.error(
-      "[SPREADSHEET] Failed to fetch sales after all retries:",
+      "[SPREADSHEET] Failed to fetch offline sales after all retries:",
+      error
+    );
+    return { error: true, data: undefined };
+  }
+};
+
+export const fetchOnlineSales = async (): Promise<{
+  error: boolean;
+  data: OnlineSalesInfo[] | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    console.log(
+      `[SPREADSHEET] Starting fetchOnlineSales from sheet: ${ONLINE_SALES_SHEET_ID}`
+    );
+
+    const response = await retryExternalApi(async () => {
+      return await sheets.spreadsheets.values.get({
+        spreadsheetId: ONLINE_SALES_SHEET_ID,
+        range: `${ONLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
+      });
+    }, "fetchOnlineSales");
+
+    // Ignore the first row
+    const data = response.data.values?.slice(1).map((value) => ({
+      time: value[ONLINE_SALES_ORDER_SUBMIT_TIME_INDEX]
+        ? value[ONLINE_SALES_ORDER_SUBMIT_TIME_INDEX].trim()
+        : "",
+
+      buyerName: value[ONLINE_SALES_ORDER_BUYER_NAME_INDEX]
+        ? value[ONLINE_SALES_ORDER_BUYER_NAME_INDEX].trim()
+        : "",
+      buyerClass: value[ONLINE_SALES_ORDER_BUYER_CLASS_INDEX]
+        ? value[ONLINE_SALES_ORDER_BUYER_CLASS_INDEX].trim()
+        : "",
+      buyerEmail: value[ONLINE_SALES_ORDER_BUYER_EMAIL_INDEX]
+        ? value[ONLINE_SALES_ORDER_BUYER_EMAIL_INDEX].trim()
+        : "",
+      buyerId: value[ONLINE_SALES_ORDER_BUYER_ID_INDEX]
+        ? value[ONLINE_SALES_ORDER_BUYER_ID_INDEX].trim()
+        : "",
+      buyerTicketType: value[ONLINE_SALES_ORDER_TICKET_TYPE_INDEX]
+        ? value[ONLINE_SALES_ORDER_TICKET_TYPE_INDEX].trim()
+        : "",
+      proofOfPaymentImage: value[
+        ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX
+      ]
+        ? value[ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX].trim()
+        : "",
+      confirmationImage: value[ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX]
+        ? value[ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX].trim()
+        : "",
+      rejectionReason: value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX]
+        ? value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX].trim()
+        : "",
+      hasBeenVerified: value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX]
+        ? value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX].trim()
+        : "",
+    }));
+
+    if (data) {
+      console.log(
+        `[SPREADSHEET] Successfully fetched ${data.length} online sales records`
+      );
+      return { error: false, data: data };
+    }
+
+    console.warn("[SPREADSHEET] No online sales data found in response");
+    return { error: true, data: undefined };
+  } catch (error) {
+    console.error(
+      "[SPREADSHEET] Failed to fetch online sales after all retries:",
       error
     );
     return { error: true, data: undefined };

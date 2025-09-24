@@ -12,6 +12,11 @@ export interface TicketInfo {
   classRange: number[];
 }
 
+export interface AllTicketInfo {
+  online: TicketInfo[];
+  offline: TicketInfo[];
+}
+
 export interface StudentInput {
   nameInput: string;
   studentIdInput: string;
@@ -31,7 +36,7 @@ export interface EventInfo {
   eventName: string;
 }
 
-export interface SalesInfo {
+export interface OfflineSalesInfo {
   time: string;
   staffName: string;
   paymentMedium: string;
@@ -41,4 +46,17 @@ export interface SalesInfo {
   buyerId: string;
   buyerTicketType: string;
   buyerNotice: string;
+}
+
+export interface OnlineSalesInfo {
+  time: string;
+  buyerName: string;
+  buyerClass: string;
+  buyerEmail: string;
+  buyerId: string;
+  buyerTicketType: string;
+  proofOfPaymentImage: string;
+  confirmationImage: string;
+  rejectionReason: string;
+  hasBeenVerified: boolean;
 }

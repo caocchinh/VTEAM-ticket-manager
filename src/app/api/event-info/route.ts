@@ -2,6 +2,7 @@ import { fetchEventInfo } from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
 import { createApiError, HTTP_STATUS, ERROR_CODES } from "@/constants/errors";
 import { verifySession } from "@/dal/verifySession";
+import { EventInfo } from "@/constants/types";
 
 export async function GET() {
   try {
@@ -28,18 +29,22 @@ export async function GET() {
       return createApiError("UNAUTHORIZED", HTTP_STATUS.UNAUTHORIZED);
     }
 
-    let eventInfo;
     try {
-      eventInfo = await fetchEventInfo();
+      const response = await fetchEventInfo();
+      if (response.error || !response.data) {
+        return createApiError(
+          "EVENT_INFO_FETCH_FAILED",
+          HTTP_STATUS.BAD_REQUEST
+        );
+      }
+      return Response.json(response.data as EventInfo);
     } catch (error) {
       return createApiError(
-        "INTERNAL_SERVER_ERROR",
+        "EVENT_INFO_FETCH_FAILED",
         HTTP_STATUS.INTERNAL_SERVER_ERROR,
         (error as Error).message
       );
     }
-
-    return Response.json(eventInfo);
   } catch (error) {
     console.error("Error fetching event info:", error);
     return createApiError(

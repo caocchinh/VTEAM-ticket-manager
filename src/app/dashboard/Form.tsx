@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { CardTitle, CardDescription } from "@/components/ui/card";
 import { LogoutButton } from "@/components/LogoutButton";
 import { truncateText } from "@/lib/utils";
-
+import SpreadsheetQuickAccess from "@/components/SpreadsheetQuickAccess";
 import {
   Dialog,
   DialogClose,
@@ -20,7 +20,6 @@ import {
 import {
   INVALID_TICKET_DUE_TO_INVALID_CLASS,
   NOT_STUDENT_IN_SCHOOL,
-  OFFLINE_SALES_SHEET_ID,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -945,25 +944,7 @@ const Form = ({ session, staffInfo }: { session: any; staffInfo: Staff }) => {
           <LogoutButton />
         </div>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <a
-              target="_blank"
-              rel="noopener"
-              href={`https://docs.google.com/spreadsheets/d/${OFFLINE_SALES_SHEET_ID}`}
-              className="border rounded-md shadow-sm p-2"
-            >
-              <Image
-                src="/assets/sheet_logo.webp"
-                className="w-[35px] h-[35px] object-contain"
-                alt="Google Sheet logo"
-                width={35}
-                height={35}
-              />
-            </a>
-          </TooltipTrigger>
-          <TooltipContent>Sheet bán vé & checkin</TooltipContent>
-        </Tooltip>
+        <SpreadsheetQuickAccess />
         <Dialog
           open={isRefreshDialogOpen}
           onOpenChange={setIsRefreshDialogOpen}

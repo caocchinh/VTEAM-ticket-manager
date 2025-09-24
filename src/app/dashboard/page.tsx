@@ -4,6 +4,7 @@ import { verifySession } from "@/dal/verifySession";
 import { fetchStaffInfo } from "@/lib/SpreadSheet";
 import { auth } from "@/lib/auth/auth";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
+import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
 import Form from "./Form";
 import { ErrorCard } from "@/components/ErrorCard";
 
@@ -15,7 +16,11 @@ export default async function Dashboard() {
     session = await verifySession();
   } catch (sessionError) {
     console.error("Failed to verify session:", sessionError);
-    return <ErrorCard message={"Failed to verify session"} />;
+    return (
+      <ErrorCard
+        message={getErrorMessage(ERROR_CODES.SESSION_VERIFICATION_FAILED)}
+      />
+    );
   }
 
   if (!session) {
@@ -26,7 +31,11 @@ export default async function Dashboard() {
     staffInfo = await fetchStaffInfo({ email: session.user.email });
   } catch (staffInfoError) {
     console.error("Failed to fetch staff info:", staffInfoError);
-    return <ErrorCard message={"Failed to fetch staff info"} />;
+    return (
+      <ErrorCard
+        message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
+      />
+    );
   }
 
   if (!staffInfo.data) {
@@ -40,7 +49,11 @@ export default async function Dashboard() {
     }
     redirect(`/?error=${NOT_STAFF_ERROR}`);
   } else if (staffInfo.error) {
-    return <ErrorCard message={"Failed to fetch staff info"} />;
+    return (
+      <ErrorCard
+        message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
+      />
+    );
   }
 
   return (

@@ -14,6 +14,7 @@ import { fetchStaffInfo } from "@/lib/SpreadSheet";
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
+import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
 import Beams from "@/components/Beams";
 import EmbededBrowserWarning from "@/components/EmbededBrowserWarning";
 
@@ -27,7 +28,11 @@ export default async function HomePage({ searchParams }: HomeProps) {
     session = await verifySession();
   } catch (sessionError) {
     console.error("Failed to verify session:", sessionError);
-    return <ErrorCard message={"Failed to verify session"} />;
+    return (
+      <ErrorCard
+        message={getErrorMessage(ERROR_CODES.SESSION_VERIFICATION_FAILED)}
+      />
+    );
   }
 
   if (session) {
@@ -36,14 +41,22 @@ export default async function HomePage({ searchParams }: HomeProps) {
       staffInfo = await fetchStaffInfo({ email: session.user.email });
     } catch (staffInfoError) {
       console.error("Failed to fetch staff info:", staffInfoError);
-      return <ErrorCard message={"Failed to fetch staff info"} />;
+      return (
+        <ErrorCard
+          message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
+        />
+      );
     }
 
     if (staffInfo.data) {
       redirect("/dashboard");
     } else {
       if (staffInfo.error) {
-        return <ErrorCard message={"Failed to fetch staff info"} />;
+        return (
+          <ErrorCard
+            message={getErrorMessage(ERROR_CODES.INTERNAL_SERVER_ERROR)}
+          />
+        );
       }
 
       try {
@@ -58,14 +71,15 @@ export default async function HomePage({ searchParams }: HomeProps) {
     }
   }
 
-  const getErrorMessage = (error: string) => {
+  const getErrorMessageFromCode = (error: string) => {
+    // Map legacy error codes to new system
     switch (error) {
       case NOT_STAFF_ERROR:
-        return "You are not authorized as staff. Please contact your administrator.";
+        return getErrorMessage(ERROR_CODES.UNAUTHORIZED);
       case NOT_LOGGED_IN_ERROR:
-        return "Authentication failed. Please try signing in again.";
+        return getErrorMessage(ERROR_CODES.NOT_LOGGED_IN);
       default:
-        return "An unexpected error occurred. Please try again.";
+        return getErrorMessage(ERROR_CODES.UNKNOWN_ERROR);
     }
   };
 
@@ -73,11 +87,11 @@ export default async function HomePage({ searchParams }: HomeProps) {
   try {
     const resolvedSearchParams = await searchParams;
     errorMessage = resolvedSearchParams.error
-      ? getErrorMessage(resolvedSearchParams.error as string)
+      ? getErrorMessageFromCode(resolvedSearchParams.error as string)
       : null;
   } catch (searchParamsError) {
     console.error("Failed to resolve search params:", searchParamsError);
-    errorMessage = "An unexpected error occurred. Please try again.";
+    errorMessage = getErrorMessage(ERROR_CODES.UNKNOWN_ERROR);
   }
 
   return (

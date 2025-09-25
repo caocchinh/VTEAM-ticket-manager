@@ -82,7 +82,7 @@ const SalesInfoCard = ({
             <ShoppingCart size={20} className="text-green-600" />
             <div>
               <CardDescription className="text-md font-semibold text-green-600">
-                Tổng doanh thu{" "}
+                Tổng revenue{" "}
                 {isMoneyVisible
                   ? formatVietnameseCurrency(totalSalesAmount)
                   : "*****"}
@@ -90,7 +90,7 @@ const SalesInfoCard = ({
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="bg-white z-[5] w-max px-4">
+        <PopoverContent className="bg-white z-[5] w-max py-0 px-4">
           <div className="flex p-2  bg-card rounded-md items-center justify-between gap-3 ">
             <div className="flex items-center justify-center gap-1 flex-col">
               <CardTitle className="text-sm">Doanh thu bạn kiếm </CardTitle>

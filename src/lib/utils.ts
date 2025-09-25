@@ -19,7 +19,7 @@ export const sucessToast = ({
 }) => {
   const toastId = toast.success(message, {
     description: description,
-    duration: 3000,
+    duration: 1400,
     style: {
       backgroundColor: "#00a63e",
       color: "white",
@@ -63,7 +63,7 @@ export const errorToast = ({
 }) => {
   const toastId = toast.error(message, {
     description: description,
-    duration: 3000,
+    duration: 2300,
     style: {
       backgroundColor: "#e7000b",
       color: "white",

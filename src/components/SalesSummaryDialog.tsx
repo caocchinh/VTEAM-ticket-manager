@@ -52,7 +52,7 @@ const SalesSummaryDialog = ({
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
             <Button
-              className="cursor-pointer w-[35px] !bg-[#0084ff] !text-white"
+              className="cursor-pointer w-[35px] -mr-2 !bg-[#0084ff] !text-white"
               disabled={!salesInfo || isSalesInfoError}
               variant="outline"
             >

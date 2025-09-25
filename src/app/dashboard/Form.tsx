@@ -92,6 +92,7 @@ import SalesInfoCard from "@/components/SalesInfoCard";
 import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
+import OnlineTicketManagement from "@/components/OnlineTicketManagement";
 
 const Form = ({
   session,
@@ -762,10 +763,10 @@ const Form = ({
         return true;
       },
       onSuccess: () => {
-        sucessToast({ message: "Cập nhật dữ liệu thành công!" });
+        sucessToast({ message: "Cập nhật dữ liệu bán vé thành công!" });
       },
       onError: () => {
-        errorToast({ message: "Cập nhật dữ liệu thất bại!" });
+        errorToast({ message: "Cập nhật dữ liệu bán vé thất bại!" });
       },
     });
 
@@ -909,11 +910,11 @@ const Form = ({
         return true;
       },
       onSuccess: () => {
-        sucessToast({ message: "Cập nhật dữ liệu thành công!" });
+        sucessToast({ message: "Cập nhật form bán vé online thành công!" });
       },
       onError: (error: Error) => {
         errorToast({
-          message: `Cập nhật dữ liệu thất bại, vui lòng thử lại! ${error.message}`,
+          message: `Cập nhật form bán vé online thất bại, vui lòng thử lại! ${error.message}`,
         });
       },
     });
@@ -1029,7 +1030,6 @@ const Form = ({
           onRefetchSales={mutateRefetchSales}
           isRefetchingSales={isRefetchingSales}
         />
-
         <SalesSummaryDialog
           isOpen={isSummaryDialogOpen}
           onOpenChange={setIsSummaryDialogOpen}
@@ -1037,6 +1037,14 @@ const Form = ({
           ticketInfo={ticketInfo}
           staffInfo={staffInfo}
           isSalesInfoError={isSalesInfoError}
+          isRefetchingSales={isRefetchingSales}
+          isSalesInfoFetching={isSalesInfoFetching}
+          onRefetchSales={mutateRefetchSales}
+        />
+        <OnlineTicketManagement
+          salesInfo={salesInfo?.online}
+          isSalesInfoError={isSalesInfoError}
+          isOnlineCoordinator={isOnlineCoordinator}
           isRefetchingSales={isRefetchingSales}
           isSalesInfoFetching={isSalesInfoFetching}
           onRefetchSales={mutateRefetchSales}

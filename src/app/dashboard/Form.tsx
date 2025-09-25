@@ -40,6 +40,7 @@ import {
   formatVietnameseCurrency,
   sucessToast,
   errorToast,
+  safeTrim,
 } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
@@ -151,20 +152,26 @@ const Form = ({
 
   // Validation useEffect hooks for each input field
   useEffect(() => {
-    if (selectedStudentIdInput.trim()) {
-      setErrors((prev) => ({ ...prev, studentId: false }));
+    if (selectedStudentIdInput) {
+      if (safeTrim(selectedStudentIdInput)) {
+        setErrors((prev) => ({ ...prev, studentId: false }));
+      }
     }
   }, [selectedStudentIdInput]);
 
   useEffect(() => {
-    if (studentNameInput.trim()) {
-      setErrors((prev) => ({ ...prev, studentName: false }));
+    if (studentNameInput) {
+      if (safeTrim(studentNameInput)) {
+        setErrors((prev) => ({ ...prev, studentName: false }));
+      }
     }
   }, [studentNameInput]);
 
   useEffect(() => {
-    if (emailInput.trim()) {
-      setErrors((prev) => ({ ...prev, email: false }));
+    if (emailInput) {
+      if (safeTrim(emailInput)) {
+        setErrors((prev) => ({ ...prev, email: false }));
+      }
     }
   }, [emailInput]);
 
@@ -221,7 +228,8 @@ const Form = ({
     input: string,
     students: Student[]
   ): Student | null => {
-    if (!input.trim() || !students.length) return null;
+    if (!input) return null;
+    if (!safeTrim(input) || !students.length) return null;
 
     // First try exact match
     const exactMatch = students.find(
@@ -355,7 +363,7 @@ const Form = ({
   });
 
   useEffect(() => {
-    const trimmed = homeroomInput.trim();
+    const trimmed = safeTrim(homeroomInput);
     const numericPartofClassName = extractFirstNumber(trimmed) ?? 0;
     const availabelClassRange = ticketInfo?.offline
       .map((ticket) => ticket.classRange)
@@ -426,7 +434,7 @@ const Form = ({
 
   const updateAutocompleteValues = useCallback(
     (value: string, students: Student[]) => {
-      if (!value.trim()) {
+      if (!safeTrim(value)) {
         setStudentNameAutoCompleteValue("");
         setHomeroomAutoCompleteValue("");
         setEmailAutoCompleteValue("");
@@ -434,7 +442,7 @@ const Form = ({
         return;
       }
 
-      const bestMatch = findBestMatch(value.trim(), students);
+      const bestMatch = findBestMatch(safeTrim(value), students);
       if (bestMatch && bestMatch.studentId.includes("VS")) {
         setStudentNameAutoCompleteValue(bestMatch.name);
         setHomeroomAutoCompleteValue(bestMatch.homeroom);
@@ -542,10 +550,10 @@ const Form = ({
 
   const validateForm = () => {
     const newErrors = {
-      studentId: !selectedStudentIdInput.trim(),
-      studentName: !studentNameInput.trim(),
-      homeroom: errors.homeroom || !homeroomInput.trim(),
-      email: !emailInput.trim(),
+      studentId: !safeTrim(selectedStudentIdInput),
+      studentName: !safeTrim(studentNameInput),
+      homeroom: errors.homeroom || !safeTrim(homeroomInput),
+      email: !safeTrim(emailInput),
     };
 
     setErrors(newErrors);
@@ -582,7 +590,7 @@ const Form = ({
 
     // Handle clearing form when input is empty
     if (
-      value.trim() === "" &&
+      safeTrim(value) === "" &&
       studentNameAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL
     ) {
       clearForm({ clearNotice: false });
@@ -610,21 +618,21 @@ const Form = ({
           setEmailInput(emailAutoCompleteValue);
         } else if (
           whichInputIsBeingFocused === "name" &&
-          studentNameInput.trim() === ""
+          safeTrim(studentNameInput) === ""
         ) {
           e.preventDefault();
 
           setStudentNameInput(studentNameAutoCompleteValue);
         } else if (
           whichInputIsBeingFocused === "homeroom" &&
-          homeroomInput.trim() === ""
+          safeTrim(homeroomInput) === ""
         ) {
           e.preventDefault();
 
           setHomeroomInput(homeroomAutoCompleteValue);
         } else if (
           whichInputIsBeingFocused === "email" &&
-          emailInput.trim() === ""
+          safeTrim(emailInput) === ""
         ) {
           e.preventDefault();
 
@@ -862,11 +870,11 @@ const Form = ({
   // Prevent accidental page refresh/close when there's unsaved data
   useEffect(() => {
     const hasUnsavedData =
-      selectedStudentIdInput.trim() ||
-      studentNameInput.trim() ||
-      homeroomInput.trim() ||
-      emailInput.trim() ||
-      noticeInput.trim() ||
+      safeTrim(selectedStudentIdInput) ||
+      safeTrim(studentNameInput) ||
+      safeTrim(homeroomInput) ||
+      safeTrim(emailInput) ||
+      safeTrim(noticeInput) ||
       currentOrder.length > 0 ||
       isOrderMutating;
 
@@ -1596,7 +1604,7 @@ const Form = ({
                                         (info) =>
                                           currentOrder[editingIndex!]
                                             ?.ticketType === info.ticketName
-                                      )?.price ?? 0
+                                      )?.price ?? ""
                                     }
                                   />
                                 </div>
@@ -1668,7 +1676,7 @@ const Form = ({
                                         (info) =>
                                           currentOrder[deletingIndex]
                                             ?.ticketType === info.ticketName
-                                      )?.price ?? 0
+                                      )?.price ?? ""
                                     }
                                   />
                                 </div>
@@ -1696,7 +1704,7 @@ const Form = ({
                           price={
                             ticketInfo?.offline.find(
                               (info) => order.ticketType === info.ticketName
-                            )?.price ?? 0
+                            )?.price ?? ""
                           }
                           index={index}
                           order={order}
@@ -1742,7 +1750,7 @@ const Form = ({
                         price={
                           ticketInfo?.offline.find(
                             (info) => order.ticketType === info.ticketName
-                          )?.price ?? 0
+                          )?.price ?? ""
                         }
                         index={index}
                         order={order}
@@ -1873,7 +1881,7 @@ const OrderInfoAccordionItem = ({
 }: {
   order: StudentInput;
   index: number;
-  price: number;
+  price: string;
   ticketColor?: string;
 }) => {
   return (
@@ -1917,7 +1925,7 @@ export const OrderItemInfo = ({
   price,
 }: {
   order: StudentInput;
-  price: number;
+  price: string;
 }) => {
   return (
     <>

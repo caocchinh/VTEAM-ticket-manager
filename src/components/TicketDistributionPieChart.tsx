@@ -1,6 +1,7 @@
 "use client";
 
 import { LabelList, Pie, PieChart } from "recharts";
+import { safeTrim } from "@/lib/utils";
 
 import {
   ChartConfig,
@@ -33,7 +34,7 @@ export default function TicketDistributionPieChart({
     // Convert to chart format and sort by grade
     return Object.entries(ticketDistribution).map(([ticketType, count]) => {
       // Remove parentheses and their contents from ticket type
-      const cleanTicketType = ticketType.replace(/\s*\([^)]*\)/g, "").trim();
+      const cleanTicketType = safeTrim(ticketType.replace(/\s*\([^)]*\)/g, ""));
       // Sanitize ticket type for CSS variable name (remove spaces and special chars)
       const sanitizedTicketType = cleanTicketType
         .replace(/\s+/g, "-")

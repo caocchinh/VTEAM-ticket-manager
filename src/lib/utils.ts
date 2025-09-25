@@ -174,6 +174,22 @@ export const formatVietnameseCurrency = (amount: number): string => {
   return amount.toLocaleString("vi-VN") + " ₫";
 };
 
+/**
+ * Safely trims a string, handling null/undefined values
+ * @param str - The input string to trim
+ * @returns The trimmed string, or empty string if input is null/undefined
+ * @example
+ * safeTrim("  hello  ") // returns "hello"
+ * safeTrim(null) // returns ""
+ * safeTrim(undefined) // returns ""
+ * safeTrim("") // returns ""
+ */
+export const safeTrim = (str: string | null | undefined): string => {
+  if (str == null || str == undefined) return "";
+  if (typeof str !== "string") return "";
+  return str.trim();
+};
+
 export const getCurrentTime = ({
   includeTime = true,
 }: {

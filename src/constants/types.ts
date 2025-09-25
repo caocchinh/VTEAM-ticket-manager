@@ -8,7 +8,7 @@ export interface Student {
 
 export interface TicketInfo {
   ticketName: string;
-  price: number;
+  price: string;
   classRange: number[];
 }
 

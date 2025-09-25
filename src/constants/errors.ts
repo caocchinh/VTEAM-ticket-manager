@@ -53,8 +53,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.FILE_UPLOAD_FAILED]: "Không thể tải lên file. Vui lòng thử lại.",
   [ERROR_CODES.ORDER_SUBMISSION_FAILED]:
     "Gửi đơn hàng thất bại. Vui lòng thử lại sau.",
-  [ERROR_CODES.CACHE_ERROR]:
-    "Không thể xác minh trạng thái học sinh. Vui lòng thử lại sau.",
+  [ERROR_CODES.CACHE_ERROR]: "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
   [ERROR_CODES.INTERNAL_SERVER_ERROR]:
     "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
   [ERROR_CODES.UNKNOWN_ERROR]:

@@ -87,10 +87,11 @@ import {
 import { sendOrderAction, updateOnlineDataAction } from "@/server/actions";
 import Image from "next/image";
 import SalesSummaryDialog from "@/components/SalesSummaryDialog";
-import RefreshDataDialog from "@/components/RefreshDataDialog";
+import UpdateDataDialog from "@/components/UpdateDataDialog";
 import SalesInfoCard from "@/components/SalesInfoCard";
 import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
+import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
 
 const Form = ({
   session,
@@ -160,21 +161,6 @@ const Form = ({
       setErrors((prev) => ({ ...prev, studentName: false }));
     }
   }, [studentNameInput]);
-
-  useEffect(() => {
-    const trimmed = homeroomInput.trim();
-    const numericPartofClassName = extractFirstNumber(trimmed) ?? 0;
-
-    if (trimmed) {
-      if (numericPartofClassName > 12 || numericPartofClassName < 6) {
-        setErrors((prev) => ({ ...prev, homeroom: true }));
-        return;
-      }
-      setErrors((prev) => ({ ...prev, homeroom: false }));
-    } else {
-      setErrors((prev) => ({ ...prev, homeroom: false }));
-    }
-  }, [homeroomInput]);
 
   useEffect(() => {
     if (emailInput.trim()) {
@@ -368,6 +354,23 @@ const Form = ({
     enabled: mounted,
   });
 
+  useEffect(() => {
+    const trimmed = homeroomInput.trim();
+    const numericPartofClassName = extractFirstNumber(trimmed) ?? 0;
+    const availabelClassRange = ticketInfo?.offline
+      .map((ticket) => ticket.classRange)
+      .flat();
+    if (trimmed) {
+      if (availabelClassRange?.includes(numericPartofClassName)) {
+        setErrors((prev) => ({ ...prev, homeroom: false }));
+        return;
+      }
+      setErrors((prev) => ({ ...prev, homeroom: true }));
+    } else {
+      setErrors((prev) => ({ ...prev, homeroom: false }));
+    }
+  }, [homeroomInput, ticketInfo?.offline]);
+
   const toggleMoneyVisibility = () => {
     const newVisibility = !isMoneyVisible;
     setIsMoneyVisible(newVisibility);
@@ -463,21 +466,6 @@ const Form = ({
     if (ticketColors[ticketType]) {
       return ticketColors[ticketType];
     }
-
-    // Otherwise, generate a consistent default color based on ticket type
-    const defaultColors = [
-      "#3b82f6",
-      "#10b981",
-      "#f59e0b",
-      "#ef4444",
-      "#8b5cf6",
-      "#06b6d4",
-      "#84cc16",
-      "#f97316",
-      "#ec4899",
-      "#6b7280",
-    ];
-
     // Get all unique ticket types from ticketInfo to ensure consistency
     const uniqueTicketTypes = ticketInfo
       ? Array.from(
@@ -486,8 +474,8 @@ const Form = ({
       : [];
 
     const ticketIndex = uniqueTicketTypes.indexOf(ticketType);
-    return defaultColors[
-      ticketIndex >= 0 ? ticketIndex % defaultColors.length : 0
+    return DEFAULT_TICKET_COLORS[
+      ticketIndex >= 0 ? ticketIndex % DEFAULT_TICKET_COLORS.length : 0
     ];
   };
 
@@ -1010,7 +998,7 @@ const Form = ({
         </div>
 
         <SpreadsheetQuickAccess />
-        <RefreshDataDialog
+        <UpdateDataDialog
           isOpen={isRefreshDialogOpen}
           onOpenChange={setIsRefreshDialogOpen}
           isStudentListFetching={isStudentListFetching}

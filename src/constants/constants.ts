@@ -1,5 +1,18 @@
 import { getColumnNumber } from "@/lib/utils";
 
+export const DEFAULT_TICKET_COLORS = [
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#06b6d4",
+  "#84cc16",
+  "#f97316",
+  "#ec4899",
+  "#6b7280",
+];
+
 export const STUDENT_LIST_SHEET_ID =
   "1mLvMGOdNAo8nne1pytHe6xAIAAucnk9pDdRb3lzecxg";
 export const CHECKIN_SHEET_ID = "1Tds2lU1PDyu6nhFzQPO6TnA1jIoU38I8yWurPQD3oVE";

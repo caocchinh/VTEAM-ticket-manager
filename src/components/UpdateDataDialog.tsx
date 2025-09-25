@@ -20,7 +20,7 @@ import { CloudDownload, Loader2 } from "lucide-react";
 import { deleteCache } from "@/drizzle/idb";
 import { Dispatch, SetStateAction } from "react";
 
-interface RefreshDataDialogProps {
+interface UpdateDataDialogProps {
   isOpen: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
   isStudentListFetching: boolean;
@@ -30,7 +30,7 @@ interface RefreshDataDialogProps {
   onRefreshOnlineData: () => void;
 }
 
-const RefreshDataDialog = ({
+const UpdateDataDialog = ({
   isOpen,
   onOpenChange,
   isStudentListFetching,
@@ -38,7 +38,7 @@ const RefreshDataDialog = ({
   isOnlineDataUpdating,
   onRefreshOfflineData,
   onRefreshOnlineData,
-}: RefreshDataDialogProps) => {
+}: UpdateDataDialogProps) => {
   const handleOfflineRefresh = async () => {
     try {
       await Promise.all([
@@ -74,7 +74,7 @@ const RefreshDataDialog = ({
         <Tabs defaultValue="offline">
           <TabsList>
             <TabsTrigger value="offline">Dữ liệu bán vé offline</TabsTrigger>
-            <TabsTrigger value="online">Dữ liệu bán vé online</TabsTrigger>
+            <TabsTrigger value="online">Form bán vé online</TabsTrigger>
           </TabsList>
           <TabsContent value="offline">
             <DialogDescription>
@@ -122,7 +122,7 @@ const RefreshDataDialog = ({
                 className="cursor-pointer"
                 disabled={isOnlineDataUpdating}
               >
-                Xác nhận update dữ liệu online
+                Xác nhận update form bán vé online
                 {isOnlineDataUpdating && <Loader2 className="animate-spin" />}
               </Button>
             </DialogFooter>
@@ -133,4 +133,4 @@ const RefreshDataDialog = ({
   );
 };
 
-export default RefreshDataDialog;
+export default UpdateDataDialog;

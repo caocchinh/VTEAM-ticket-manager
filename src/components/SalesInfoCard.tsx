@@ -90,8 +90,8 @@ const SalesInfoCard = ({
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="bg-white z-[100]">
-          <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1">
+        <PopoverContent className="bg-white z-[5] w-max px-4">
+          <div className="flex p-2  bg-card rounded-md items-center justify-between gap-3 ">
             <div className="flex items-center justify-center gap-1 flex-col">
               <CardTitle className="text-sm">Doanh thu bạn kiếm </CardTitle>
 

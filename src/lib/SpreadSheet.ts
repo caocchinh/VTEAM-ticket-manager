@@ -96,21 +96,11 @@ export const fetchStudentList = async (): Promise<{
     }, "fetchStudentList");
 
     const data = response.data.values?.map((value) => ({
-      name: value[STUDENT_LIST_STUDENT_NAME_INDEX]
-        ? safeTrim(value[STUDENT_LIST_STUDENT_NAME_INDEX])
-        : "",
-      homeroom: value[STUDENT_LIST_STUDENT_HOMEROOM_INDEX]
-        ? safeTrim(value[STUDENT_LIST_STUDENT_HOMEROOM_INDEX])
-        : "",
-      studentId: value[STUDENT_LIST_STUDENT_ID_INDEX]
-        ? safeTrim(value[STUDENT_LIST_STUDENT_ID_INDEX])
-        : "",
-      gender: value[STUDENT_LIST_STUDENT_GENDER_INDEX]
-        ? safeTrim(value[STUDENT_LIST_STUDENT_GENDER_INDEX])
-        : "",
-      email: value[STUDENT_LIST_STUDENT_EMAIL_INDEX]
-        ? safeTrim(value[STUDENT_LIST_STUDENT_EMAIL_INDEX])
-        : "",
+      name: safeTrim(value[STUDENT_LIST_STUDENT_NAME_INDEX]),
+      homeroom: safeTrim(value[STUDENT_LIST_STUDENT_HOMEROOM_INDEX]),
+      studentId: safeTrim(value[STUDENT_LIST_STUDENT_ID_INDEX]),
+      gender: safeTrim(value[STUDENT_LIST_STUDENT_GENDER_INDEX]),
+      email: safeTrim(value[STUDENT_LIST_STUDENT_EMAIL_INDEX]),
     }));
 
     console.log(
@@ -148,12 +138,8 @@ export const fetchOfflineTicketInfo = async (): Promise<{
 
     // Ignore the first row
     const data = response.data.values?.slice(1).map((value) => ({
-      ticketName: value[OFFLINE_SALES_TICKET_INFO_NAME_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_TICKET_INFO_NAME_INDEX])
-        : "",
-      price: value[OFFLINE_SALES_TICKET_INFO_PRICE_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_TICKET_INFO_PRICE_INDEX])
-        : "",
+      ticketName: safeTrim(value[OFFLINE_SALES_TICKET_INFO_NAME_INDEX]),
+      price: safeTrim(value[OFFLINE_SALES_TICKET_INFO_PRICE_INDEX]),
       classRange: value[OFFLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX]
         ? value[OFFLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX].split(",").map(
             (_value: string) => parseInt(_value)
@@ -695,33 +681,15 @@ export const fetchOfflineSales = async (): Promise<{
 
     // Ignore the first row
     const data = response.data.values?.slice(1).map((value) => ({
-      time: value[OFFLINE_SALES_ORDER_SUBMIT_TIME_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_SUBMIT_TIME_INDEX])
-        : "",
-      staffName: value[OFFLINE_SALES_ORDER_STAFF_NAME_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_STAFF_NAME_INDEX])
-        : "",
-      paymentMedium: value[OFFLINE_SALES_ORDER_MEDIUM_TYPE_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_MEDIUM_TYPE_INDEX])
-        : "",
-      buyerName: value[OFFLINE_SALES_ORDER_BUYER_NAME_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_BUYER_NAME_INDEX])
-        : "",
-      buyerClass: value[OFFLINE_SALES_ORDER_BUYER_CLASS_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_BUYER_CLASS_INDEX])
-        : "",
-      buyerEmail: value[OFFLINE_SALES_ORDER_BUYER_EMAIL_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_BUYER_EMAIL_INDEX])
-        : "",
-      buyerId: value[OFFLINE_SALES_ORDER_BUYER_ID_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_BUYER_ID_INDEX])
-        : "",
-      buyerTicketType: value[OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX])
-        : "",
-      buyerNotice: value[OFFLINE_SALES_ORDER_NOTICE_INDEX]
-        ? safeTrim(value[OFFLINE_SALES_ORDER_NOTICE_INDEX])
-        : "",
+      time: safeTrim(value[OFFLINE_SALES_ORDER_SUBMIT_TIME_INDEX]),
+      staffName: safeTrim(value[OFFLINE_SALES_ORDER_STAFF_NAME_INDEX]),
+      paymentMedium: safeTrim(value[OFFLINE_SALES_ORDER_MEDIUM_TYPE_INDEX]),
+      buyerName: safeTrim(value[OFFLINE_SALES_ORDER_BUYER_NAME_INDEX]),
+      buyerClass: safeTrim(value[OFFLINE_SALES_ORDER_BUYER_CLASS_INDEX]),
+      buyerEmail: safeTrim(value[OFFLINE_SALES_ORDER_BUYER_EMAIL_INDEX]),
+      buyerId: safeTrim(value[OFFLINE_SALES_ORDER_BUYER_ID_INDEX]),
+      buyerTicketType: safeTrim(value[OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX]),
+      buyerNotice: safeTrim(value[OFFLINE_SALES_ORDER_NOTICE_INDEX]),
     }));
 
     if (data) {
@@ -762,39 +730,24 @@ export const fetchOnlineSales = async (): Promise<{
 
     // Ignore the first row
     const data = response.data.values?.slice(1).map((value) => ({
-      time: value[ONLINE_SALES_ORDER_SUBMIT_TIME_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_SUBMIT_TIME_INDEX])
-        : "",
-
-      buyerName: value[ONLINE_SALES_ORDER_BUYER_NAME_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_BUYER_NAME_INDEX])
-        : "",
-      buyerClass: value[ONLINE_SALES_ORDER_BUYER_CLASS_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_BUYER_CLASS_INDEX])
-        : "",
-      buyerEmail: value[ONLINE_SALES_ORDER_BUYER_EMAIL_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_BUYER_EMAIL_INDEX])
-        : "",
-      buyerId: value[ONLINE_SALES_ORDER_BUYER_ID_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_BUYER_ID_INDEX])
-        : "",
-      buyerTicketType: value[ONLINE_SALES_ORDER_TICKET_TYPE_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_TICKET_TYPE_INDEX])
-        : "",
-      proofOfPaymentImage: value[
-        ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX
-      ]
-        ? safeTrim(value[ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX])
-        : "",
-      confirmationImage: value[ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX])
-        : "",
-      rejectionReason: value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX])
-        : "",
-      hasBeenVerified: value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX]
-        ? safeTrim(value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX])
-        : "",
+      time: safeTrim(value[ONLINE_SALES_ORDER_SUBMIT_TIME_INDEX]),
+      buyerName: safeTrim(value[ONLINE_SALES_ORDER_BUYER_NAME_INDEX]),
+      buyerClass: safeTrim(value[ONLINE_SALES_ORDER_BUYER_CLASS_INDEX]),
+      buyerEmail: safeTrim(value[ONLINE_SALES_ORDER_BUYER_EMAIL_INDEX]),
+      buyerId: safeTrim(value[ONLINE_SALES_ORDER_BUYER_ID_INDEX]),
+      buyerTicketType: safeTrim(value[ONLINE_SALES_ORDER_TICKET_TYPE_INDEX]),
+      proofOfPaymentImage: safeTrim(
+        value[ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX]
+      ),
+      confirmationImage: safeTrim(
+        value[ONLINE_SALES_ORDER_CONFIRMATION_IMAGE_INDEX]
+      ),
+      rejectionReason: safeTrim(
+        value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX]
+      ),
+      hasBeenVerified: safeTrim(
+        value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX]
+      ),
     }));
 
     if (data) {
@@ -879,12 +832,8 @@ export const fetchOnlineTicketInfo = async (): Promise<{
 
     // Ignore the first row
     const data = result.data.values?.slice(1).map((value) => ({
-      ticketName: value[ONLINE_SALES_TICKET_INFO_NAME_INDEX]
-        ? safeTrim(value[ONLINE_SALES_TICKET_INFO_NAME_INDEX])
-        : "",
-      price: value[ONLINE_SALES_TICKET_INFO_PRICE_INDEX]
-        ? safeTrim(value[ONLINE_SALES_TICKET_INFO_PRICE_INDEX])
-        : "",
+      ticketName: safeTrim(value[ONLINE_SALES_TICKET_INFO_NAME_INDEX]),
+      price: safeTrim(value[ONLINE_SALES_TICKET_INFO_PRICE_INDEX]),
       classRange: value[ONLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX]
         ? value[ONLINE_SALES_TICKET_INFO_CLASS_RANGE_INDEX].split(",").map(
             (_value: string) => parseInt(_value)

@@ -48,6 +48,7 @@ import {
   ONLINE_SALES_COORDINATOR_SHEET_NAME,
   ONLINE_SALES_COORDINATOR_EMAIL_INDEX,
   ONLINE_SALES_COORDINATOR_NAME_INDEX,
+  STUDENT_LIST_STUDENT_EMAIL_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -93,7 +94,7 @@ export const fetchStudentList = async (): Promise<{
       });
     }, "fetchStudentList");
 
-    const data = response.data.values?.map((value, index) => ({
+    const data = response.data.values?.map((value) => ({
       name: value[STUDENT_LIST_STUDENT_NAME_INDEX]
         ? value[STUDENT_LIST_STUDENT_NAME_INDEX].trim()
         : "",
@@ -106,8 +107,9 @@ export const fetchStudentList = async (): Promise<{
       gender: value[STUDENT_LIST_STUDENT_GENDER_INDEX]
         ? value[STUDENT_LIST_STUDENT_GENDER_INDEX].trim()
         : "",
-
-      row: index,
+      email: value[STUDENT_LIST_STUDENT_EMAIL_INDEX]
+        ? value[STUDENT_LIST_STUDENT_EMAIL_INDEX].trim()
+        : "",
     }));
 
     console.log(

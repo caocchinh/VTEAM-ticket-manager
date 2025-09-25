@@ -36,7 +36,6 @@ import {
 import {
   cn,
   extractFirstNumber,
-  removeVietnameseAccents,
   parseVietnameseCurrency,
   formatVietnameseCurrency,
   sucessToast,
@@ -440,12 +439,7 @@ const Form = ({
         setStudentNameAutoCompleteValue(bestMatch.name);
         setHomeroomAutoCompleteValue(bestMatch.homeroom);
         setBestMatchStudentId(bestMatch.studentId);
-        const numericalValue = bestMatch.studentId.replace(/\D/g, "");
-        const splited = bestMatch.name.split(" ");
-        const lastName = removeVietnameseAccents(splited[splited.length - 1]);
-        setEmailAutoCompleteValue(
-          `${lastName}${numericalValue}@stu.vinschool.edu.vn`
-        );
+        setEmailAutoCompleteValue(bestMatch.email);
       } else {
         setStudentNameAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);
         setHomeroomAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);

@@ -46,8 +46,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Calculator,
-  ChartSpline,
-  CloudDownload,
   Eye,
   EyeOff,
   Loader2,
@@ -71,7 +69,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import EnhancedSelect from "@/components/EnhancedSelect";
-import { deleteCache, getCache, setCache } from "@/drizzle/idb";
+import { getCache, setCache } from "@/drizzle/idb";
 import {
   Accordion,
   AccordionContent,
@@ -93,10 +91,10 @@ import { sendOrderAction, updateOnlineDataAction } from "@/server/actions";
 import Image from "next/image";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
-import SalesSummary from "@/components/SalesSummary";
+import SalesSummaryDialog from "@/components/SalesSummaryDialog";
+import RefreshDataDialog from "@/components/RefreshDataDialog";
 import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Form = ({
   session,
@@ -1016,105 +1014,21 @@ const Form = ({
         </div>
 
         <SpreadsheetQuickAccess />
-        <Dialog
-          open={isRefreshDialogOpen}
+        <RefreshDataDialog
+          isOpen={isRefreshDialogOpen}
           onOpenChange={setIsRefreshDialogOpen}
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DialogTrigger asChild>
-                <Button
-                  className="h-[50px] w-[50px] border cursor-pointer"
-                  variant="ghost"
-                >
-                  <CloudDownload />
-                </Button>
-              </DialogTrigger>
-            </TooltipTrigger>
-            <TooltipContent>Cập nhật dữ liệu</TooltipContent>
-          </Tooltip>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Xác nhận cập nhật dữ liệu</DialogTitle>
-            </DialogHeader>
-            <Tabs defaultValue="offline">
-              <TabsList>
-                <TabsTrigger value="offline">
-                  Dữ liệu bán vé offline
-                </TabsTrigger>
-                <TabsTrigger value="online">Dữ liệu bán vé online</TabsTrigger>
-              </TabsList>
-              <TabsContent value="offline">
-                <DialogDescription>
-                  Hành động này sẽ xóa tất cả thông tin đang nhập trong phiên
-                  làm việc hiện tại và tải lại thông tin mới (danh sách học sinh
-                  & thông tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có
-                  chắc chắn muốn tiếp tục?
-                </DialogDescription>
-                <DialogFooter className="mt-4">
-                  <Button
-                    variant="outline"
-                    className="cursor-pointer"
-                    onClick={() => setIsRefreshDialogOpen(false)}
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    disabled={isStudentListFetching || isTicketInfoFetching}
-                    onClick={async () => {
-                      try {
-                        localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
-                        localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
-                        await Promise.all([
-                          deleteCache("ticket_info"),
-                          deleteCache("student_list"),
-                          deleteCache("event_info"),
-                        ]);
-                      } catch (error) {
-                        console.log(error);
-                      }
-                      clearForm({ clearNotice: true });
-                      setCurrentOrders([]);
-                      refetchAllDataMutation();
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Xác nhận update dữ liệu offline
-                    {(isStudentListFetching || isTicketInfoFetching) && (
-                      <Loader2 className="animate-spin" />
-                    )}
-                  </Button>
-                </DialogFooter>
-              </TabsContent>
-              <TabsContent value="online">
-                <DialogDescription>
-                  Hành động này sẽ update form bán vé online từ cơ sở dữ liệu
-                  (danh sách học sinh & thông tin vé & thông tin sự kiện & thông
-                  tin form). Bạn có chắc chắn muốn tiếp tục?
-                </DialogDescription>
-                <DialogFooter className="mt-4">
-                  <Button
-                    variant="outline"
-                    className="cursor-pointer"
-                    onClick={() => setIsRefreshDialogOpen(false)}
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    onClick={() => mutateUpdateOnlineData()}
-                    className="cursor-pointer"
-                    disabled={isOnlineDataUpdating}
-                  >
-                    Xác nhận update dữ liệu online
-                    {isOnlineDataUpdating && (
-                      <Loader2 className="animate-spin" />
-                    )}
-                  </Button>
-                </DialogFooter>
-              </TabsContent>
-            </Tabs>
-          </DialogContent>
-        </Dialog>
+          isStudentListFetching={isStudentListFetching}
+          isTicketInfoFetching={isTicketInfoFetching}
+          isOnlineDataUpdating={isOnlineDataUpdating}
+          onRefreshOfflineData={() => {
+            localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
+            localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
+            clearForm({ clearNotice: true });
+            setCurrentOrders([]);
+            refetchAllDataMutation();
+          }}
+          onRefreshOnlineData={mutateUpdateOnlineData}
+        />
         <div className="flex p-2 h-[50px] shadow-sm bg-card rounded-md items-center justify-between gap-1 border-1 relative">
           {isSalesInfoFetching && (
             <div className="absolute top-0 left-0 flex  w-full h-full rounded-md items-center justify-center bg-black/50 z-[10] text-white gap-2">
@@ -1233,113 +1147,17 @@ const Form = ({
           isRefetchingSales={isRefetchingSales}
         />
 
-        <Dialog
-          open={isSummaryDialogOpen}
+        <SalesSummaryDialog
+          isOpen={isSummaryDialogOpen}
           onOpenChange={setIsSummaryDialogOpen}
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DialogTrigger asChild>
-                <Button
-                  className="cursor-pointer w-[35px] !bg-[#0084ff] !text-white"
-                  disabled={!salesInfo || isSalesInfoError}
-                  variant="outline"
-                >
-                  <ChartSpline />
-                </Button>
-              </DialogTrigger>
-            </TooltipTrigger>
-            <TooltipContent
-              className="!bg-[#0084ff] !text-white "
-              arrowClassName="fill-[#0084ff] bg-[#0084ff]"
-            >
-              Báo cáo doanh thu
-            </TooltipContent>
-          </Tooltip>
-          <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
-            <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>
-            <DialogDescription className="sr-only">
-              Báo cáo doanh thu bán vé
-            </DialogDescription>
-            <div className="flex items-center justify-center gap-2">
-              <h3 className="text-center font-semibold text-xl uppercase">
-                Báo cáo doanh thu
-              </h3>
-              <Separator orientation="vertical" />
-              <Button
-                onClick={() => mutateRefetchSales()}
-                variant="ghost"
-                className="border border-black cursor-pointer"
-                disabled={isRefetchingSales || isSalesInfoFetching}
-              >
-                Cập nhật dữ liệu
-                {isRefetchingSales && <Loader2 className="animate-spin " />}
-              </Button>
-            </div>
-            <Tabs defaultValue="offline" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="offline">
-                  Offline ({salesInfo?.offline.length || 0})
-                </TabsTrigger>
-                <TabsTrigger value="online">
-                  Online (
-                  {salesInfo?.online.filter(
-                    (order) => order.hasBeenVerified === VERIFICATION_APPROVED
-                  ).length || 0}
-                  )
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="offline" className="mt-4">
-                <ScrollArea className="h-[65dvh] pr-4 w-full" type="always">
-                  {salesInfo && salesInfo.offline.length > 0 && ticketInfo ? (
-                    <SalesSummary
-                      salesInfo={salesInfo.offline}
-                      ticketInfo={ticketInfo.offline}
-                      staffName={staffInfo.name}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center">
-                      Không có đủ dữ kiện offline để trình bày
-                    </div>
-                  )}
-                </ScrollArea>
-              </TabsContent>
-
-              <TabsContent value="online" className="mt-4">
-                <ScrollArea className="h-[65dvh] pr-4 w-full" type="always">
-                  {salesInfo &&
-                  salesInfo.online.filter(
-                    (order) => order.hasBeenVerified === VERIFICATION_APPROVED
-                  ).length > 0 &&
-                  ticketInfo ? (
-                    <SalesSummary
-                      salesInfo={salesInfo.online.filter(
-                        (order) =>
-                          order.hasBeenVerified === VERIFICATION_APPROVED
-                      )}
-                      ticketInfo={ticketInfo.online}
-                      staffName={staffInfo.name}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center">
-                      Không có đủ dữ kiện online đã xác minh để trình bày
-                    </div>
-                  )}
-                </ScrollArea>
-              </TabsContent>
-            </Tabs>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                className="w-full cursor-pointer"
-                onClick={() => setIsSummaryDialogOpen(false)}
-              >
-                Đóng
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          salesInfo={salesInfo}
+          ticketInfo={ticketInfo}
+          staffInfo={staffInfo}
+          isSalesInfoError={isSalesInfoError}
+          isRefetchingSales={isRefetchingSales}
+          isSalesInfoFetching={isSalesInfoFetching}
+          onRefetchSales={mutateRefetchSales}
+        />
       </div>
       <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">
         <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">

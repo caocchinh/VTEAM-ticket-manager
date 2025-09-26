@@ -62,8 +62,8 @@ import {
   TicketInfo,
 } from "@/constants/types";
 import { getCurrentTime } from "./utils";
-import { db } from "@/drizzle/db";
-import { backUpOrder } from "@/drizzle/schema";
+import { offlineTicketDb } from "@/drizzle/offline/db";
+import { backUpOrder } from "@/drizzle/offline/schema";
 import { retryExternalApi, retryDatabase } from "@/dal/retry";
 
 const auth = new google.auth.GoogleAuth({
@@ -532,7 +532,7 @@ export const sendOfflineOrder = async ({
       }));
 
       await retryDatabase(async () => {
-        return await db.insert(backUpOrder).values(backupData);
+        return await offlineTicketDb.insert(backUpOrder).values(backupData);
       }, "sendOfflineOrder - database backup");
 
       console.log(

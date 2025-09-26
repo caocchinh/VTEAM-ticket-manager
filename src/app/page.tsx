@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import Image from "next/image";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { ClientGreeting } from "@/components/ClientGreeting";
@@ -17,6 +16,7 @@ import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
 import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
 import Beams from "@/components/Beams";
 import EmbededBrowserWarning from "@/components/EmbededBrowserWarning";
+import RedirectMessage from "@/components/RedirectMessage";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -39,7 +39,13 @@ export default async function HomePage({ searchParams }: HomeProps) {
     const staffAuth = await checkStaffAuthorization(session.user.email);
 
     if (staffAuth.isStaff) {
-      redirect("/dashboard");
+      return (
+        <RedirectMessage
+          message="Bạn đã đăng nhập"
+          subMessage="Đang chuyển hướng đến cổng bán vé..."
+          redirectTo="/dashboard"
+        />
+      );
     } else {
       if (staffAuth.error) {
         console.error("Staff authorization failed:", staffAuth.error);
@@ -57,7 +63,13 @@ export default async function HomePage({ searchParams }: HomeProps) {
         } catch (signOutError) {
           console.error("Failed to sign out user:", signOutError);
         }
-        redirect(`/?error=${NOT_STAFF_ERROR}`);
+        return (
+          <RedirectMessage
+            message="Bạn không có quyền truy cập"
+            subMessage="Đang chuyển hướng đến trang đăng nhập..."
+            redirectTo={`/?error=${NOT_STAFF_ERROR}`}
+          />
+        );
       }
     }
   }
@@ -104,7 +116,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-6 w-[90%]">
+            <div className="flex flex-col gap-6 w-[90%] max-w-lg">
               {errorMessage && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <p className="text-red-600 text-center font-medium">
@@ -113,7 +125,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
                 </div>
               )}
 
-              <Card className="min-h-[100px]">
+              <Card className="min-h-[100px] w-full gap-4">
                 <CardHeader className="text-center">
                   <ClientGreeting />
                   <CardDescription>Staff login</CardDescription>

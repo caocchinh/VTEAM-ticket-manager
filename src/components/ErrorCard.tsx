@@ -13,13 +13,17 @@ interface ErrorCardProps {
 
 export function ErrorCard({ message }: ErrorCardProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-2">
+    <div className="h-[calc(100vh-17px)] flex items-center justify-center p-2 w-full -mt-10">
       <Card className="w-[90%] max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <TriangleAlert size={100} className="text-red-500" />
+            <TriangleAlert
+              size={95}
+              strokeWidth={1.5}
+              className="text-red-500"
+            />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900">Error</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">Lỗi</h2>
           <CardDescription className="text-base mt-2">
             {message}
           </CardDescription>

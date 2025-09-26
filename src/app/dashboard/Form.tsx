@@ -935,26 +935,27 @@ const Form = ({
               src="/assets/logo.webp"
               width={50}
               height={50}
-              className="-mt-2 -mr-1 -ml-1"
+              className="-mt-2 "
               alt="VTEAM Logo"
             />
-            {(eventInfo?.eventName || isEventInfoFetching) && (
-              <CardTitle className="text-sm flex items-center justify-center">
-                {isEventInfoFetching ? (
-                  <span className="text-gray-500">
-                    Đang tải thông tin sự kiện...
-                  </span>
-                ) : (
-                  <TextShimmer className="text-sm" duration={5}>
-                    {truncateText(eventInfo?.eventName || "", 30)}
-                  </TextShimmer>
-                )}
-              </CardTitle>
-            )}
+            {!isEventInfoError &&
+              (eventInfo?.eventName || isEventInfoFetching) && (
+                <CardTitle className="text-sm flex items-center justify-center">
+                  {isEventInfoFetching ? (
+                    <span className="text-gray-500">
+                      Đang tải thông tin sự kiện...
+                    </span>
+                  ) : (
+                    <TextShimmer className="text-sm" duration={5}>
+                      {truncateText(eventInfo?.eventName || "", 30)}
+                    </TextShimmer>
+                  )}
+                </CardTitle>
+              )}
           </div>
 
           {isEventInfoError && !isEventInfoFetching && (
-            <div className=" w-max h-full  rounded-md flex items-center justify-center gap-2">
+            <div className=" w-max h-full -ml-4 rounded-md flex items-center justify-center gap-2">
               <p className="text-white text-xs">Lỗi tải thông tin sự kiện</p>
               <Button
                 variant="ghost"

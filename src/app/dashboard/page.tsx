@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { verifySession } from "@/dal/verifySession";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
@@ -7,6 +6,7 @@ import { NOT_LOGGED_IN_ERROR, NOT_STAFF_ERROR } from "@/constants/constants";
 import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
 import Form from "./Form";
 import { ErrorCard } from "@/components/ErrorCard";
+import RedirectMessage from "@/components/RedirectMessage";
 
 export default async function Dashboard() {
   let session;
@@ -23,7 +23,13 @@ export default async function Dashboard() {
   }
 
   if (!session) {
-    redirect(`/?error=${NOT_LOGGED_IN_ERROR}`);
+    return (
+      <RedirectMessage
+        message="Bạn chưa đăng nhập"
+        subMessage="Đang chuyển hướng đến trang đăng nhập..."
+        redirectTo={`/?error=${NOT_LOGGED_IN_ERROR}`}
+      />
+    );
   }
 
   const staffAuth = await checkStaffAuthorization(session.user.email);
@@ -46,7 +52,13 @@ export default async function Dashboard() {
     } catch (signOutError) {
       console.error("Failed to sign out user:", signOutError);
     }
-    redirect(`/?error=${NOT_STAFF_ERROR}`);
+    return (
+      <RedirectMessage
+        message="Bạn không có quyền truy cập"
+        subMessage="Đang chuyển hướng đến trang đăng nhập..."
+        redirectTo={`/?error=${NOT_STAFF_ERROR}`}
+      />
+    );
   }
 
   return (

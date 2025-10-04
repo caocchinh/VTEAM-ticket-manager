@@ -139,7 +139,6 @@ const Form = ({
   const [paymentMedium, setPaymentMedium] = useState<
     "Tiền mặt" | "Chuyển khoản"
   >("Tiền mặt");
-  console.log(isOnlineCoordinator);
   const [
     isConfirmingOrderAlertDialogOpen,
     setIsConfirmingOrderAlertDialogOpen,
@@ -1065,6 +1064,7 @@ const Form = ({
         <OnlineTicketManagement
           salesInfo={salesInfo?.online}
           isSalesInfoError={isSalesInfoError}
+          onlineTicketInfo={ticketInfo?.online}
           isOnlineCoordinator={isOnlineCoordinator}
           isRefetchingSales={isRefetchingSales}
           isSalesInfoFetching={isSalesInfoFetching}
@@ -1566,10 +1566,13 @@ const Form = ({
             )}
           </div>
           <div className="flex flex-col gap-2 w-full border rounded-md shadow-sm p-4">
-            {currentOrder.length === 0 && (
-              <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
-            )}
-            <ScrollArea className="h-[50vh] pr-4" type="always">
+            <ScrollArea
+              className="h-[50vh] !max-h-[450px] !min-h-[450px] pr-4"
+              type="always"
+            >
+              {currentOrder.length === 0 && (
+                <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
+              )}
               {currentOrder.length > 0 && (
                 <Accordion type="multiple" className="w-full">
                   {currentOrder.map((order, index) => (

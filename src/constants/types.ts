@@ -90,3 +90,23 @@ export const VERIFICATION_STATUS = {
 
 export type SheetOrderStatus =
   (typeof VERIFICATION_STATUS)[keyof typeof VERIFICATION_STATUS];
+
+export interface OnlineManagementProps {
+  salesInfo: OnlineSalesInfo[] | undefined;
+  isOnlineCoordinator: boolean;
+  isSalesInfoError: boolean;
+  isRefetchingSales: boolean;
+  isSalesInfoFetching: boolean;
+  onlineTicketInfo: TicketInfo[] | undefined;
+  onRefetchSales: () => void;
+  isOnlineTicketManagementOpen: {
+    isOpen: boolean;
+    buyerId: string;
+  };
+  setIsOnlineTicketManagementOpen: Dispatch<
+    SetStateAction<{
+      isOpen: boolean;
+      buyerId: string;
+    }>
+  >;
+}

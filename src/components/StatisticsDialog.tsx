@@ -122,7 +122,7 @@ export default function StatisticsDialog({
                   <div className="flex items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
                     <div className="text-center text-gray-500">
                       <p className="font-medium">
-                        Biểu đồ thanh toán & đóng góp nhân viên
+                        Biểu đồ thanh toán & đóng góp của staff
                       </p>
                       <p className="text-sm">
                         Chỉ khả dụng cho dữ liệu offline

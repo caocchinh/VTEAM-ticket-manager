@@ -3,13 +3,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import {
-  Dispatch,
-  SetStateAction,
   Fragment,
   useCallback,
   useEffect,
@@ -34,6 +31,7 @@ import {
   X,
 } from "lucide-react";
 import {
+  OnlineManagementProps,
   OnlineSalesInfo,
   OrderSelectProps,
   VERIFICATION_STATUS,
@@ -51,7 +49,6 @@ import {
   SidebarRail,
 } from "./ui/sidebar";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-import { useIsMutating } from "@tanstack/react-query";
 import { Input } from "./ui/input";
 import { JumpToTabButton } from "./JumpToTabButton";
 import {
@@ -109,27 +106,11 @@ const OnlineTicketManagement = ({
   isOnlineCoordinator,
   isRefetchingSales,
   isSalesInfoFetching,
+  onlineTicketInfo,
   isOnlineTicketManagementOpen,
   setIsOnlineTicketManagementOpen,
   onRefetchSales,
-}: {
-  salesInfo: OnlineSalesInfo[] | undefined;
-  isOnlineCoordinator: boolean;
-  isSalesInfoError: boolean;
-  isRefetchingSales: boolean;
-  isSalesInfoFetching: boolean;
-  onRefetchSales: () => void;
-  isOnlineTicketManagementOpen: {
-    isOpen: boolean;
-    buyerId: string;
-  };
-  setIsOnlineTicketManagementOpen: Dispatch<
-    SetStateAction<{
-      isOpen: boolean;
-      buyerId: string;
-    }>
-  >;
-}) => {
+}: OnlineManagementProps) => {
   const [currentTab, setCurrentTab] = useState(0);
   const [currentTabThatContainsOrder, setCurrentTabThatContainsOrder] =
     useState(0);
@@ -570,7 +551,6 @@ const OnlineTicketManagement = ({
     <Dialog
       open={isOnlineTicketManagementOpen.isOpen}
       onOpenChange={(open) => {
-        console.log(currentBuyerId);
         setIsOnlineTicketManagementOpen({
           isOpen: open,
           buyerId: currentBuyerId ?? "",
@@ -984,7 +964,7 @@ const OnlineTicketManagement = ({
             </Sidebar>
             <SidebarInset className="h-[inherit] w-full p-2 pt-0 rounded-md px-4 dark:bg-accent gap-2 overflow-hidden flex flex-col items-center justify-between">
               <div
-                className="w-full h-[inherit] flex flex-col gap-2 items-center justify-start relative"
+                className="w-full flex flex-col gap-2 items-center justify-start relative"
                 ref={sideBarInsetRef}
               >
                 {isUltilityOverflowingRight && (
@@ -1090,21 +1070,112 @@ const OnlineTicketManagement = ({
                   />
                 </ScrollArea>
 
-                <div>
-                  <ScrollArea
-                    className="h-[76dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
-                    type="always"
-                    viewportRef={answerScrollAreaRef}
-                  >
-                    <InspectOrderImages
-                      imageSource={currentOrderData?.proofOfPaymentImage}
-                      currentBuyerId={currentOrderData?.buyerId}
-                    />
-                  </ScrollArea>
-                </div>
+                <ScrollArea className="h-[75dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-2">
+                  <div className="w-full h-full flex-wrap gap-4 flex items-start justify-center">
+                    <div
+                      className={cn(
+                        "flex-7 min-w-[290px] h-full border border-black rounded-lg flex flex-col gap-2 items-center justify-center p-2",
+                        currentOrderData?.verificationStatus ===
+                          VERIFICATION_APPROVED &&
+                          "border-green-600 text-green-600 [&_*]:text-green-600",
+                        currentOrderData?.verificationStatus ===
+                          VERIFICATION_FAILED &&
+                          "border-red-600 text-red-600 [&_*]:text-red-600"
+                      )}
+                    >
+                      <h4 className="text-md text-center">
+                        Màn hình chuyển khoản
+                      </h4>
+                      <ScrollArea
+                        className="h-[70dvh] max-h-[420px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
+                        type="always"
+                        viewportRef={answerScrollAreaRef}
+                      >
+                        <InspectOrderImages
+                          imageSource={currentOrderData?.proofOfPaymentImage}
+                          currentBuyerId={currentOrderData?.buyerId}
+                        />
+                      </ScrollArea>
+                    </div>
+
+                    <div
+                      className={cn(
+                        "flex w-[290px] flex-5 flex-col gap-2 border p-4 rounded-lg border-black",
+                        currentOrderData?.verificationStatus ===
+                          VERIFICATION_APPROVED &&
+                          "border-green-600 text-green-600 [&_*]:text-green-600",
+                        currentOrderData?.verificationStatus ===
+                          VERIFICATION_FAILED &&
+                          "border-red-600 text-red-600 [&_*]:text-red-600"
+                      )}
+                    >
+                      <h4 className="text-md text-center -mt-2">
+                        Thông tin người mua
+                      </h4>
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">
+                          Ngày đặt hàng:
+                        </p>
+                        <p className="break-words max-w-full">
+                          {currentOrderData?.time}
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">Hạng vé:</p>
+                        <p className="break-words max-w-full">
+                          {currentOrderData?.buyerTicketType}
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">Giá vé:</p>
+                        <p className="break-words max-w-full">
+                          {
+                            onlineTicketInfo?.find(
+                              (ticket) =>
+                                ticket.ticketName ===
+                                currentOrderData?.buyerTicketType
+                            )?.price
+                          }
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">Email trường:</p>
+                        <p className="break-words max-w-full">
+                          {currentOrderData?.buyerEmail}
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">Họ và tên:</p>
+                        <p className="break-words max-w-full">
+                          {currentOrderData?.buyerName}
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">
+                          Mã số học sinh:
+                        </p>
+                        <p className="break-words max-w-full">
+                          {currentOrderData?.buyerId}
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                        <p className="font-bold text-gray-900">Lớp:</p>
+                        <p className="break-words max-w-full">
+                          {currentOrderData?.buyerClass}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
               </div>
               <Button
-                className="w-full h-7 flex items-center justify-center cursor-pointer lg:hidden "
+                className="w-full h-7 my-4 flex items-center justify-center cursor-pointer "
                 onClick={() => {
                   if (currentBuyerId) {
                     setIsOnlineTicketManagementOpen({
@@ -1114,34 +1185,33 @@ const OnlineTicketManagement = ({
                   }
                 }}
               >
-                Close
+                Đóng
               </Button>
             </SidebarInset>
           </SidebarProvider>
         ) : (
-          <div className="flex items-center flex-col h-max justify-center gap-4">
-            <ShieldBan size={75} className="text-red-500" strokeWidth={1.6} />
-            <h3 className="text-center font-semibold text-xl text-red-500 uppercase">
-              Xin lỗi, bạn không phải là coordinator bán vé online, bạn không có
-              quyền truy cập!
-            </h3>
+          <div className="flex items-center flex-col h-full justify-center gap-4">
+            <div className="flex items-center flex-col h-full justify-center gap-4">
+              <ShieldBan size={75} className="text-red-500" strokeWidth={1.6} />
+              <h3 className="text-center font-semibold text-xl text-red-500 uppercase">
+                Xin lỗi, bạn không phải là coordinator bán vé online, bạn không
+                có quyền truy cập!
+              </h3>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer"
+              onClick={() => {
+                setIsOnlineTicketManagementOpen({
+                  isOpen: false,
+                  buyerId: currentBuyerId ?? "",
+                });
+              }}
+            >
+              Đóng
+            </Button>
           </div>
         )}
-
-        <DialogFooter className="h-max">
-          <Button
-            variant="outline"
-            className="w-full cursor-pointer"
-            onClick={() => {
-              setIsOnlineTicketManagementOpen({
-                isOpen: false,
-                buyerId: currentBuyerId ?? "",
-              });
-            }}
-          >
-            Đóng
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -1150,12 +1220,6 @@ const OnlineTicketManagement = ({
 export default OnlineTicketManagement;
 
 const FinishedTracker = ({ allOrders }: { allOrders: OnlineSalesInfo[] }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const isMutatingFinishedQuestion =
-    useIsMutating({
-      mutationKey: ["user_finished_orders"],
-    }) > 0;
-
   return (
     <div className="absolute w-full h-7 bg-green-600 left-0 top-0 flex items-center justify-center text-white text-sm">
       <>

@@ -30,7 +30,7 @@ const ChangeCalculator = ({ totalAmount }: ChangeCalculatorProps) => {
       }
     }
 
-    return paidAmount > totalAmount ? paidAmount - totalAmount : 0;
+    return paidAmount - totalAmount;
   }, [customAmount, selectedAmount, totalAmount]);
 
   const handlePresetClick = (amount: number) => {
@@ -147,9 +147,9 @@ const ChangeCalculator = ({ totalAmount }: ChangeCalculatorProps) => {
                   Tiền thối:
                 </span>
                 <span className="text-lg font-bold text-green-900 wrap-anywhere">
-                  {change > 0
-                    ? formatVietnameseCurrency(change)
-                    : "Khách đưa thiếu"}
+                  {change > 0 && formatVietnameseCurrency(change)}
+                  {change === 0 && "không cần thối"}
+                  {change < 0 && "Khách đưa thiếu"}
                 </span>
               </div>
             </div>

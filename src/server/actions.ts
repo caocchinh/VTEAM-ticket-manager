@@ -232,7 +232,6 @@ export const updateOnlineOrderStatusAction = async ({
   const startTime = Date.now();
 
   console.log(`[${operationId}] Starting online order status update`);
-
   try {
     // Session verification
     const session = await verifySession();

@@ -1554,7 +1554,7 @@ const Form = ({
           </div>
         </div>
         <div className="flex flex-col items-center justify-center gap-2 w-[90%] sm:w-[425px]">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-start h-max justify-between  w-full">
             <h2 className="font-semibold">Thông tin order</h2>
             {ticketInfo && (
               <TicketColorManager
@@ -1565,9 +1565,9 @@ const Form = ({
               />
             )}
           </div>
-          <div className="flex flex-col gap-2 w-full border rounded-md shadow-sm p-4">
+          <div className="flex flex-col gap-2 -mt-2 w-full border rounded-md shadow-sm p-4">
             <ScrollArea
-              className="h-[50vh] !max-h-[450px] !min-h-[450px] pr-4"
+              className="h-[50vh] !max-h-[460px] !min-h-[460px] pr-4"
               type="always"
             >
               {currentOrder.length === 0 && (

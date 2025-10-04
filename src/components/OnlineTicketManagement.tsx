@@ -43,7 +43,13 @@ import {
 import { Separator } from "./ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { cn, fuzzySearch, isOverScrolling } from "@/lib/utils";
+import {
+  cn,
+  errorToast,
+  fuzzySearch,
+  isOverScrolling,
+  sucessToast,
+} from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -284,23 +290,32 @@ const OnlineTicketManagement = ({
   );
 
   const updateOrderStatusMutation = useMutation({
-    mutationFn: (order: OnlineSalesInfo) => {
-      return updateOnlineOrderStatusAction({
+    mutationFn: async (order: OnlineSalesInfo) => {
+      const result = await updateOnlineOrderStatusAction({
         studentId: order.buyerId,
         verificationStatus: order.verificationStatus as SheetOrderStatus,
         rejectionReason: order.rejectionReason,
       });
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+
+      return result;
     },
     onSuccess: () => {
       setIsConfirmSuccessAlertDialogOpen(false);
       setIsRejectDialogOpen(false);
       setRejectionReason("");
+      sucessToast({ message: "Cập nhật trạng thái đơn hàng thành công!" });
+
       // Refetch data to get updated status
       onRefetchSales();
     },
     onError: (error) => {
       console.error("Failed to update order status:", error);
-      // You could add a toast notification here
+      errorToast({
+        message: "Cập nhật trạng thái đơn hàng thất bại, vui lòng thử lại!",
+      });
     },
   });
 

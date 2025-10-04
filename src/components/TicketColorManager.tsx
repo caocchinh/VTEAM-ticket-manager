@@ -66,7 +66,7 @@ const TicketColorManager = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button variant="outline" size="sm" className="gap-2 -mt-2 mb-2">
           <Palette size={16} />
           Màu vé
         </Button>

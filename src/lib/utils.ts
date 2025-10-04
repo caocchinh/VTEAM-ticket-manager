@@ -48,7 +48,11 @@ export const sucessToast = ({
     },
     action: {
       label: "Đóng",
-      onClick: () => toast.dismiss(toastId),
+      onClick: () => {
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 0);
+      },
     },
   });
   return toastId;
@@ -92,7 +96,11 @@ export const errorToast = ({
     },
     action: {
       label: "Đóng",
-      onClick: () => toast.dismiss(toastId),
+      onClick: () => {
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 0);
+      },
     },
   });
   return toastId;

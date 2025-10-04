@@ -72,7 +72,6 @@ export interface AllSalesInfo {
 
 export interface OrderSelectProps {
   order: OnlineSalesInfo;
-  allOrders: OnlineSalesInfo[];
   currentTab: number;
   currentOrderId?: string;
   isInspectSidebarOpen: boolean;

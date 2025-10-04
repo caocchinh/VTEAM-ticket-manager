@@ -33,7 +33,11 @@ import {
   ShieldBan,
   X,
 } from "lucide-react";
-import { OnlineSalesInfo, OrderSelectProps } from "@/constants/types";
+import {
+  OnlineSalesInfo,
+  OrderSelectProps,
+  VERIFICATION_STATUS,
+} from "@/constants/types";
 import { Separator } from "./ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -47,14 +51,16 @@ import {
   SidebarRail,
 } from "./ui/sidebar";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-import { useIsMutating, useQueryClient } from "@tanstack/react-query";
+import { useIsMutating } from "@tanstack/react-query";
 import { Input } from "./ui/input";
 import { JumpToTabButton } from "./JumpToTabButton";
-import { VERIFICATION_APPROVED } from "@/constants/constants";
+import {
+  VERIFICATION_APPROVED,
+  VERIFICATION_PENDING,
+} from "@/constants/constants";
 
 const OrderSelect = ({
   order,
-  allOrders,
   currentTab,
   currentOrderId,
   setCurrentOrderId,
@@ -67,12 +73,11 @@ const OrderSelect = ({
       className={cn(
         "cursor-pointer relative p-2 rounded-sm flex items-center justify-between hover:bg-foreground/10",
         currentOrderId === order?.buyerId && "!bg-[#0084ff] text-white",
-        allOrders?.some(
-          (item) =>
-            item.buyerId === order?.buyerId &&
-            item.verificationStatus === VERIFICATION_APPROVED
-        ) &&
-          "bg-green-600 dark:hover:bg-green-600 hover:bg-green-600 text-white"
+        order?.verificationStatus === VERIFICATION_APPROVED &&
+          "bg-green-600 dark:hover:bg-green-600 hover:bg-green-600 text-white",
+
+        order?.verificationStatus === VERIFICATION_PENDING &&
+          "bg-yellow-600 dark:hover:bg-yellow-600 hover:bg-yellow-600 text-white"
       )}
       onClick={() => {
         setCurrentOrderId(order?.buyerId);
@@ -131,7 +136,7 @@ const OnlineTicketManagement = ({
   const [searchInput, setSearchInput] = useState("");
   const [isVirtualizationReady, setIsVirtualizationReady] = useState(false);
 
-  const [isInspectSidebarOpen, setIsInspectSidebarOpen] = useState(false);
+  const [isInspectSidebarOpen, setIsInspectSidebarOpen] = useState(true);
   const partitionedOrderData = useMemo(() => {
     const chunkedData: OnlineSalesInfo[][] = [];
     let currentChunks: OnlineSalesInfo[] = [];
@@ -666,9 +671,7 @@ const OnlineTicketManagement = ({
                 }
               }}
             >
-              <SidebarHeader className="sr-only">
-                Search questions
-              </SidebarHeader>
+              <SidebarHeader className="sr-only">Tìm học sinh</SidebarHeader>
               <SidebarContent className="dark:bg-accent flex flex-col gap-2 h-full justify-between items-center border-r border-border p-3 pr-1 !overflow-hidden">
                 <FinishedTracker allOrders={allOrders} />
                 <div className="flex items-center justify-start w-full gap-2 px-1 mt-5">
@@ -678,7 +681,7 @@ const OnlineTicketManagement = ({
                       onFocus={() => setIsInputFocused(true)}
                       onBlur={() => setIsInputFocused(false)}
                       className="border-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-accent placeholder:text-sm"
-                      placeholder="Search questions"
+                      placeholder="Tìm học sinh"
                       value={searchInput}
                       tabIndex={-1}
                       onChange={(e) => {
@@ -796,7 +799,6 @@ const OnlineTicketManagement = ({
                               setCurrentTabThatContainsOrder={
                                 setCurrentTabThatContainsOrder
                               }
-                              allOrders={allOrders}
                               isInspectSidebarOpen={isInspectSidebarOpen}
                             />
                             <Separator />
@@ -838,7 +840,6 @@ const OnlineTicketManagement = ({
                             setCurrentTabThatContainsOrder={
                               setCurrentTabThatContainsOrder
                             }
-                            allOrders={allOrders}
                             setCurrentOrderId={setCurrentBuyerId}
                             isInspectSidebarOpen={isInspectSidebarOpen}
                           />
@@ -1047,7 +1048,7 @@ const OnlineTicketManagement = ({
                         variant="outline"
                         className="w-9 rounded-sm cursor-pointer"
                         onClick={handleNextQuestion}
-                        title="Next question"
+                        title="Order sau"
                         disabled={isHandleNextQuestionDisabled}
                       >
                         <ChevronDown />
@@ -1056,7 +1057,7 @@ const OnlineTicketManagement = ({
                         variant="outline"
                         className="w-9 rounded-sm cursor-pointer"
                         onClick={handlePreviousQuestion}
-                        title="Previous question"
+                        title="Order trước"
                         disabled={isHandlePreviousQuestionDisabled}
                       >
                         <ChevronUp />
@@ -1162,15 +1163,13 @@ const FinishedTracker = ({ allOrders }: { allOrders: OnlineSalesInfo[] }) => {
     useIsMutating({
       mutationKey: ["user_finished_orders"],
     }) > 0;
-  const queryClient = useQueryClient();
-  const userFinishedOrders: OnlineSalesInfo[] | undefined =
-    queryClient.getQueryData(["user_finished_orders"]);
+
   return (
     <div className="absolute w-full h-7 bg-green-600 left-0 top-0 flex items-center justify-center text-white text-sm">
       <>
         {
-          allOrders.filter((o) =>
-            userFinishedOrders?.some((fq) => fq.buyerId === o.buyerId)
+          allOrders.filter(
+            (o) => o.verificationStatus === VERIFICATION_STATUS.SUCCESS
           ).length
         }{" "}
         đơn hàng thành công

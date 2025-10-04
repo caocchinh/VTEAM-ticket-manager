@@ -49,6 +49,10 @@ import {
   ONLINE_SALES_COORDINATOR_EMAIL_INDEX,
   ONLINE_SALES_COORDINATOR_NAME_INDEX,
   STUDENT_LIST_STUDENT_EMAIL_INDEX,
+  ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_COLUMN,
+  ONLINE_SALES_ORDER_REJECTION_REASON_COLUMN,
+  VERIFICATION_FAILED,
+  VERIFICATION_APPROVED,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -65,6 +69,9 @@ import { getCurrentTime } from "./utils";
 import { offlineTicketDb } from "@/drizzle/offline/db";
 import { backUpOrder } from "@/drizzle/offline/schema";
 import { retryExternalApi, retryDatabase } from "@/dal/retry";
+import { onlineTicketDb } from "@/drizzle/online/db";
+import { currentOrderStatus } from "@/drizzle/online/schema";
+import { eq } from "drizzle-orm";
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -89,10 +96,16 @@ export const fetchStudentList = async (): Promise<{
     );
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: STUDENT_LIST_SHEET_ID,
         range: `${STUDENT_LIST_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchStudentList");
 
     const data = response.data.values?.map((value) => ({
@@ -130,10 +143,16 @@ export const fetchOfflineTicketInfo = async (): Promise<{
     );
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: OFFLINE_SALES_SHEET_ID,
         range: `${OFFLINE_SALES_TICKET_INFO_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchTicketInfo");
 
     // Ignore the first row
@@ -179,10 +198,16 @@ export const fetchOfflineStaffInfo = async ({
     console.log(`[SPREADSHEET] Starting fetchStaffInfo for email: ${email}`);
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: OFFLINE_SALES_SHEET_ID,
         range: `${OFFLINE_SALES_STAFF_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchStaffInfo");
 
     const foundValue = response.data.values?.find(
@@ -228,10 +253,16 @@ export const fetchOnlineCoordinatorInfo = async ({
     console.log(`[SPREADSHEET] Starting fetchStaffInfo for email: ${email}`);
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: ONLINE_SALES_SHEET_ID,
         range: `${ONLINE_SALES_COORDINATOR_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchStaffInfo");
 
     const foundValue = response.data.values?.find(
@@ -281,9 +312,15 @@ export const createSheetIfNotExists = async ({
 
     // Check if sheet already exists
     const spreadsheet = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.get({
+      const response = await sheets.spreadsheets.get({
         spreadsheetId,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "createSheetIfNotExists - check existing sheet");
 
     const existingSheet = spreadsheet.data.sheets?.find(
@@ -303,7 +340,7 @@ export const createSheetIfNotExists = async ({
 
     // Create new sheet
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.batchUpdate({
+      const response = await sheets.spreadsheets.batchUpdate({
         spreadsheetId,
         requestBody: {
           requests: [
@@ -317,6 +354,12 @@ export const createSheetIfNotExists = async ({
           ],
         },
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "createSheetIfNotExists - create sheet");
 
     const sheetId = response.data.replies?.[0]?.addSheet?.properties?.sheetId;
@@ -328,7 +371,7 @@ export const createSheetIfNotExists = async ({
 
       // Add header row values
       await retryExternalApi(async () => {
-        return await sheets.spreadsheets.values.append({
+        const response = await sheets.spreadsheets.values.append({
           spreadsheetId,
           range: `${sheetName}!A1`,
           valueInputOption: "RAW",
@@ -348,6 +391,12 @@ export const createSheetIfNotExists = async ({
             ],
           },
         });
+        if (response.status !== 200) {
+          throw new Error(
+            `Google Sheets API returned status ${response.status}: ${response.statusText}`
+          );
+        }
+        return response;
       }, "createSheetIfNotExists - add headers");
 
       console.log(
@@ -356,7 +405,7 @@ export const createSheetIfNotExists = async ({
 
       // Format the header row with colors and borders
       await retryExternalApi(async () => {
-        return await sheets.spreadsheets.batchUpdate({
+        const response = await sheets.spreadsheets.batchUpdate({
           spreadsheetId,
           requestBody: {
             requests: [
@@ -457,6 +506,12 @@ export const createSheetIfNotExists = async ({
             ],
           },
         });
+        if (response.status !== 200) {
+          throw new Error(
+            `Google Sheets API returned status ${response.status}: ${response.statusText}`
+          );
+        }
+        return response;
       }, "createSheetIfNotExists - format sheet");
 
       console.log(
@@ -565,7 +620,7 @@ export const sendOfflineOrder = async ({
     const [mainSheetResult, todaySheetResult, checkinSheetResult] =
       await Promise.allSettled([
         retryExternalApi(async () => {
-          return await sheets.spreadsheets.values.append({
+          const response = await sheets.spreadsheets.values.append({
             spreadsheetId: OFFLINE_SALES_SHEET_ID,
             range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
             valueInputOption: "RAW",
@@ -573,9 +628,15 @@ export const sendOfflineOrder = async ({
               values: rows,
             },
           });
+          if (response.status !== 200) {
+            throw new Error(
+              `Google Sheets API returned status ${response.status}: ${response.statusText}`
+            );
+          }
+          return response;
         }, "sendOfflineOrder - main offline sales sheet"),
         retryExternalApi(async () => {
-          return await sheets.spreadsheets.values.append({
+          const response = await sheets.spreadsheets.values.append({
             spreadsheetId: OFFLINE_SALES_SHEET_ID,
             range: `${todaySalesSheetName}!A:Z`,
             valueInputOption: "RAW",
@@ -583,9 +644,15 @@ export const sendOfflineOrder = async ({
               values: rows,
             },
           });
+          if (response.status !== 200) {
+            throw new Error(
+              `Google Sheets API returned status ${response.status}: ${response.statusText}`
+            );
+          }
+          return response;
         }, "sendOfflineOrder - today offline sales sheet"),
         retryExternalApi(async () => {
-          return await sheets.spreadsheets.values.append({
+          const response = await sheets.spreadsheets.values.append({
             spreadsheetId: CHECKIN_SHEET_ID,
             range: `${CHECKIN_SHEET_NAME}!A:Z`,
             valueInputOption: "USER_ENTERED",
@@ -596,10 +663,16 @@ export const sendOfflineOrder = async ({
                 order.homeroomInput, // C: Buyer class
                 order.studentIdInput, // D: Buyer ID
                 order.email, // E: Buyer email
-                false, // F: Set is checkin to false
+                false, // F: Set is check-in default status to false
               ]),
             },
           });
+          if (response.status !== 200) {
+            throw new Error(
+              `Google Sheets API returned status ${response.status}: ${response.statusText}`
+            );
+          }
+          return response;
         }, "sendOfflineOrder - checkin offline sales sheet"),
       ]);
 
@@ -673,10 +746,16 @@ export const fetchOfflineSales = async (): Promise<{
     );
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: OFFLINE_SALES_SHEET_ID,
         range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchOfflineSales");
 
     // Ignore the first row
@@ -722,10 +801,16 @@ export const fetchOnlineSales = async (): Promise<{
     );
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: ONLINE_SALES_SHEET_ID,
         range: `${ONLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchOnlineSales");
 
     // Ignore the first row
@@ -739,7 +824,6 @@ export const fetchOnlineSales = async (): Promise<{
       proofOfPaymentImage: safeTrim(
         value[ONLINE_SALES_ORDER_PROOF_OF_PAYMENT_IMAGE_INDEX]
       ),
-
       rejectionReason: safeTrim(
         value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX]
       ),
@@ -766,6 +850,130 @@ export const fetchOnlineSales = async (): Promise<{
   }
 };
 
+export const updateOnlineOrderStatus = async ({
+  studentId,
+  verificationStatus,
+  rejectionReason,
+}: {
+  studentId: string;
+  verificationStatus: SheetOrderStatus;
+  rejectionReason: string | null;
+}): Promise<{
+  error: boolean;
+  errorMessage: string | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  const onlineSales = await fetchOnlineSales();
+  if (onlineSales.error || !onlineSales.data) {
+    return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  const onlineSalesData = onlineSales.data;
+  const orderIndexInSheet = onlineSalesData?.findIndex(
+    (order) => order.buyerId === studentId
+  );
+  if (!onlineSalesData) {
+    return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  const order = onlineSalesData?.[orderIndexInSheet] as OnlineSalesInfo;
+  if (
+    !order.buyerId ||
+    !order.buyerName ||
+    !order.buyerClass ||
+    !order.buyerEmail ||
+    !order.buyerTicketType
+  ) {
+    return { error: true, errorMessage: "Order data is invalid" };
+  }
+  if (orderIndexInSheet === -1) {
+    return { error: true, errorMessage: "Order not found" };
+  }
+
+  const rowIndexInSheet = orderIndexInSheet + 2;
+  const dataToUpdate = [
+    {
+      range: `${ONLINE_SALES_ORDER_SHEET_NAME}!${ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_COLUMN}${rowIndexInSheet}`,
+      values: [[verificationStatus as string]],
+    },
+  ];
+  if (verificationStatus === VERIFICATION_FAILED) {
+    dataToUpdate.push({
+      range: `${ONLINE_SALES_ORDER_SHEET_NAME}!${ONLINE_SALES_ORDER_REJECTION_REASON_COLUMN}${rowIndexInSheet}`,
+      values: [[rejectionReason as string]],
+    });
+  } else {
+    dataToUpdate.push({
+      range: `${ONLINE_SALES_ORDER_SHEET_NAME}!${ONLINE_SALES_ORDER_REJECTION_REASON_COLUMN}${rowIndexInSheet}`,
+      values: [[""]],
+    });
+  }
+
+  try {
+    await retryExternalApi(async () => {
+      const response = await sheets.spreadsheets.values.batchUpdate({
+        spreadsheetId: ONLINE_SALES_SHEET_ID,
+        requestBody: {
+          valueInputOption: "RAW",
+          data: dataToUpdate,
+        },
+      });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
+    }, "updateOnlineSales");
+    await retryDatabase(async () => {
+      return await onlineTicketDb
+        .update(currentOrderStatus)
+        .set({
+          orderStatus: verificationStatus,
+          rejectionReason:
+            verificationStatus === VERIFICATION_FAILED ? rejectionReason : null,
+        })
+        .where(eq(currentOrderStatus.email, order.buyerEmail));
+    }, "updateOnlineSales - database update");
+    if (verificationStatus === VERIFICATION_APPROVED) {
+      await retryExternalApi(async () => {
+        const response = await sheets.spreadsheets.values.append({
+          spreadsheetId: CHECKIN_SHEET_ID,
+          range: `${CHECKIN_SHEET_NAME}!A:Z`,
+          valueInputOption: "USER_ENTERED",
+          requestBody: {
+            values: [
+              [
+                order.buyerTicketType, // A: Ticket type
+                order.buyerName, // B: Buyer name
+                order.buyerClass, // C: Buyer class
+                order.buyerId, // D: Buyer ID
+                order.buyerEmail, // E: Buyer email
+                false, // F: Set is check-in default status to false
+              ],
+            ],
+          },
+        });
+        if (response.status !== 200) {
+          throw new Error(
+            `Google Sheets API returned status ${response.status}: ${response.statusText}`
+          );
+        }
+        return response;
+      }, "updateOnlineSales");
+    }
+    return { error: false, errorMessage: undefined };
+  } catch (error) {
+    console.error(
+      "[SPREADSHEET] Failed to update online sales after all retries:",
+      error
+    );
+    return {
+      error: true,
+      errorMessage: "Failed to update online sales after all retries",
+    };
+  }
+};
+
 export const fetchEventInfo = async (): Promise<{
   error: boolean;
   data: EventInfo | undefined;
@@ -778,10 +986,16 @@ export const fetchEventInfo = async (): Promise<{
     );
 
     const response = await retryExternalApi(async () => {
-      return await sheets.spreadsheets.values.get({
+      const response = await sheets.spreadsheets.values.get({
         spreadsheetId: OFFLINE_SALES_SHEET_ID,
         range: `${OFFLINE_SALES_EVENT_INFO_SHEET_NAME}!A:Z`,
       });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
     }, "fetchOfflineEventInfo");
 
     if (response.data.values) {

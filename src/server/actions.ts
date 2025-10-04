@@ -1,8 +1,8 @@
 "use server";
 
-import { StudentInput } from "@/constants/types";
+import { SheetOrderStatus, StudentInput } from "@/constants/types";
 import { verifySession } from "@/dal/verifySession";
-import { sendOfflineOrder } from "@/lib/SpreadSheet";
+import { sendOfflineOrder, updateOnlineOrderStatus } from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
 import {
   createActionError,
@@ -12,6 +12,11 @@ import {
 } from "@/constants/errors";
 import { randomUUID } from "crypto";
 import { Cache } from "@/lib/cache";
+import {
+  VERIFICATION_APPROVED,
+  VERIFICATION_FAILED,
+  VERIFICATION_PENDING,
+} from "@/constants/constants";
 
 export const sendOrderAction = async ({
   orders,
@@ -203,6 +208,106 @@ export const updateOnlineDataAction = async (): Promise<ActionResponse> => {
     const duration = Date.now() - startTime;
     console.error(
       `[${operationId}] Online data update failed after ${duration}ms:`,
+      error
+    );
+
+    if (error instanceof Error) {
+      console.error(`[${operationId}] Error details:`, error.message);
+      console.error(`[${operationId}] Error stack:`, error.stack);
+    }
+    return createActionError("UNKNOWN_ERROR");
+  }
+};
+
+export const updateOnlineOrderStatusAction = async ({
+  studentId,
+  verificationStatus,
+  rejectionReason,
+}: {
+  studentId: string;
+  verificationStatus: SheetOrderStatus;
+  rejectionReason: string | null;
+}): Promise<ActionResponse> => {
+  const operationId = randomUUID();
+  const startTime = Date.now();
+
+  console.log(`[${operationId}] Starting online order status update`);
+
+  try {
+    // Session verification
+    const session = await verifySession();
+    if (!session) {
+      console.log(`[${operationId}] Session verification failed`);
+      return createActionError("SESSION_VERIFICATION_FAILED");
+    }
+
+    console.log(
+      `[${operationId}] Session verified for user: ${session.user.email}`
+    );
+
+    // Check staff authorization
+    console.log(`[${operationId}] Checking staff authorization...`);
+    const staffAuth = await checkStaffAuthorization(session.user.email);
+
+    if (!staffAuth.isStaff || !staffAuth.isOnlineCoordinator) {
+      console.log(
+        `[${operationId}] Staff authorization failed: ${
+          staffAuth.error || "Unknown error"
+        }`
+      );
+      return createActionError(
+        staffAuth.error === ERROR_CODES.INTERNAL_SERVER_ERROR
+          ? "INTERNAL_SERVER_ERROR"
+          : "UNAUTHORIZED"
+      );
+    }
+
+    console.log(
+      `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
+    );
+
+    // Input validation
+    console.log(`[${operationId}] Validating input data...`);
+    if (!studentId || !verificationStatus) {
+      return createActionError("MISSING_REQUIRED_FIELDS");
+    }
+    if (
+      verificationStatus !== VERIFICATION_PENDING &&
+      verificationStatus !== VERIFICATION_APPROVED &&
+      verificationStatus !== VERIFICATION_FAILED
+    ) {
+      return createActionError("MISSING_REQUIRED_FIELDS");
+    }
+    if (!rejectionReason && verificationStatus === VERIFICATION_FAILED) {
+      return createActionError("MISSING_REQUIRED_FIELDS");
+    }
+
+    console.log(`[${operationId}] Input validation passed`);
+
+    // Update online order status
+    console.log(`[${operationId}] Updating online order status...`);
+    const result = await updateOnlineOrderStatus({
+      studentId,
+      verificationStatus,
+      rejectionReason,
+    });
+
+    if (!result.error) {
+      const duration = Date.now() - startTime;
+      console.log(
+        `[${operationId}] Online order status updated successfully in ${duration}ms`
+      );
+      return createActionSuccess();
+    } else {
+      console.error(
+        `[${operationId}] Online order status update failed: ${result.errorMessage}`
+      );
+      return createActionError("ORDER_SUBMISSION_FAILED");
+    }
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error(
+      `[${operationId}] Online order status update failed after ${duration}ms:`,
       error
     );
 

@@ -38,6 +38,7 @@ import {
   OnlineSalesInfo,
   OrderSelectProps,
   VERIFICATION_STATUS,
+  SheetOrderStatus,
 } from "@/constants/types";
 import { Separator } from "./ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -65,8 +66,13 @@ import {
   AlertDialogContent,
   AlertDialogTitle,
   AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogCancel,
 } from "./ui/alert-dialog";
 import Loader from "./Loader/Loader";
+import { useMutation } from "@tanstack/react-query";
+import { updateOnlineOrderStatusAction } from "@/server/actions";
+import { Textarea } from "./ui/textarea";
 
 const OrderSelect = ({
   order,
@@ -86,7 +92,7 @@ const OrderSelect = ({
           "bg-green-600 dark:hover:bg-green-600 hover:bg-green-600 text-white",
 
         order?.verificationStatus === VERIFICATION_PENDING &&
-          "bg-yellow-600 dark:hover:bg-yellow-600 hover:bg-yellow-600 text-white",
+          "bg-[#F48120] dark:hover:bg-[#F48120] hover:bg-[#F48120] text-white",
         order?.verificationStatus === VERIFICATION_FAILED &&
           "bg-red-600 dark:hover:bg-red-600 hover:bg-red-600 text-white"
       )}
@@ -130,7 +136,10 @@ const OnlineTicketManagement = ({
   );
   const [searchInput, setSearchInput] = useState("");
   const [isVirtualizationReady, setIsVirtualizationReady] = useState(false);
-
+  const [isConfirmSuccessAlertDialogOpen, setIsConfirmSuccessAlertDialogOpen] =
+    useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
   const [isInspectSidebarOpen, setIsInspectSidebarOpen] = useState(true);
   const partitionedOrderData = useMemo(() => {
     const chunkedData: OnlineSalesInfo[][] = [];
@@ -266,6 +275,51 @@ const OnlineTicketManagement = ({
     },
     [displayVirtualizer, partitionedOrderData, isVirtualizationReady]
   );
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: (order: OnlineSalesInfo) => {
+      return updateOnlineOrderStatusAction({
+        studentId: order.buyerId,
+        verificationStatus: order.verificationStatus as SheetOrderStatus,
+        rejectionReason: order.rejectionReason,
+      });
+    },
+    onSuccess: () => {
+      setIsConfirmSuccessAlertDialogOpen(false);
+      setIsRejectDialogOpen(false);
+      setRejectionReason("");
+      // Refetch data to get updated status
+      onRefetchSales();
+    },
+    onError: (error) => {
+      console.error("Failed to update order status:", error);
+      // You could add a toast notification here
+    },
+  });
+
+  const handleApproveOrder = () => {
+    if (!currentOrderData) return;
+
+    const updatedOrder = {
+      ...currentOrderData,
+      verificationStatus: VERIFICATION_APPROVED as SheetOrderStatus,
+      rejectionReason: "",
+    };
+
+    updateOrderStatusMutation.mutate(updatedOrder);
+  };
+
+  const handleRejectOrder = () => {
+    if (!currentOrderData || !rejectionReason.trim()) return;
+
+    const updatedOrder = {
+      ...currentOrderData,
+      verificationStatus: VERIFICATION_FAILED as SheetOrderStatus,
+      rejectionReason: rejectionReason.trim(),
+    };
+
+    updateOrderStatusMutation.mutate(updatedOrder);
+  };
 
   const ultilityRef = useRef<HTMLDivElement | null>(null);
   const sideBarInsetRef = useRef<HTMLDivElement | null>(null);
@@ -1146,6 +1200,9 @@ const OnlineTicketManagement = ({
                               <Button
                                 variant="outline"
                                 className="w-full cursor-pointer hover:text-red-700"
+                                onClick={() =>
+                                  setIsConfirmSuccessAlertDialogOpen(true)
+                                }
                               >
                                 Xác minh lại đơn hàng
                               </Button>
@@ -1166,12 +1223,16 @@ const OnlineTicketManagement = ({
                                 <Button
                                   className="w-1/2 cursor-pointer hover:text-amber-700"
                                   variant="outline"
+                                  onClick={() =>
+                                    setIsConfirmSuccessAlertDialogOpen(true)
+                                  }
                                 >
                                   Đồng ý
                                 </Button>
                                 <Button
                                   className="w-1/2 cursor-pointer"
                                   variant="destructive"
+                                  onClick={() => setIsRejectDialogOpen(true)}
                                 >
                                   Từ chối
                                 </Button>
@@ -1312,6 +1373,86 @@ const OnlineTicketManagement = ({
           <AlertDialogDescription className="sr-only">
             Vui lòng chờ trong giây lát...
           </AlertDialogDescription>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog
+        open={isConfirmSuccessAlertDialogOpen}
+        onOpenChange={setIsConfirmSuccessAlertDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bạn chắc chưa?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription>
+            1 khi bấm xác minh, đơn hàng sẽ được xác minh thành công và khách
+            hàng sẽ được gửi email thông báo.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={updateOrderStatusMutation.isPending}>
+              Hủy
+            </AlertDialogCancel>
+            <Button
+              onClick={handleApproveOrder}
+              disabled={updateOrderStatusMutation.isPending}
+            >
+              {updateOrderStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Xác nhận"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog
+        open={isRejectDialogOpen}
+        onOpenChange={setIsRejectDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Từ chối đơn hàng</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription>
+            Vui lòng nhập lý do từ chối đơn hàng này. Lý do sẽ được gửi đến
+            khách hàng.
+          </AlertDialogDescription>
+          <div className="py-4">
+            <Textarea
+              value={rejectionReason}
+              disabled={updateOrderStatusMutation.isPending}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Nhập lý do từ chối..."
+              className="w-full p-2 border border-gray-300 rounded-md resize-none"
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={updateOrderStatusMutation.isPending}
+              onClick={() => setRejectionReason("")}
+            >
+              Hủy
+            </AlertDialogCancel>
+            <Button
+              onClick={handleRejectOrder}
+              disabled={
+                updateOrderStatusMutation.isPending || !rejectionReason.trim()
+              }
+              variant="destructive"
+            >
+              {updateOrderStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Từ chối"
+              )}
+            </Button>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>

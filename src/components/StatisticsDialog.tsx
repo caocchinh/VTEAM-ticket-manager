@@ -46,7 +46,7 @@ export default function StatisticsDialog({
   const verifiedOnlineOrders = useMemo(() => {
     if (!salesInfo?.online) return [];
     return salesInfo.online.filter(
-      (order) => order.hasBeenVerified === VERIFICATION_APPROVED
+      (order) => order.verificationStatus === VERIFICATION_APPROVED
     );
   }, [salesInfo?.online]);
 

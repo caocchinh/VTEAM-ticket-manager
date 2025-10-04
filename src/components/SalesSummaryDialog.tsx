@@ -95,7 +95,7 @@ const SalesSummaryDialog = ({
             <TabsTrigger value="online">
               Online (
               {salesInfo?.online.filter(
-                (order) => order.hasBeenVerified === VERIFICATION_APPROVED
+                (order) => order.verificationStatus === VERIFICATION_APPROVED
               ).length || 0}
               )
             </TabsTrigger>
@@ -121,12 +121,13 @@ const SalesSummaryDialog = ({
             <ScrollArea className="h-[65dvh] pr-4 w-full" type="always">
               {salesInfo &&
               salesInfo.online.filter(
-                (order) => order.hasBeenVerified === VERIFICATION_APPROVED
+                (order) => order.verificationStatus === VERIFICATION_APPROVED
               ).length > 0 &&
               ticketInfo ? (
                 <SalesSummary
                   salesInfo={salesInfo.online.filter(
-                    (order) => order.hasBeenVerified === VERIFICATION_APPROVED
+                    (order) =>
+                      order.verificationStatus === VERIFICATION_APPROVED
                   )}
                   ticketInfo={ticketInfo.online}
                   staffName={staffInfo.name}

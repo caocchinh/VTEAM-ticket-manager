@@ -60,6 +60,7 @@ import {
   Student,
   StudentInput,
   TicketInfo,
+  SheetOrderStatus,
 } from "@/constants/types";
 import { getCurrentTime } from "./utils";
 import { offlineTicketDb } from "@/drizzle/offline/db";
@@ -745,9 +746,9 @@ export const fetchOnlineSales = async (): Promise<{
       rejectionReason: safeTrim(
         value[ONLINE_SALES_ORDER_REJECTION_REASON_INDEX]
       ),
-      hasBeenVerified: safeTrim(
+      verificationStatus: safeTrim(
         value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX]
-      ),
+      ) as SheetOrderStatus,
     }));
 
     if (data) {

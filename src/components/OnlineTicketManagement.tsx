@@ -33,7 +33,7 @@ import {
   ShieldBan,
   X,
 } from "lucide-react";
-import { OnlineSalesInfo } from "@/constants/types";
+import { OnlineSalesInfo, OrderSelectProps } from "@/constants/types";
 import { Separator } from "./ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -50,38 +50,32 @@ import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { useIsMutating, useQueryClient } from "@tanstack/react-query";
 import { Input } from "./ui/input";
 import { JumpToTabButton } from "./JumpToTabButton";
+import { VERIFICATION_APPROVED } from "@/constants/constants";
 
-const QuestionHoverCard = ({
+const OrderSelect = ({
   order,
+  allOrders,
   currentTab,
-  currentQuestionId,
-  setCurrentQuestionId,
+  currentOrderId,
+  setCurrentOrderId,
   questionScrollAreaRef,
   answerScrollAreaRef,
   setCurrentTabThatContainsOrder,
-  userFinishedQuestions,
-}: OnlineSalesInfo) => {
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [isImageError, setIsImageError] = useState(false);
-  const [hoverCardOpen, setHoverCardOpen] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const touchStartTimeRef = useRef<number | null>(null);
-  const isMutatingThisQuestion =
-    useIsMutating({
-      mutationKey: ["all_user_bookmarks", order.id],
-    }) > 0;
-
+}: OrderSelectProps) => {
   return (
     <div
       className={cn(
         "cursor-pointer relative p-2 rounded-sm flex items-center justify-between hover:bg-foreground/10",
-        currentQuestionId === order?.id && "!bg-logo-main text-white",
-        userFinishedQuestions?.some((item) => item.question.id === order?.id) &&
+        currentOrderId === order?.buyerId && "!bg-[#0084ff] text-white",
+        allOrders?.some(
+          (item) =>
+            item.buyerId === order?.buyerId &&
+            item.verificationStatus === VERIFICATION_APPROVED
+        ) &&
           "bg-green-600 dark:hover:bg-green-600 hover:bg-green-600 text-white"
       )}
       onClick={() => {
-        setCurrentQuestionId(order?.id);
+        setCurrentOrderId(order?.buyerId);
         questionScrollAreaRef.current?.scrollTo({
           top: 0,
           behavior: "instant",
@@ -91,17 +85,11 @@ const QuestionHoverCard = ({
           behavior: "instant",
         });
 
-        setCurrentTabThatContainsQuestion(currentTab);
+        setCurrentTabThatContainsOrder(currentTab);
       }}
     >
       <p>
-        {extractPaperCode({
-          questionId: order?.id,
-        })}{" "}
-        Q
-        {extractQuestionNumber({
-          questionId: question?.id,
-        })}
+        {order.buyerName}-{order.buyerId}
       </p>
     </div>
   );
@@ -142,9 +130,7 @@ const OnlineTicketManagement = ({
   );
   const [searchInput, setSearchInput] = useState("");
   const [isVirtualizationReady, setIsVirtualizationReady] = useState(false);
-  const [currentView, setCurrentView] = useState<"question" | "answer">(
-    "question"
-  );
+
   const [isInspectSidebarOpen, setIsInspectSidebarOpen] = useState(false);
   const partitionedOrderData = useMemo(() => {
     const chunkedData: OnlineSalesInfo[][] = [];
@@ -176,7 +162,6 @@ const OnlineTicketManagement = ({
   }, [partitionedOrderData, currentTabThatContainsOrder, currentOrderIndex]);
   useEffect(() => {
     setSearchInput("");
-    setCurrentView("question");
   }, [partitionedOrderData]);
 
   const allOrders = useMemo(() => {
@@ -186,7 +171,10 @@ const OnlineTicketManagement = ({
   const searchResults = useMemo(() => {
     return searchInput.length > 0
       ? allOrders.filter((order) => {
-          return fuzzySearch(searchInput, order.buyerId);
+          return fuzzySearch(
+            searchInput,
+            `${order.buyerName}-${order.buyerId}`
+          );
         })
       : [];
   }, [searchInput, allOrders]);
@@ -239,7 +227,6 @@ const OnlineTicketManagement = ({
       top: 0,
       behavior: "instant",
     });
-    setCurrentView("question");
   }, [currentOrderIndex]);
 
   const searchVirtualizer = useVirtualizer({
@@ -578,7 +565,6 @@ const OnlineTicketManagement = ({
 
   useEffect(() => {
     if (isOnlineTicketManagementOpen.isOpen) {
-      setCurrentView("question");
     } else {
       setIsInputFocused(false);
     }
@@ -614,16 +600,10 @@ const OnlineTicketManagement = ({
         </TooltipContent>
       </Tooltip>
       <DialogContent
-        className="h-[95vh] flex flex-col justify-between !py-2 !max-w-[100vw] w-[90vw]"
-        showCloseButton={false}
+        className="h-[95vh] flex flex-col justify-between overflow-hidden !py-2 !max-w-[100vw] w-[90vw]"
         onKeyDown={(e) => {
           if (e.key === "e" && !isInputFocused) {
             e.preventDefault();
-            if (currentView === "question") {
-              setCurrentView("answer");
-            } else {
-              setCurrentView("question");
-            }
           }
           if (isCoolDown) return;
 
@@ -658,27 +638,10 @@ const OnlineTicketManagement = ({
           setIsCoolDown(false);
         }}
       >
-        <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>
+        <DialogTitle className="sr-only">Kiểm soát vé online</DialogTitle>
         <DialogDescription className="sr-only">
-          Báo cáo doanh thu bán vé
+          Kiểm soát vé online
         </DialogDescription>
-        <div className="flex items-center h-max justify-center gap-2">
-          <h3 className="text-center font-semibold text-xl uppercase">
-            Kiểm soát vé online
-          </h3>
-          <Separator orientation="vertical" />
-          <Button
-            onClick={() => onRefetchSales()}
-            variant="ghost"
-            className="border border-black cursor-pointer"
-            disabled={
-              isRefetchingSales || isSalesInfoFetching || !isOnlineCoordinator
-            }
-          >
-            Cập nhật dữ liệu
-            {isRefetchingSales && <Loader2 className="animate-spin " />}
-          </Button>
-        </div>
 
         {isOnlineCoordinator ? (
           <SidebarProvider
@@ -819,29 +782,22 @@ const OnlineTicketManagement = ({
                           virtualItem.index
                         ] && (
                           <Fragment key={virtualItem.index}>
-                            <QuestionHoverCard
-                              question={
+                            <OrderSelect
+                              order={
                                 partitionedOrderData[currentTab][
                                   virtualItem.index
                                 ]
                               }
                               currentTab={currentTab}
-                              currentQuestionId={currentBuyerId}
-                              setCurrentQuestionId={setCurrentBuyerId}
+                              currentOrderId={currentBuyerId}
+                              setCurrentOrderId={setCurrentBuyerId}
                               questionScrollAreaRef={questionScrollAreaRef}
                               answerScrollAreaRef={answerScrollAreaRef}
                               setCurrentTabThatContainsOrder={
                                 setCurrentTabThatContainsOrder
                               }
-                              userFinishedQuestions={userFinishedQuestions}
-                              bookmarks={bookmarks}
-                              isUserSessionPending={isUserSessionPending}
-                              isValidSession={isValidSession}
-                              listId={listId}
-                              isBookmarksFetching={isBookmarksFetching}
-                              isBookmarkError={isBookmarkError}
+                              allOrders={allOrders}
                               isInspectSidebarOpen={isInspectSidebarOpen}
-                              isMobileDevice={isMobile}
                             />
                             <Separator />
                           </Fragment>
@@ -865,8 +821,8 @@ const OnlineTicketManagement = ({
                         data-index={virtualItem.index}
                       >
                         <Fragment key={virtualItem.index}>
-                          <QuestionHoverCard
-                            question={searchResults[virtualItem.index]}
+                          <OrderSelect
+                            order={searchResults[virtualItem.index]}
                             currentTab={
                               partitionedOrderData?.findIndex((tab) =>
                                 tab.some(
@@ -876,22 +832,15 @@ const OnlineTicketManagement = ({
                                 )
                               ) ?? 0
                             }
-                            currentQuestionId={currentBuyerId}
+                            currentOrderId={currentBuyerId}
                             questionScrollAreaRef={questionScrollAreaRef}
                             answerScrollAreaRef={answerScrollAreaRef}
                             setCurrentTabThatContainsOrder={
                               setCurrentTabThatContainsOrder
                             }
-                            userFinishedQuestions={userFinishedQuestions}
-                            bookmarks={bookmarks}
-                            isUserSessionPending={isUserSessionPending}
-                            isValidSession={isValidSession}
-                            listId={listId}
-                            isBookmarksFetching={isBookmarksFetching}
-                            isBookmarkError={isBookmarkError}
-                            setCurrentQuestionId={setCurrentBuyerId}
+                            allOrders={allOrders}
+                            setCurrentOrderId={setCurrentBuyerId}
                             isInspectSidebarOpen={isInspectSidebarOpen}
-                            isMobileDevice={isMobile}
                           />
                           <Separator />
                         </Fragment>
@@ -1040,7 +989,7 @@ const OnlineTicketManagement = ({
               </SidebarContent>
               <SidebarRail />
             </Sidebar>
-            <SidebarInset className="h-[inherit] w-full p-2 rounded-md px-4 dark:bg-accent gap-2 overflow-hidden flex flex-col items-center justify-between">
+            <SidebarInset className="h-[inherit] w-full p-2 pt-0 rounded-md px-4 dark:bg-accent gap-2 overflow-hidden flex flex-col items-center justify-between">
               <div
                 className="w-full h-[inherit] flex flex-col gap-2 items-center justify-start relative"
                 ref={sideBarInsetRef}
@@ -1083,32 +1032,16 @@ const OnlineTicketManagement = ({
                   viewportRef={ultilityHorizontalScrollBarRef}
                 >
                   <div
-                    className="flex pt-1 items-stretch w-max justify-center gap-4 mb-2 relative"
+                    className="flex pt-1 items-center w-max justify-center gap-4 mb-2 relative"
                     ref={ultilityRef}
                   >
-                    <div className="flex items-center w-max justify-center gap-2 p-[3px] bg-input/80 rounded-md">
-                      <Button
-                        onClick={() => setCurrentView("question")}
-                        className={cn(
-                          "cursor-pointer border-2 border-transparent h-[calc(100%-1px)] dark:text-muted-foreground py-1 px-2  bg-input text-black hover:bg-input dark:bg-transparent",
-                          currentView === "question" &&
-                            "border-input bg-white hover:bg-white dark:text-white dark:bg-input/30 "
-                        )}
-                      >
-                        Question
-                      </Button>
-                      <Button
-                        onClick={() => setCurrentView("answer")}
-                        className={cn(
-                          "cursor-pointer border-2 border-transparent h-[calc(100%-1px)] dark:text-muted-foreground py-1 px-2  bg-input text-black hover:bg-input dark:bg-transparent",
-                          currentView === "answer" &&
-                            "border-input bg-white hover:bg-white dark:text-white dark:bg-input/30 "
-                        )}
-                      >
-                        Answer
-                      </Button>
-                    </div>
-
+                    <h3 className="text-center font-semibold text-xl uppercase">
+                      Kiểm soát vé online
+                    </h3>
+                    <Separator
+                      orientation="vertical"
+                      className="!h-[30px] !w-[2px]"
+                    />
                     <div className="flex items-center justify-center gap-2">
                       <Button
                         variant="outline"
@@ -1140,44 +1073,39 @@ const OnlineTicketManagement = ({
                       {isInspectSidebarOpen ? "Hide" : "Show"}
                       <PanelsTopLeft />
                     </Button>
+
+                    <Button
+                      onClick={() => onRefetchSales()}
+                      variant="ghost"
+                      className="border border-black cursor-pointer"
+                      disabled={
+                        isRefetchingSales ||
+                        isSalesInfoFetching ||
+                        !isOnlineCoordinator
+                      }
+                    >
+                      Cập nhật dữ liệu
+                      {isRefetchingSales && (
+                        <Loader2 className="animate-spin " />
+                      )}
+                    </Button>
                   </div>
+
                   <ScrollBar
                     orientation="horizontal"
                     className="[&_.bg-border]:bg-transparent"
                   />
                 </ScrollArea>
 
-                <div
-                  className={cn(
-                    currentView === "question" ? "block w-full" : "hidden"
-                  )}
-                >
-                  <ScrollArea
-                    className="h-[76dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
-                    type="always"
-                    viewportRef={questionScrollAreaRef}
-                  >
-                    <InspectImages
-                      imageSource={currentOrderData?.proofOfPaymentImage ?? []}
-                      currentQuestionId={currentQuestionData?.buyerId}
-                      imageTheme={imageTheme}
-                    />
-                  </ScrollArea>
-                </div>
-                <div
-                  className={cn(
-                    currentView === "answer" ? "block w-full" : "hidden"
-                  )}
-                >
+                <div>
                   <ScrollArea
                     className="h-[76dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
                     type="always"
                     viewportRef={answerScrollAreaRef}
                   >
-                    <InspectImages
-                      imageSource={currentQuestionData?.answers ?? []}
-                      currentQuestionId={currentQuestionData?.id}
-                      imageTheme={imageTheme}
+                    <InspectOrderImages
+                      imageSource={currentOrderData?.proofOfPaymentImage}
+                      currentBuyerId={currentOrderData?.buyerId}
                     />
                   </ScrollArea>
                 </div>
@@ -1185,8 +1113,11 @@ const OnlineTicketManagement = ({
               <Button
                 className="w-full h-7 flex items-center justify-center cursor-pointer lg:hidden "
                 onClick={() => {
-                  if (currentQuestionId) {
-                    setIsOpen({ isOpen: false, questionId: currentQuestionId });
+                  if (currentBuyerId) {
+                    setIsOnlineTicketManagementOpen({
+                      isOpen: false,
+                      buyerId: currentBuyerId,
+                    });
                   }
                 }}
               >
@@ -1208,7 +1139,12 @@ const OnlineTicketManagement = ({
           <Button
             variant="outline"
             className="w-full cursor-pointer"
-            onClick={() => setIsOpen(false)}
+            onClick={() =>
+              setIsOnlineTicketManagementOpen((prev) => ({
+                ...prev,
+                isOpen: false,
+              }))
+            }
           >
             Đóng
           </Button>
@@ -1224,35 +1160,49 @@ const FinishedTracker = ({ allOrders }: { allOrders: OnlineSalesInfo[] }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isMutatingFinishedQuestion =
     useIsMutating({
-      mutationKey: ["user_finished_questions"],
+      mutationKey: ["user_finished_orders"],
     }) > 0;
   const queryClient = useQueryClient();
   const userFinishedOrders: OnlineSalesInfo[] | undefined =
-    queryClient.getQueryData(["user_finished_questions"]);
+    queryClient.getQueryData(["user_finished_orders"]);
   return (
     <div className="absolute w-full h-7 bg-green-600 left-0 top-0 flex items-center justify-center text-white text-sm">
-      {!isFinishedQuestionsFetching &&
-        !isUserSessionPending &&
-        isValidSession && (
-          <>
-            Finished{" "}
-            {
-              allQuestions.filter((q) =>
-                userFinishedQuestions?.some((fq) => fq.question.id === q.id)
-              ).length
-            }{" "}
-            out of {allQuestions.length}
-          </>
-        )}
-      {(isUserSessionPending || isFinishedQuestionsFetching) && (
-        <span className="text-xs flex items-center justify-center gap-2">
-          Fetching data <Loader2 className="animate-spin " size={12} />
-        </span>
-      )}
-      {!isValidSession && !isUserSessionPending && (
-        <span className="text-xs flex items-center justify-center gap-2">
-          Sign in to track progress
-        </span>
+      <>
+        {
+          allOrders.filter((o) =>
+            userFinishedOrders?.some((fq) => fq.buyerId === o.buyerId)
+          ).length
+        }{" "}
+        đơn hàng thành công
+      </>
+    </div>
+  );
+};
+
+/* eslint-disable @next/next/no-img-element */
+
+export const InspectOrderImages = ({
+  imageSource,
+  currentBuyerId,
+}: {
+  imageSource: string | undefined;
+  currentBuyerId: string | undefined;
+}) => {
+  if (!imageSource || imageSource.length === 0) {
+    return <p className="text-center text-red-600">Unable to fetch resource</p>;
+  }
+  return (
+    <div className="flex flex-col flex-wrap w-full relative items-center">
+      <Loader2 className="animate-spin absolute left-1/2 -translate-x-1/2 z-0" />
+      {imageSource && (
+        <Fragment key={`${imageSource}${currentBuyerId}`}>
+          <img
+            className="w-full h-full object-contain relative z-10 !max-w-[750px] bg-white"
+            src={imageSource}
+            alt="Order image"
+            loading="lazy"
+          />
+        </Fragment>
       )}
     </div>
   );

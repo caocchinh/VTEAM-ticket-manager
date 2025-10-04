@@ -1,4 +1,5 @@
 import { getColumnNumber } from "@/lib/utils";
+import { VERIFICATION_STATUS } from "./types";
 
 export const DEFAULT_TICKET_COLORS = [
   "#3b82f6",
@@ -222,6 +223,6 @@ export const INVALID_TICKET_DUE_TO_INVALID_CLASS = "Lớp không hợp lệ!";
 export const NOT_STUDENT_IN_SCHOOL =
   "Không phải học sinh trong trường, vui lòng tự điền";
 
-export const VERIFICATION_FAILED = "Đã bị từ chối";
-export const VERIFICATION_PENDING = "Đang đợi xác minh";
-export const VERIFICATION_APPROVED = "Xác minh thành công";
+export const VERIFICATION_FAILED = VERIFICATION_STATUS.FAILED;
+export const VERIFICATION_PENDING = VERIFICATION_STATUS.PENDING;
+export const VERIFICATION_APPROVED = VERIFICATION_STATUS.SUCCESS;

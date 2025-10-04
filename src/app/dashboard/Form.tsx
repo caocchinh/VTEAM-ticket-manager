@@ -847,7 +847,7 @@ const Form = ({
           ticketInfo.online.find(
             (info) =>
               sale.buyerTicketType === info.ticketName &&
-              sale.hasBeenVerified === VERIFICATION_APPROVED
+              sale.verificationStatus === VERIFICATION_APPROVED
           )?.price ?? 0;
         const numericPrice = parseVietnameseCurrency(ticketPrice);
         total += numericPrice;

@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface Student {
   name: string;
   studentId: string;
@@ -60,10 +62,33 @@ export interface OnlineSalesInfo {
   proofOfPaymentImage: string;
   confirmationImage: string;
   rejectionReason: string;
-  hasBeenVerified: string;
+  verificationStatus: string;
 }
 
 export interface AllSalesInfo {
   offline: OfflineSalesInfo[];
   online: OnlineSalesInfo[];
 }
+
+export interface OrderSelectProps {
+  order: OnlineSalesInfo;
+  allOrders: OnlineSalesInfo[];
+  currentTab: number;
+  currentOrderId?: string;
+  isInspectSidebarOpen: boolean;
+  setCurrentOrderId: Dispatch<SetStateAction<string | undefined>>;
+  questionScrollAreaRef: React.RefObject<HTMLDivElement | null>;
+  answerScrollAreaRef: React.RefObject<HTMLDivElement | null>;
+  setCurrentTabThatContainsOrder: Dispatch<SetStateAction<number>>;
+}
+
+export type DBOrderStatus = "pending" | "success" | "failed";
+
+export const VERIFICATION_STATUS = {
+  PENDING: "Đang đợi xác minh",
+  SUCCESS: "Đã xác minh",
+  FAILED: "Đã từ chối",
+} as const;
+
+export type SheetOrderStatus =
+  (typeof VERIFICATION_STATUS)[keyof typeof VERIFICATION_STATUS];

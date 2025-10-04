@@ -112,7 +112,14 @@ const Form = ({
   const [emailAutoCompleteValue, setEmailAutoCompleteValue] = useState("");
   const [bestMatchStudentId, setBestMatchStudentId] = useState("");
   const [currentOrder, setCurrentOrders] = useState<StudentInput[]>([]);
-
+  const [isOnlineTicketManagementOpen, setIsOnlineTicketManagementOpen] =
+    useState<{
+      isOpen: boolean;
+      buyerId: string;
+    }>({
+      isOpen: false,
+      buyerId: "",
+    });
   // State for actual form values (separate from autocomplete preview)
   const [studentNameInput, setStudentNameInput] = useState("");
   const [homeroomInput, setHomeroomInput] = useState("");
@@ -761,7 +768,10 @@ const Form = ({
     useMutation({
       mutationKey: ["refetch_sales"],
       mutationFn: async () => {
-        await refetchSalesInfo();
+        const result = await refetchSalesInfo();
+        if (result.isError) {
+          throw new Error(result.error.message);
+        }
         return true;
       },
       onSuccess: () => {
@@ -775,11 +785,19 @@ const Form = ({
   const { mutate: refetchAllDataMutation } = useMutation({
     mutationKey: ["refetch_all_data"],
     mutationFn: async () => {
-      await Promise.all([
+      const results = await Promise.all([
         refetchStudentList(),
         refetchEventInfo(),
         refetchTicketInfo(),
       ]);
+
+      // Check if any of the refetch operations failed
+      const failedResults = results.filter((result) => result.isError);
+      if (failedResults.length > 0) {
+        throw new Error(
+          `Failed to refetch ${failedResults.length} data source(s)`
+        );
+      }
     },
     onSuccess: () => {
       sucessToast({ message: "Làm mới dữ liệu thành công!" });
@@ -1051,6 +1069,8 @@ const Form = ({
           isRefetchingSales={isRefetchingSales}
           isSalesInfoFetching={isSalesInfoFetching}
           onRefetchSales={mutateRefetchSales}
+          isOnlineTicketManagementOpen={isOnlineTicketManagementOpen}
+          setIsOnlineTicketManagementOpen={setIsOnlineTicketManagementOpen}
         />
       </div>
       <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">

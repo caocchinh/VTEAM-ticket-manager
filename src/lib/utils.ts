@@ -212,3 +212,90 @@ export const getCurrentTime = ({
   const seconds = String(bangkokDate.getSeconds()).padStart(2, "0");
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
+
+export const isOverScrolling = ({
+  child,
+  parent,
+  specialLeftCase,
+}: {
+  child: HTMLDivElement | null;
+  parent: HTMLDivElement | null;
+  specialLeftCase?: boolean;
+}): {
+  isOverScrollingLeft: boolean;
+  isOverScrollingRight: boolean;
+} => {
+  try {
+    if (child && parent) {
+      if (child.clientWidth >= parent.clientWidth) {
+        const childLeft = Math.abs(
+          Math.round(child.getBoundingClientRect().left)
+        );
+        const childRight = Math.abs(
+          Math.round(child.getBoundingClientRect().right)
+        );
+        const parentLeft = Math.abs(
+          Math.round(parent.getBoundingClientRect().left)
+        );
+        const parentRight = Math.abs(
+          Math.round(parent.getBoundingClientRect().right)
+        );
+
+        const leftThreshold =
+          ((Math.max(childLeft, parentLeft) - Math.min(childLeft, parentLeft)) /
+            ((childLeft + parentLeft) / 2)) *
+          100;
+        const rightThreshold =
+          ((Math.max(childRight, parentRight) -
+            Math.min(childRight, parentRight)) /
+            ((childRight + parentRight) / 2)) *
+          100;
+
+        if (
+          childLeft !== parentLeft &&
+          childRight !== parentRight &&
+          leftThreshold > 1 &&
+          rightThreshold > 1
+        ) {
+          return {
+            isOverScrollingLeft: true,
+            isOverScrollingRight: true,
+          };
+        } else if (
+          leftThreshold > 1 &&
+          ((childLeft > parentLeft && !specialLeftCase) ||
+            (childLeft < parentLeft && specialLeftCase))
+        ) {
+          return {
+            isOverScrollingLeft: true,
+            isOverScrollingRight: false,
+          };
+        } else if (rightThreshold > 1 && childRight > parentRight) {
+          return {
+            isOverScrollingLeft: false,
+            isOverScrollingRight: true,
+          };
+        }
+      } else {
+        return {
+          isOverScrollingLeft: false,
+          isOverScrollingRight: false,
+        };
+      }
+    } else {
+      return {
+        isOverScrollingLeft: false,
+        isOverScrollingRight: false,
+      };
+    }
+    return {
+      isOverScrollingLeft: false,
+      isOverScrollingRight: false,
+    };
+  } catch {
+    return {
+      isOverScrollingLeft: false,
+      isOverScrollingRight: false,
+    };
+  }
+};

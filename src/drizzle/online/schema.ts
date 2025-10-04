@@ -66,7 +66,6 @@ export const verification = pgTable("verification", {
 export const backUpOrder = pgTable("backupOrder", {
   id: text("id").primaryKey(),
   proofOfPayment: text("proof_of_payment").notNull(),
-  proofOfConfirmation: text("proof_of_confirmation").notNull(),
   buyerName: text("buyer_name").notNull(),
   email: text("email").notNull(),
   studentId: text("student_id").notNull(),
@@ -80,7 +79,6 @@ export const currentOrderStatus = pgTable("current_order_status", {
   email: text("email").primaryKey(),
   orderStatus: text("order_status").notNull(),
   rejectionReason: text("rejection_reason"),
-  confirmationImage: text("confirmation_image").notNull(),
   proofOfPaymentImage: text("proof_of_payment_image").notNull(),
   homeroomInput: text("homeroom_input").notNull(),
   ticketPrice: text("ticket_price").notNull(),

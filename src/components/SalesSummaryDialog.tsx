@@ -84,7 +84,9 @@ const SalesSummaryDialog = ({
             disabled={isRefetchingSales || isSalesInfoFetching}
           >
             Cập nhật dữ liệu
-            {isRefetchingSales && <Loader2 className="animate-spin " />}
+            {(isRefetchingSales || isSalesInfoFetching) && (
+              <Loader2 className="animate-spin " />
+            )}
           </Button>
         </div>
         <Tabs defaultValue="offline" className="w-full">

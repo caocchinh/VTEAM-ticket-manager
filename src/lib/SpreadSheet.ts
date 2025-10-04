@@ -53,6 +53,9 @@ import {
   ONLINE_SALES_ORDER_REJECTION_REASON_COLUMN,
   VERIFICATION_FAILED,
   VERIFICATION_APPROVED,
+  VERIFICATION_PENDING_DB,
+  VERIFICATION_APPROVED_DB,
+  VERIFICATION_FAILED_DB,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -925,10 +928,16 @@ export const updateOnlineOrderStatus = async ({
       return response;
     }, "updateOnlineSales");
     await retryDatabase(async () => {
+      const verificationStatusToUpdate =
+        verificationStatus === VERIFICATION_APPROVED
+          ? VERIFICATION_APPROVED_DB
+          : verificationStatus === VERIFICATION_FAILED
+          ? VERIFICATION_FAILED_DB
+          : VERIFICATION_PENDING_DB;
       return await onlineTicketDb
         .update(currentOrderStatus)
         .set({
-          orderStatus: verificationStatus,
+          orderStatus: verificationStatusToUpdate,
           rejectionReason:
             verificationStatus === VERIFICATION_FAILED ? rejectionReason : null,
         })

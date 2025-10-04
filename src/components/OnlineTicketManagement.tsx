@@ -73,6 +73,7 @@ import Loader from "./Loader/Loader";
 import { useMutation } from "@tanstack/react-query";
 import { updateOnlineOrderStatusAction } from "@/server/actions";
 import { Textarea } from "./ui/textarea";
+import Image from "next/image";
 
 const OrderSelect = ({
   order,
@@ -176,6 +177,12 @@ const OnlineTicketManagement = ({
   const allOrders = useMemo(() => {
     return partitionedOrderData?.flat() ?? [];
   }, [partitionedOrderData]);
+
+  const pendingOrdersCount = useMemo(() => {
+    return allOrders.filter(
+      (order) => order.verificationStatus === VERIFICATION_PENDING
+    ).length;
+  }, [allOrders]);
 
   const searchResults = useMemo(() => {
     return searchInput.length > 0
@@ -627,11 +634,20 @@ const OnlineTicketManagement = ({
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
               <Button
-                className="cursor-pointer w-[35px] !bg-[#F48120] !text-white"
+                className="cursor-pointer w-[35px] !bg-[#F48120] !text-white relative"
                 disabled={!salesInfo || isSalesInfoError}
                 variant="outline"
               >
                 <Box />
+                {pendingOrdersCount > 0 && (
+                  <>
+                    <div className="absolute -top-[5px] -right-[4.5px] w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                    <div className="absolute -top-[5px] -right-[4.5px] w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                    <div className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                      {pendingOrdersCount > 99 ? "99+" : pendingOrdersCount}
+                    </div>
+                  </>
+                )}
               </Button>
             </DialogTrigger>
           </TooltipTrigger>
@@ -1137,112 +1153,15 @@ const OnlineTicketManagement = ({
                       className="[&_.bg-border]:bg-transparent"
                     />
                   </ScrollArea>
-
-                  <ScrollArea
-                    className="h-[75dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-4"
-                    type="always"
-                  >
-                    <div className="w-full h-full flex-wrap gap-4 flex items-start justify-center">
-                      <div
-                        className={cn(
-                          "flex-7 min-w-[290px] h-full border border-black rounded-lg flex flex-col gap-2 items-center justify-center p-2",
-                          currentOrderData?.verificationStatus ===
-                            VERIFICATION_APPROVED &&
-                            "border-green-600 text-green-600 [&_*]:text-green-600",
-                          currentOrderData?.verificationStatus ===
-                            VERIFICATION_FAILED &&
-                            "border-red-600 text-red-600 [&_*]:text-red-600"
-                        )}
-                      >
-                        <h4 className="text-md text-center">
-                          Màn hình chuyển khoản
-                        </h4>
-                        <ScrollArea
-                          className="h-[70dvh] max-h-[420px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
-                          type="always"
-                          viewportRef={answerScrollAreaRef}
-                        >
-                          <InspectOrderImages
-                            imageSource={currentOrderData?.proofOfPaymentImage}
-                            currentBuyerId={currentOrderData?.buyerId}
-                          />
-                        </ScrollArea>
-                      </div>
-
-                      <div className="flex w-[290px] flex-5 flex-col gap-2">
-                        {currentOrderData?.verificationStatus ===
-                          VERIFICATION_APPROVED && (
-                          <div className="flex items-center justify-center p-4 bg-green-50 border border-green-200 rounded-lg mb-2">
-                            <div className="flex items-center gap-2 text-green-700">
-                              <CheckCircle className="w-5 h-5" />
-                              <span className="font-semibold text-sm">
-                                Xác minh thành công!
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        {currentOrderData?.verificationStatus ===
-                          VERIFICATION_FAILED && (
-                          <div className="flex flex-col p-4 bg-red-50 border border-red-200 rounded-lg mb-2">
-                            <div className="flex flex-col w-full items-center justify-center gap-2 text-red-700 mb-2">
-                              <div className="flex items-center gap-2 w-full justify-center">
-                                <XCircle className="w-5 h-5" />
-                                <span className="font-semibold text-sm">
-                                  Đơn hàng đã bị từ chối!
-                                </span>
-                              </div>
-                              {currentOrderData?.rejectionReason && (
-                                <p className="text-xs text-red-700 mt-1 text-left w-full break-words">
-                                  <span className="font-bold">Lý do:</span>{" "}
-                                  {currentOrderData.rejectionReason}
-                                </p>
-                              )}
-                              <Button
-                                variant="outline"
-                                className="w-full cursor-pointer hover:text-red-700"
-                                onClick={() =>
-                                  setIsConfirmSuccessAlertDialogOpen(true)
-                                }
-                              >
-                                Xác minh lại đơn hàng
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                        {currentOrderData?.verificationStatus ===
-                          VERIFICATION_PENDING && (
-                          <div className="flex items-center justify-center p-4 bg-amber-50 border border-amber-200 rounded-lg mb-2">
-                            <div className="flex w-full flex-col items-center gap-3 text-amber-700">
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-5 h-5" />
-                                <span className="font-semibold text-sm">
-                                  Đang chờ xác minh...
-                                </span>
-                              </div>
-                              <div className="flex w-full items-center justify-center gap-2">
-                                <Button
-                                  className="w-1/2 cursor-pointer hover:text-amber-700"
-                                  variant="outline"
-                                  onClick={() =>
-                                    setIsConfirmSuccessAlertDialogOpen(true)
-                                  }
-                                >
-                                  Đồng ý
-                                </Button>
-                                <Button
-                                  className="w-1/2 cursor-pointer"
-                                  variant="destructive"
-                                  onClick={() => setIsRejectDialogOpen(true)}
-                                >
-                                  Từ chối
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                  {allOrders.length > 0 ? (
+                    <ScrollArea
+                      className="h-[75dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-4"
+                      type="always"
+                    >
+                      <div className="w-full h-full flex-wrap gap-4 flex items-start justify-center">
                         <div
                           className={cn(
-                            "w-full border rounded-lg flex  flex-col gap-2 p-4",
+                            "flex-7 min-w-[290px] h-full border border-black rounded-lg flex flex-col gap-2 items-center justify-center p-2",
                             currentOrderData?.verificationStatus ===
                               VERIFICATION_APPROVED &&
                               "border-green-600 text-green-600 [&_*]:text-green-600",
@@ -1251,77 +1170,190 @@ const OnlineTicketManagement = ({
                               "border-red-600 text-red-600 [&_*]:text-red-600"
                           )}
                         >
-                          <h4 className="text-md text-center -mt-2">
-                            Thông tin người mua
+                          <h4 className="text-md text-center">
+                            Màn hình chuyển khoản
                           </h4>
-                          <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
-                            <p className="font-bold text-gray-900">
-                              Ngày đặt hàng:
-                            </p>
-                            <p className="break-words max-w-full">
-                              {currentOrderData?.time}
-                            </p>
-                          </div>
-                          <Separator />
-                          <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
-                            <p className="font-bold text-gray-900">Hạng vé:</p>
-                            <p className="break-words max-w-full">
-                              {currentOrderData?.buyerTicketType}
-                            </p>
-                          </div>
-                          <Separator />
-                          <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
-                            <p className="font-bold text-gray-900">Giá vé:</p>
-                            <p className="break-words max-w-full">
-                              {
-                                onlineTicketInfo?.find(
-                                  (ticket) =>
-                                    ticket.ticketName ===
-                                    currentOrderData?.buyerTicketType
-                                )?.price
+                          <ScrollArea
+                            className="h-[70dvh] max-h-[420px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
+                            type="always"
+                            viewportRef={answerScrollAreaRef}
+                          >
+                            <InspectOrderImages
+                              imageSource={
+                                currentOrderData?.proofOfPaymentImage
                               }
-                            </p>
-                          </div>
-                          <Separator />
+                              currentBuyerId={currentOrderData?.buyerId}
+                            />
+                          </ScrollArea>
+                        </div>
 
-                          <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
-                            <p className="font-bold text-gray-900">
-                              Họ và tên:
-                            </p>
-                            <p className="break-words max-w-full">
-                              {currentOrderData?.buyerName}
-                            </p>
-                          </div>
-                          <Separator />
-                          <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
-                            <p className="font-bold text-gray-900">
-                              Mã số học sinh:
-                            </p>
-                            <p className="break-words max-w-full">
-                              {currentOrderData?.buyerId}
-                            </p>
-                          </div>
-                          <Separator />
-                          <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
-                            <p className="font-bold text-gray-900">Lớp:</p>
-                            <p className="break-words max-w-full">
-                              {currentOrderData?.buyerClass}
-                            </p>
+                        <div className="flex w-[290px] flex-5 flex-col gap-2">
+                          {currentOrderData?.verificationStatus ===
+                            VERIFICATION_APPROVED && (
+                            <div className="flex items-center justify-center p-4 bg-green-50 border border-green-200 rounded-lg mb-2">
+                              <div className="flex items-center gap-2 text-green-700">
+                                <CheckCircle className="w-5 h-5" />
+                                <span className="font-semibold text-sm">
+                                  Xác minh thành công!
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {currentOrderData?.verificationStatus ===
+                            VERIFICATION_FAILED && (
+                            <div className="flex flex-col p-4 bg-red-50 border border-red-200 rounded-lg mb-2">
+                              <div className="flex flex-col w-full items-center justify-center gap-2 text-red-700 mb-2">
+                                <div className="flex items-center gap-2 w-full justify-center">
+                                  <XCircle className="w-5 h-5" />
+                                  <span className="font-semibold text-sm">
+                                    Đơn hàng đã bị từ chối!
+                                  </span>
+                                </div>
+                                {currentOrderData?.rejectionReason && (
+                                  <p className="text-xs text-red-700 mt-1 text-left w-full break-words">
+                                    <span className="font-bold">Lý do:</span>{" "}
+                                    {currentOrderData.rejectionReason}
+                                  </p>
+                                )}
+                                <Button
+                                  variant="outline"
+                                  className="w-full cursor-pointer hover:text-red-700"
+                                  onClick={() =>
+                                    setIsConfirmSuccessAlertDialogOpen(true)
+                                  }
+                                >
+                                  Xác minh lại đơn hàng
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          {currentOrderData?.verificationStatus ===
+                            VERIFICATION_PENDING && (
+                            <div className="flex items-center justify-center p-4 bg-amber-50 border border-amber-200 rounded-lg mb-2">
+                              <div className="flex w-full flex-col items-center gap-3 text-amber-700">
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-5 h-5" />
+                                  <span className="font-semibold text-sm">
+                                    Đang chờ xác minh...
+                                  </span>
+                                </div>
+                                <div className="flex w-full items-center justify-center gap-2">
+                                  <Button
+                                    className="w-1/2 cursor-pointer hover:text-amber-700"
+                                    variant="outline"
+                                    onClick={() =>
+                                      setIsConfirmSuccessAlertDialogOpen(true)
+                                    }
+                                  >
+                                    Đồng ý
+                                  </Button>
+                                  <Button
+                                    className="w-1/2 cursor-pointer"
+                                    variant="destructive"
+                                    onClick={() => setIsRejectDialogOpen(true)}
+                                  >
+                                    Từ chối
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div
+                            className={cn(
+                              "w-full border rounded-lg flex  flex-col gap-2 p-4",
+                              currentOrderData?.verificationStatus ===
+                                VERIFICATION_APPROVED &&
+                                "border-green-600 text-green-600 [&_*]:text-green-600",
+                              currentOrderData?.verificationStatus ===
+                                VERIFICATION_FAILED &&
+                                "border-red-600 text-red-600 [&_*]:text-red-600"
+                            )}
+                          >
+                            <h4 className="text-md text-center -mt-2">
+                              Thông tin người mua
+                            </h4>
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">
+                                Ngày đặt hàng:
+                              </p>
+                              <p className="break-words max-w-full">
+                                {currentOrderData?.time}
+                              </p>
+                            </div>
+                            <Separator />
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">
+                                Hạng vé:
+                              </p>
+                              <p className="break-words max-w-full">
+                                {currentOrderData?.buyerTicketType}
+                              </p>
+                            </div>
+                            <Separator />
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">Giá vé:</p>
+                              <p className="break-words max-w-full">
+                                {
+                                  onlineTicketInfo?.find(
+                                    (ticket) =>
+                                      ticket.ticketName ===
+                                      currentOrderData?.buyerTicketType
+                                  )?.price
+                                }
+                              </p>
+                            </div>
+                            <Separator />
+
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">
+                                Họ và tên:
+                              </p>
+                              <p className="break-words max-w-full">
+                                {currentOrderData?.buyerName}
+                              </p>
+                            </div>
+                            <Separator />
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">
+                                Mã số học sinh:
+                              </p>
+                              <p className="break-words max-w-full">
+                                {currentOrderData?.buyerId}
+                              </p>
+                            </div>
+                            <Separator />
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">Lớp:</p>
+                              <p className="break-words max-w-full">
+                                {currentOrderData?.buyerClass}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    </ScrollArea>
+                  ) : (
+                    <div className="flex items-center flex-col h-full justify-center gap-4">
+                      <h1 className="text-2xl text-center whitespace-nowrap font-bold">
+                        Chưa có đơn hàng nào!
+                      </h1>
+                      <Image
+                        src="/assets/poor.png"
+                        alt="No orders"
+                        width={400}
+                        height={400}
+                      />
                     </div>
-                  </ScrollArea>
+                  )}
                 </div>
+
                 <Button
                   className="w-full h-7 my-4 flex items-center justify-center cursor-pointer "
                   onClick={() => {
-                    if (currentBuyerId) {
-                      setIsOnlineTicketManagementOpen({
-                        isOpen: false,
-                        buyerId: currentBuyerId,
-                      });
-                    }
+                    setIsOnlineTicketManagementOpen({
+                      isOpen: false,
+                      buyerId: currentBuyerId ?? "",
+                    });
                   }}
                 >
                   Đóng

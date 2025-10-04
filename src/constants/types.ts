@@ -80,7 +80,14 @@ export interface OrderSelectProps {
   setCurrentTabThatContainsOrder: Dispatch<SetStateAction<number>>;
 }
 
-export type DBOrderStatus = "pending" | "success" | "failed";
+export const DB_ORDER_STATUS = {
+  PENDING: "pending",
+  SUCCESS: "success",
+  FAILED: "failed",
+} as const;
+
+export type DBOrderStatus =
+  (typeof DB_ORDER_STATUS)[keyof typeof DB_ORDER_STATUS];
 
 export const VERIFICATION_STATUS = {
   PENDING: "Đang đợi xác minh",

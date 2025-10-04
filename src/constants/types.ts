@@ -60,7 +60,6 @@ export interface OnlineSalesInfo {
   buyerId: string;
   buyerTicketType: string;
   proofOfPaymentImage: string;
-  confirmationImage: string;
   rejectionReason: string;
   verificationStatus: string;
 }

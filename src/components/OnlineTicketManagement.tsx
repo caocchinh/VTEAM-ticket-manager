@@ -57,6 +57,7 @@ import { JumpToTabButton } from "./JumpToTabButton";
 import {
   VERIFICATION_APPROVED,
   VERIFICATION_PENDING,
+  VERIFICATION_FAILED,
 } from "@/constants/constants";
 
 const OrderSelect = ({
@@ -77,7 +78,9 @@ const OrderSelect = ({
           "bg-green-600 dark:hover:bg-green-600 hover:bg-green-600 text-white",
 
         order?.verificationStatus === VERIFICATION_PENDING &&
-          "bg-yellow-600 dark:hover:bg-yellow-600 hover:bg-yellow-600 text-white"
+          "bg-yellow-600 dark:hover:bg-yellow-600 hover:bg-yellow-600 text-white",
+        order?.verificationStatus === VERIFICATION_FAILED &&
+          "bg-red-600 dark:hover:bg-red-600 hover:bg-red-600 text-white"
       )}
       onClick={() => {
         setCurrentOrderId(order?.buyerId);
@@ -298,16 +301,6 @@ const OnlineTicketManagement = ({
     };
   }, [overflowScrollHandler]);
 
-  useEffect(() => {
-    setIsOnlineTicketManagementOpen((prev) => {
-      return {
-        ...prev,
-        buyerId: currentBuyerId ?? prev.buyerId,
-      };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setIsOnlineTicketManagementOpen]);
-
   // Hydrate inspector on open
   useEffect(() => {
     if (!isOnlineTicketManagementOpen.isOpen) {
@@ -323,7 +316,6 @@ const OnlineTicketManagement = ({
           )
         ) ?? 0
       : 0;
-
     setCurrentTabThatContainsOrder(tab);
     setCurrentTab(tab);
     setCurrentBuyerId(
@@ -339,8 +331,7 @@ const OnlineTicketManagement = ({
       });
     }
   }, [
-    isOnlineTicketManagementOpen.buyerId,
-    isOnlineTicketManagementOpen.isOpen,
+    isOnlineTicketManagementOpen,
     isVirtualizationReady,
     overflowScrollHandler,
     partitionedOrderData,
@@ -578,12 +569,13 @@ const OnlineTicketManagement = ({
   return (
     <Dialog
       open={isOnlineTicketManagementOpen.isOpen}
-      onOpenChange={(open) =>
+      onOpenChange={(open) => {
+        console.log(currentBuyerId);
         setIsOnlineTicketManagementOpen({
           isOpen: open,
-          buyerId: isOnlineTicketManagementOpen.buyerId,
-        })
-      }
+          buyerId: currentBuyerId ?? "",
+        });
+      }}
     >
       <Tooltip>
         <TooltipTrigger asChild>
@@ -1140,12 +1132,12 @@ const OnlineTicketManagement = ({
           <Button
             variant="outline"
             className="w-full cursor-pointer"
-            onClick={() =>
-              setIsOnlineTicketManagementOpen((prev) => ({
-                ...prev,
+            onClick={() => {
+              setIsOnlineTicketManagementOpen({
                 isOpen: false,
-              }))
-            }
+                buyerId: currentBuyerId ?? "",
+              });
+            }}
           >
             Đóng
           </Button>

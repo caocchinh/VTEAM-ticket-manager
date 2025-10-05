@@ -1,19 +1,18 @@
-import { SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL } from "./constants";
-import { SuccessEmailPayload } from "./types";
+import { FailedEmailPayload } from "./types";
 
-export default function SUCCESS_EMAIL_TEMPLATE({
+export default function FAILED_EMAIL_TEMPLATE({
   studentName,
   email,
   studentId,
-  eventDay,
   eventYear,
   homeroom,
   bannerImage,
   eventName,
   ticketType,
+  proofOfPaymentURL,
+  rejectionReason,
   purchaseTime,
-  eventType,
-}: SuccessEmailPayload) {
+}: FailedEmailPayload) {
   const EMAIL = `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
  <head>
@@ -166,7 +165,7 @@ div.preheader
               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                
                 <tr>
-                 <!-- Banner Image Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
+                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
                    <img alt="VTEAM" src="${bannerImage}" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr></table></td></tr></table></td></tr><tr>
          <td>
          </td></tr></table>
@@ -215,7 +214,7 @@ div.preheader
 												<p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
 													Xin chào bạn ${studentName}, <br>
 													<br>
-													Trước tiên, Hội Đồng Học Sinh VCP xin chúc mừng bạn đã mua vé <span style="color:darkgreen;font-weight:bold;">thành công </span> cho sự kiện "${eventName}". Xin bạn vui lòng kiểm tra lại thông tin cá nhân của bạn ở bên dưới. <span style="color:crimson;font-weight: bold;">Nếu phát hiện bất kỳ sai sót nào</span>, hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
+													<span style="color:crimson;font-weight:bold;">Rất đáng tiếc,</span> bạn đã không mua vé thành công cho sự kiện "${eventName}". Xin bạn vui lòng kiểm tra lại thông tin cá nhân và thông tin chuyển khoản của bạn ở bên dưới và hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
 											
                                                             </tr><!-- Bodycopy Here --><tr>
 											<tr><td align="left" style="padding: 0px 0px 12px;border:1px dashed black;border-radius: 10px;padding:10px;background: rgba(0,0,0,0.02);">
@@ -234,33 +233,14 @@ div.preheader
                                                                 Mã số HS: <span style="font-weight: bold;">${studentId}</span></p>
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Email: <span style="font-weight: bold;">${email}</span></p>
-                                                           
-                                                       
-                                                
+                                                            <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px;text-decoration: underline;font-weight: bold; color: #000000; text-align: left; margin: 0px; padding: 0px;">
+                                                                <a href="${proofOfPaymentURL}" target="_blank" rel="noopener" referrerpolicy="no-referrer">Link màn hình chuyển khoản</a></p>
                                                 </td> </tr>
 
-                                               ${
-                                                 eventType === "Silencio"
-                                                   ? `
-                                                <tr><td align="left" style="padding: 12px 0px 12px;">
-                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                        Để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web dưới đây để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé. Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên:<br/> <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}</a></p>
-
-                                                </td> </tr>
-                                                `
-                                                   : null
-                                               }
 
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                        Trong thời gian sắp tới, trước ngày sự kiện <span style="font-weight: bold;">${eventDay}</span>, chúng mình sẽ tiếp tục gửi đến bạn các thông tin cập nhật và nhắc nhở.</p>
-                                                </td> </tr>
-
-                                               
-
-                                                <tr><td align="left" style="padding: 12px 0px 12px;">
-                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                       <span style="color:crimson;font-weight: bold;">Xin lưu ý</span>, vui lòng không chia sẻ vé hay foward email này cho người khác vì lợi ích của bạn!</p>
+                                                     Lý do từ chối từ phía VTEAM: <span style="font-weight: bold;color:crimson">${rejectionReason}</span></p>
                                                 </td> </tr>
 
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">

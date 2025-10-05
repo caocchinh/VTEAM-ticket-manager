@@ -64,6 +64,7 @@ import {
   OFFLINE_SALES_EMAIL_INFO_EMAIL_BANNER_IMAGE_INDEX,
   OFFLINE_SALES_EMAIL_INFO_EMAIL_SUBJECT_INDEX,
   OFFLINE_SALES_ORDER_EMAIL_STATUS_COLUMN,
+  ONLINE_SALES_ORDER_EMAIL_STATUS_COLUMN,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -235,16 +236,16 @@ export const fetchOfflineStaffInfo = async ({
 
     if (data) {
       console.log(
-        `[SPREADSHEET] Successfully found staff info for: ${data.name} (${email})`
+        `[SPREADSHEET] Successfully offline found staff info for: ${data.name} (${email})`
       );
       return { error: false, data: data };
     }
 
-    console.log(`[SPREADSHEET] No staff found for email: ${email}`);
+    console.log(`[SPREADSHEET] No offline staff found for email: ${email}`);
     return { error: false, data: undefined };
   } catch (error) {
     console.error(
-      `[SPREADSHEET] Failed to fetch staff info for ${email} after all retries:`,
+      `[SPREADSHEET] Failed to fetch offline staff info for ${email} after all retries:`,
       error
     );
     return { error: true, data: undefined };
@@ -290,16 +291,16 @@ export const fetchOnlineCoordinatorInfo = async ({
 
     if (data) {
       console.log(
-        `[SPREADSHEET] Successfully found staff info for: ${data.name} (${email})`
+        `[SPREADSHEET] Successfully online found staff info for: ${data.name} (${email})`
       );
       return { error: false, data: data };
     }
 
-    console.log(`[SPREADSHEET] No staff found for email: ${email}`);
+    console.log(`[SPREADSHEET] No online staff found for email: ${email}`);
     return { error: false, data: undefined };
   } catch (error) {
     console.error(
-      `[SPREADSHEET] Failed to fetch staff info for ${email} after all retries:`,
+      `[SPREADSHEET] Failed to fetch online staff info for ${email} after all retries:`,
       error
     );
     return { error: true, data: undefined };
@@ -569,18 +570,6 @@ export const sendOfflineOrder = async ({
     );
 
     // Convert orders to rows format - matching the column order from constants
-    const rows = ordersArray.map((order) => [
-      getCurrentTime({ includeTime: true }), // A: Submit time
-      staffName, // B: Staff name (to be filled separately if needed)
-      order.paymentMedium, // C: Payment medium
-      order.nameInput, // D: Buyer name
-      order.homeroomInput, // E: Buyer class
-      order.email, // F: Buyer email
-      order.studentIdInput, // G: Buyer ID
-      order.ticketType, // H: Ticket type
-      order.notice, // I: Notice
-      "Chưa gửi email", // J: Email status
-    ]);
 
     try {
       console.log(
@@ -638,7 +627,18 @@ export const sendOfflineOrder = async ({
             range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!A:Z`,
             valueInputOption: "RAW",
             requestBody: {
-              values: rows,
+              values: ordersArray.map((order) => [
+                getCurrentTime({ includeTime: true }), // A: Submit time
+                staffName, // B: Staff name (to be filled separately if needed)
+                order.paymentMedium, // C: Payment medium
+                order.nameInput, // D: Buyer name
+                order.homeroomInput, // E: Buyer class
+                order.email, // F: Buyer email
+                order.studentIdInput, // G: Buyer ID
+                order.ticketType, // H: Ticket type
+                order.notice, // I: Notice
+                "Chưa gửi email", // J: Email status
+              ]),
             },
           });
           if (response.status !== 200) {
@@ -654,7 +654,17 @@ export const sendOfflineOrder = async ({
             range: `${todaySalesSheetName}!A:Z`,
             valueInputOption: "RAW",
             requestBody: {
-              values: rows,
+              values: ordersArray.map((order) => [
+                getCurrentTime({ includeTime: true }), // A: Submit time
+                staffName, // B: Staff name (to be filled separately if needed)
+                order.paymentMedium, // C: Payment medium
+                order.nameInput, // D: Buyer name
+                order.homeroomInput, // E: Buyer class
+                order.email, // F: Buyer email
+                order.studentIdInput, // G: Buyer ID
+                order.ticketType, // H: Ticket type
+                order.notice, // I: Notice
+              ]),
             },
           });
           if (response.status !== 200) {
@@ -870,19 +880,28 @@ export const updateOnlineOrderStatus = async ({
 }): Promise<{
   error: boolean;
   errorMessage: string | undefined;
+  data: OnlineSalesInfo | undefined;
 }> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   const onlineSales = await fetchOnlineSales();
   if (onlineSales.error || !onlineSales.data) {
-    return { error: true, errorMessage: "Failed to fetch online sales" };
+    return {
+      error: true,
+      errorMessage: "Failed to fetch online sales",
+      data: undefined,
+    };
   }
   const onlineSalesData = onlineSales.data;
   const orderIndexInSheet = onlineSalesData?.findIndex(
     (order) => order.buyerId === studentId
   );
   if (!onlineSalesData) {
-    return { error: true, errorMessage: "Failed to fetch online sales" };
+    return {
+      error: true,
+      errorMessage: "Failed to fetch online sales",
+      data: undefined,
+    };
   }
   const order = onlineSalesData?.[orderIndexInSheet] as OnlineSalesInfo;
   if (
@@ -892,10 +911,14 @@ export const updateOnlineOrderStatus = async ({
     !order.buyerEmail ||
     !order.buyerTicketType
   ) {
-    return { error: true, errorMessage: "Order data is invalid" };
+    return {
+      error: true,
+      errorMessage: "Order data is invalid",
+      data: undefined,
+    };
   }
   if (orderIndexInSheet === -1) {
-    return { error: true, errorMessage: "Order not found" };
+    return { error: true, errorMessage: "Order not found", data: undefined };
   }
 
   const rowIndexInSheet = orderIndexInSheet + 2;
@@ -976,7 +999,7 @@ export const updateOnlineOrderStatus = async ({
         return response;
       }, "updateOnlineSales");
     }
-    return { error: false, errorMessage: undefined };
+    return { error: false, errorMessage: undefined, data: order };
   } catch (error) {
     console.error(
       "[SPREADSHEET] Failed to update online sales after all retries:",
@@ -985,6 +1008,7 @@ export const updateOnlineOrderStatus = async ({
     return {
       error: true,
       errorMessage: "Failed to update online sales after all retries",
+      data: undefined,
     };
   }
 };
@@ -1061,6 +1085,82 @@ export const updateOfflineOrderEmailStatus = async ({
       error: true,
       errorMessage:
         "Failed to update offline order email status after all retries",
+    };
+  }
+};
+
+export const updateOnlineOrderEmailStatus = async ({
+  studentEmail,
+  emailStatus,
+}: {
+  studentEmail: string;
+  emailStatus: string;
+}): Promise<{
+  error: boolean;
+  errorMessage: string | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  const onlineSales = await fetchOnlineSales();
+  if (onlineSales.error || !onlineSales.data) {
+    return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  const onlineSalesData = onlineSales.data;
+  const orderIndexInSheet = onlineSalesData?.findIndex(
+    (order) => order.buyerEmail === studentEmail
+  );
+  if (!onlineSalesData) {
+    return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  const order = onlineSalesData?.[orderIndexInSheet] as OnlineSalesInfo;
+  if (
+    !order.buyerId ||
+    !order.buyerName ||
+    !order.buyerClass ||
+    !order.buyerEmail ||
+    !order.buyerTicketType
+  ) {
+    return { error: true, errorMessage: "Order data is invalid" };
+  }
+  if (orderIndexInSheet === -1) {
+    return { error: true, errorMessage: "Order not found" };
+  }
+
+  const rowIndexInSheet = orderIndexInSheet + 2;
+  const dataToUpdate = [
+    {
+      range: `${ONLINE_SALES_ORDER_SHEET_NAME}!${ONLINE_SALES_ORDER_EMAIL_STATUS_COLUMN}${rowIndexInSheet}`,
+      values: [[emailStatus as string]],
+    },
+  ];
+
+  try {
+    await retryExternalApi(async () => {
+      const response = await sheets.spreadsheets.values.batchUpdate({
+        spreadsheetId: ONLINE_SALES_SHEET_ID,
+        requestBody: {
+          valueInputOption: "RAW",
+          data: dataToUpdate,
+        },
+      });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
+    }, "updateOnlineOrderEmailStatus");
+
+    return { error: false, errorMessage: undefined };
+  } catch (error) {
+    console.error(
+      "[SPREADSHEET] Failed to update online order email status after all retries:",
+      error
+    );
+    return {
+      error: true,
+      errorMessage:
+        "Failed to update online order email status after all retries",
     };
   }
 };

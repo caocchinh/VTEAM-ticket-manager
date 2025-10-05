@@ -126,7 +126,7 @@ export interface OnlineManagementProps {
   >;
 }
 
-export interface EmailPayload {
+export interface SuccessEmailPayload {
   studentName: string;
   email: string;
   studentId: string;
@@ -136,6 +136,23 @@ export interface EmailPayload {
   bannerImage: string;
   eventName: string;
   ticketType: string;
+
+  eventType: "Silencio" | "PROM";
+  purchaseTime: string;
+}
+
+export interface FailedEmailPayload {
+  studentName: string;
+  email: string;
+  studentId: string;
+  eventDay: string;
+  eventYear: string;
+  homeroom: string;
+  bannerImage: string;
+  eventName: string;
+  ticketType: string;
+  proofOfPaymentURL?: string;
+  rejectionReason?: string;
   eventType: "Silencio" | "PROM";
   purchaseTime: string;
 }

@@ -22,7 +22,7 @@ import {
   VERIFICATION_FAILED,
   VERIFICATION_PENDING,
 } from "@/constants/constants";
-import { sendSuccessEmail } from "@/lib/sendMail";
+import { sendFailedEmail, sendSuccessEmail } from "@/lib/sendMail";
 import { getCurrentTime } from "@/lib/utils";
 import { EmailInfo, EventInfo } from "@/constants/types";
 
@@ -80,6 +80,32 @@ const getEventInfo = async (): Promise<{
     console.error("Failed to fetch form info:", error);
     return { error: true, data: undefined };
   }
+};
+
+const getEmailAndEventInfo = async (): Promise<{
+  error: boolean;
+  data: { emailInfo: EmailInfo | undefined; eventInfo: EventInfo | undefined };
+}> => {
+  const [emailInfoResult, eventInfoResult] = await Promise.allSettled([
+    getEmailInfo(),
+    getEventInfo(),
+  ]);
+
+  const emailInfo =
+    emailInfoResult.status === "fulfilled"
+      ? emailInfoResult.value
+      : { error: true, data: undefined };
+
+  const eventInfo =
+    eventInfoResult.status === "fulfilled"
+      ? eventInfoResult.value
+      : { error: true, data: undefined };
+
+  return {
+    error:
+      emailInfo.error || eventInfo.error || !emailInfo.data || !eventInfo.data,
+    data: { emailInfo: emailInfo.data, eventInfo: eventInfo.data },
+  };
 };
 
 export const sendOrderAction = async ({
@@ -155,27 +181,14 @@ export const sendOrderAction = async ({
     });
 
     if (result.success) {
-      const [emailInfoResult, eventInfoResult] = await Promise.allSettled([
-        getEmailInfo(),
-        getEventInfo(),
-      ]);
-
-      const emailInfo =
-        emailInfoResult.status === "fulfilled"
-          ? emailInfoResult.value
-          : { error: true, data: undefined };
-
-      const eventInfo =
-        eventInfoResult.status === "fulfilled"
-          ? eventInfoResult.value
-          : { error: true, data: undefined };
+      const { error: emailAndEventInfoError, data: emailAndEventInfoData } =
+        await getEmailAndEventInfo();
 
       if (
         !(
-          emailInfo.error ||
-          eventInfo.error ||
-          !emailInfo.data ||
-          !eventInfo.data
+          emailAndEventInfoError ||
+          !emailAndEventInfoData.emailInfo ||
+          !emailAndEventInfoData.eventInfo
         )
       ) {
         await Promise.allSettled(
@@ -186,9 +199,10 @@ export const sendOrderAction = async ({
               studentId: order.studentIdInput,
               homeroom: order.homeroomInput,
               ticketType: order.ticketType,
-              emailInfo: emailInfo.data!,
-              eventInfo: eventInfo.data!,
+              emailInfo: emailAndEventInfoData.emailInfo!,
+              eventInfo: emailAndEventInfoData.eventInfo!,
               purchaseTime: getCurrentTime({ includeTime: true }),
+              typeOfSale: "offline",
             });
           })
         );
@@ -395,6 +409,45 @@ export const updateOnlineOrderStatusAction = async ({
     });
 
     if (!result.error) {
+      if (result.data) {
+        const { error: emailAndEventInfoError, data: emailAndEventInfoData } =
+          await getEmailAndEventInfo();
+
+        if (
+          !(
+            emailAndEventInfoError ||
+            !emailAndEventInfoData.emailInfo ||
+            !emailAndEventInfoData.eventInfo
+          )
+        ) {
+          if (verificationStatus === VERIFICATION_APPROVED) {
+            await sendSuccessEmail({
+              email: result.data!.buyerEmail,
+              studentName: result.data.buyerName,
+              studentId: result.data.buyerId,
+              homeroom: result.data.buyerClass,
+              ticketType: result.data.buyerTicketType,
+              emailInfo: emailAndEventInfoData.emailInfo,
+              eventInfo: emailAndEventInfoData.eventInfo,
+              purchaseTime: result.data.time,
+              typeOfSale: "online",
+            });
+          } else if (verificationStatus === VERIFICATION_FAILED) {
+            await sendFailedEmail({
+              email: result.data.buyerEmail,
+              studentName: result.data.buyerName,
+              studentId: result.data.buyerId,
+              homeroom: result.data.buyerClass,
+              ticketType: result.data.buyerTicketType,
+              emailInfo: emailAndEventInfoData.emailInfo,
+              eventInfo: emailAndEventInfoData.eventInfo,
+              purchaseTime: result.data.time,
+              proofOfPaymentURL: result.data.proofOfPaymentImage,
+              rejectionReason: result.data.rejectionReason,
+            });
+          }
+        }
+      }
       const duration = Date.now() - startTime;
       console.log(
         `[${operationId}] Online order status updated successfully in ${duration}ms`

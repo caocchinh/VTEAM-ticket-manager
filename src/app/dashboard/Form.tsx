@@ -1774,10 +1774,12 @@ const Form = ({
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
-                  Lưu thông tin về spreadsheet
+                  Lưu thông tin về spreadsheet & gửi email xác nhận
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Kiểm tra kỹ lại thông tin order nhé!!
+                  Kiểm tra kỹ lại thông tin order nhé!! 1 khi bấm chốt, thông
+                  tin sẽ được lưu về spreadsheet và khách hàng sẽ nhận được
+                  email xác nhận.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <ScrollArea className="h-[45vh] pr-4" type="always">

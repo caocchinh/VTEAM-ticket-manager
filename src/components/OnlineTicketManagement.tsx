@@ -241,6 +241,14 @@ const OnlineTicketManagement = ({
   ]);
 
   useEffect(() => {
+    setIsOnlineTicketManagementOpen((prev) => ({
+      ...prev,
+      buyerId: currentBuyerId ?? partitionedOrderData?.[0]?.[0]?.buyerId ?? "",
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRefetchingSales]);
+
+  useEffect(() => {
     questionScrollAreaRef.current?.scrollTo({
       top: 0,
       behavior: "instant",
@@ -1197,7 +1205,6 @@ const OnlineTicketManagement = ({
                               imageSource={
                                 currentOrderData?.proofOfPaymentImage
                               }
-                              currentBuyerId={currentOrderData?.buyerId}
                             />
                           </ScrollArea>
                         </div>
@@ -1466,21 +1473,17 @@ const OnlineTicketManagement = ({
             Vui lòng nhập lý do từ chối đơn hàng này. Lý do sẽ được gửi đến
             khách hàng.
           </AlertDialogDescription>
-          <div className="py-4">
+          <div className="py-4 w-full">
             <Textarea
               value={rejectionReason}
               disabled={updateOrderStatusMutation.isPending}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Nhập lý do từ chối..."
-              className="w-full p-2 border border-gray-300 rounded-md resize-none"
-              rows={3}
+              className="w-full p-2 border border-gray-300 rounded-md h-24 resize-none overflow-y-auto overflow-x-hidden"
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={updateOrderStatusMutation.isPending}
-              onClick={() => setRejectionReason("")}
-            >
+            <AlertDialogCancel disabled={updateOrderStatusMutation.isPending}>
               Hủy
             </AlertDialogCancel>
             <Button
@@ -1527,10 +1530,8 @@ const FinishedTracker = ({ allOrders }: { allOrders: OnlineSalesInfo[] }) => {
 
 export const InspectOrderImages = ({
   imageSource,
-  currentBuyerId,
 }: {
   imageSource: string | undefined;
-  currentBuyerId: string | undefined;
 }) => {
   if (!imageSource || imageSource.length === 0) {
     return <p className="text-center text-red-600">Unable to fetch resource</p>;
@@ -1539,14 +1540,12 @@ export const InspectOrderImages = ({
     <div className="flex flex-col flex-wrap w-full relative items-center">
       <Loader2 className="animate-spin absolute left-1/2 -translate-x-1/2 z-0" />
       {imageSource && (
-        <Fragment key={`${imageSource}${currentBuyerId}`}>
-          <img
-            className="w-full h-full object-contain relative z-10 !max-w-[750px] bg-white"
-            src={imageSource}
-            alt="Order image"
-            loading="lazy"
-          />
-        </Fragment>
+        <img
+          className="w-full h-full object-contain relative z-10 !max-w-[750px] bg-white"
+          src={imageSource}
+          alt="Order image"
+          loading="lazy"
+        />
       )}
     </div>
   );

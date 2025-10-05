@@ -63,6 +63,7 @@ import {
   OFFLINE_SALES_EMAIL_INFO_SHEET_NAME,
   OFFLINE_SALES_EMAIL_INFO_EMAIL_BANNER_IMAGE_INDEX,
   OFFLINE_SALES_EMAIL_INFO_EMAIL_SUBJECT_INDEX,
+  OFFLINE_SALES_ORDER_EMAIL_STATUS_COLUMN,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -578,6 +579,7 @@ export const sendOfflineOrder = async ({
       order.studentIdInput, // G: Buyer ID
       order.ticketType, // H: Ticket type
       order.notice, // I: Notice
+      "Chưa gửi email", // J: Email status
     ]);
 
     try {
@@ -722,12 +724,8 @@ export const sendOfflineOrder = async ({
     }
 
     const success =
-      (mainSheetResult.status === "fulfilled" &&
-        mainSheetResult.value.status === 200) ||
-      (todaySheetResult.status === "fulfilled" &&
-        todaySheetResult.value.status === 200) ||
-      (checkinSheetResult.status === "fulfilled" &&
-        checkinSheetResult.value.status === 200);
+      mainSheetResult.status === "fulfilled" &&
+      mainSheetResult.value.status === 200;
 
     console.log(
       `[SPREADSHEET] sendOfflineOrder completed with success: ${success}`
@@ -987,6 +985,82 @@ export const updateOnlineOrderStatus = async ({
     return {
       error: true,
       errorMessage: "Failed to update online sales after all retries",
+    };
+  }
+};
+
+export const updateOfflineOrderEmailStatus = async ({
+  studentEmail,
+  emailStatus,
+}: {
+  studentEmail: string;
+  emailStatus: string;
+}): Promise<{
+  error: boolean;
+  errorMessage: string | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  const offlineSales = await fetchOfflineSales();
+  if (offlineSales.error || !offlineSales.data) {
+    return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  const offlineSalesData = offlineSales.data;
+  const orderIndexInSheet = offlineSalesData?.findIndex(
+    (order) => order.buyerEmail === studentEmail
+  );
+  if (!offlineSalesData) {
+    return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  const order = offlineSalesData?.[orderIndexInSheet] as OfflineSalesInfo;
+  if (
+    !order.buyerId ||
+    !order.buyerName ||
+    !order.buyerClass ||
+    !order.buyerEmail ||
+    !order.buyerTicketType
+  ) {
+    return { error: true, errorMessage: "Order data is invalid" };
+  }
+  if (orderIndexInSheet === -1) {
+    return { error: true, errorMessage: "Order not found" };
+  }
+
+  const rowIndexInSheet = orderIndexInSheet + 2;
+  const dataToUpdate = [
+    {
+      range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!${OFFLINE_SALES_ORDER_EMAIL_STATUS_COLUMN}${rowIndexInSheet}`,
+      values: [[emailStatus as string]],
+    },
+  ];
+
+  try {
+    await retryExternalApi(async () => {
+      const response = await sheets.spreadsheets.values.batchUpdate({
+        spreadsheetId: OFFLINE_SALES_SHEET_ID,
+        requestBody: {
+          valueInputOption: "RAW",
+          data: dataToUpdate,
+        },
+      });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
+    }, "updateOfflineOrderEmailStatus");
+
+    return { error: false, errorMessage: undefined };
+  } catch (error) {
+    console.error(
+      "[SPREADSHEET] Failed to update offline order email status after all retries:",
+      error
+    );
+    return {
+      error: true,
+      errorMessage:
+        "Failed to update offline order email status after all retries",
     };
   }
 };

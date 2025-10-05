@@ -2,7 +2,12 @@
 
 import { SheetOrderStatus, StudentInput } from "@/constants/types";
 import { verifySession } from "@/dal/verifySession";
-import { sendOfflineOrder, updateOnlineOrderStatus } from "@/lib/SpreadSheet";
+import {
+  fetchEmailInfo,
+  fetchOfflineEventInfo,
+  sendOfflineOrder,
+  updateOnlineOrderStatus,
+} from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
 import {
   createActionError,
@@ -17,6 +22,65 @@ import {
   VERIFICATION_FAILED,
   VERIFICATION_PENDING,
 } from "@/constants/constants";
+import { sendSuccessEmail } from "@/lib/sendMail";
+import { getCurrentTime } from "@/lib/utils";
+import { EmailInfo, EventInfo } from "@/constants/types";
+
+const getEmailInfo = async (): Promise<{
+  error: boolean;
+  data: EmailInfo | undefined;
+}> => {
+  try {
+    const cachedEmailInfo = await Cache.get("email-info");
+    if (cachedEmailInfo) {
+      return { error: false, data: JSON.parse(cachedEmailInfo as string) };
+    }
+
+    const emailInfo = await fetchEmailInfo();
+    if (!emailInfo.error && emailInfo.data) {
+      await Cache.set(
+        "email-info",
+        JSON.stringify(emailInfo.data),
+        60 * 60 * 24 * 100
+      ); // Cache for 100 days
+    }
+    if (emailInfo.error) {
+      return { error: true, data: undefined };
+    }
+    return emailInfo;
+  } catch (error) {
+    console.error("Failed to fetch email info:", error);
+    return { error: true, data: undefined };
+  }
+};
+
+const getEventInfo = async (): Promise<{
+  error: boolean;
+  data: EventInfo | undefined;
+}> => {
+  try {
+    const cachedEventInfo = await Cache.get("offline-event-info");
+    if (cachedEventInfo) {
+      return { error: false, data: JSON.parse(cachedEventInfo as string) };
+    }
+
+    const eventInfo = await fetchOfflineEventInfo();
+    if (!eventInfo.error && eventInfo.data) {
+      await Cache.set(
+        "offline-event-info",
+        JSON.stringify(eventInfo.data),
+        60 * 60 * 24 * 100
+      ); // Cache for 100 days
+    }
+    if (eventInfo.error) {
+      return { error: true, data: undefined };
+    }
+    return eventInfo;
+  } catch (error) {
+    console.error("Failed to fetch form info:", error);
+    return { error: true, data: undefined };
+  }
+};
 
 export const sendOrderAction = async ({
   orders,
@@ -91,6 +155,45 @@ export const sendOrderAction = async ({
     });
 
     if (result.success) {
+      const [emailInfoResult, eventInfoResult] = await Promise.allSettled([
+        getEmailInfo(),
+        getEventInfo(),
+      ]);
+
+      const emailInfo =
+        emailInfoResult.status === "fulfilled"
+          ? emailInfoResult.value
+          : { error: true, data: undefined };
+
+      const eventInfo =
+        eventInfoResult.status === "fulfilled"
+          ? eventInfoResult.value
+          : { error: true, data: undefined };
+
+      if (
+        !(
+          emailInfo.error ||
+          eventInfo.error ||
+          !emailInfo.data ||
+          !eventInfo.data
+        )
+      ) {
+        await Promise.allSettled(
+          orders.map(async (order) => {
+            await sendSuccessEmail({
+              email: order.email,
+              studentName: order.nameInput,
+              studentId: order.studentIdInput,
+              homeroom: order.homeroomInput,
+              ticketType: order.ticketType,
+              emailInfo: emailInfo.data!,
+              eventInfo: eventInfo.data!,
+              purchaseTime: getCurrentTime({ includeTime: true }),
+            });
+          })
+        );
+      }
+
       const duration = Date.now() - startTime;
       console.log(
         `[${operationId}] Orders submitted successfully in ${duration}ms`

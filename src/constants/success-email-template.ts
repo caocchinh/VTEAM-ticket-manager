@@ -160,12 +160,13 @@ div.preheader
         <tr>
          <td>
           <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
-            <tr>    
+           
+            <tr>
              <td>
               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                
                 <tr>
-                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
+                 <!-- Banner Image Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
                    <img alt="VTEAM" src="${bannerImage}" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr></table></td></tr></table></td></tr><tr>
          <td>
          </td></tr></table>
@@ -188,12 +189,16 @@ div.preheader
               <tr>
                <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;padding: 10px;">
                 <!-- Desktop Logo --><div class="logo-desk" style="display: none; height: 0; overflow: hidden;">
-                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.webp" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 304px;filter:invert(1); font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="304"></a></div><!-- Mobile Logo --><!--[if !mso|(IE)]><!--><div class="logo-mob">
-                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="" src="https://vteam-online-ticket.vercel.app/assets/full-logo.webp" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 300px;filter:invert(1);" width="300"></a></div><!--<![endif]--></td><!-- Logo Ends --></tr></table></td></tr></table><!-- Logo Lockup --></td></tr><tr>
+                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.png" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 304px; font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="304"></a></div><!-- Mobile Logo --><!--[if !mso|(IE)]><!--><div class="logo-mob">
+                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.png" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 300px; font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="300"></a></div><!--<![endif]--></td><!-- Logo Ends --></tr></table></td></tr></table><!-- Logo Lockup --></td></tr><tr>
        <td>
        </td></tr></table>
     </td></tr>
 </table>
+
+
+
+
 
         <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
 	
@@ -207,7 +212,7 @@ div.preheader
 									<!-- Bodycopy Here -->
 										<tr>
 											<td align="left" style="padding: 0px 0px 12px;">
-												<p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
+												<p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
 													Xin chào bạn ${studentName}, <br>
 													<br>
 													Trước tiên, Hội Đồng Học Sinh VCP xin chúc mừng bạn đã mua vé <span style="color:darkgreen;font-weight:bold;">thành công </span> cho sự kiện PROM. Xin bạn vui lòng kiểm tra lại thông tin cá nhân của bạn ở bên dưới. <span style="color:crimson;font-weight: bold;">Nếu phát hiện bất kỳ sai sót nào</span>, hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
@@ -221,69 +226,96 @@ div.preheader
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Hạng vé: <span style="font-weight: bold;">${ticketType}</span></p>
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
-                                                        Tên người mua: <span style="font-weight: bold;">${name}</span></p>
+                                                        Tên người mua: <span style="font-weight: bold;">${studentName}</span></p>
+
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Lớp: <span style="font-weight: bold;">${homeroom}</span></p>
                                                             <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                                 Mã số HS: <span style="font-weight: bold;">${studentId}</span></p>
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Email: <span style="font-weight: bold;">${email}</span></p>
-   
-                                                </td> </tr>
-                                                <tr><td align="left" style="padding: 12px 0px 12px;">
-                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                        Trong thời gian sắp tới, trước ngày sự kiện <span style="font-weight: bold;">${eventDay}</span>, chúng mình sẽ tiếp tục gửi đến bạn các thông tin cập nhật và nhắc nhở thông qua email này.</p>
+                                                           
+                                                       
+                                                
                                                 </td> </tr>
 
-                                                ${
-                                                  eventType === "Silencio"
-                                                    ? `
+                                               ${
+                                                 eventType === "Silencio"
+                                                   ? `
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                        Tuy nhiên trước hết, để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web này để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé. Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên: <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}</a></p>
+                                                        Trước hết, để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web này để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé. Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên:<br/> <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}</a></p>
 
                                                 </td> </tr>
                                                 `
-                                                    : null
-                                                }
+                                                   : null
+                                               }
 
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">
-                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
+                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
+                                                        Trong thời gian sắp tới, trước ngày sự kiện <span style="font-weight: bold;">${eventDay}</span>, chúng mình sẽ tiếp tục gửi đến bạn các thông tin cập nhật và nhắc nhở.</p>
+                                                </td> </tr>
+
+                                               
+
+                                                <tr><td align="left" style="padding: 12px 0px 12px;">
+                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
                                                        <span style="color:crimson;font-weight: bold;">Xin lưu ý</span>, vui lòng không chia sẻ vé hay foward email này cho người khác vì lợi ích của bạn!</p>
                                                 </td> </tr>
 
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">
-                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: right; margin: 0px; padding: 0px;font-style: italic;text-decoration: underline;">
+                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: right; margin: 0px; padding: 0px;font-style: italic;text-decoration: underline;">
                                                         VTEAM xin trân trọng cảm ơn.</p>
-                                                </td> </tr>
+                                                </td> </tr>             
                                             </tr><!-- Bodycopy Ends --></table></td></tr></table></td></tr></table></td></tr></table>
         <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><span style="font-size: medium;">  </span>
             
             
 <table align="center" bgcolor="#000000" border="0" cellpadding="0" cellspacing="0" role="presentation" width="94%">
-    
+    <tr>
         <td align="center" style="padding: 10px 0px 10px;">
-    </td><!-- Social --></tr><tr>
-		<tr>
-			<td align="center" style="padding: 5px 5px 5px;">
-				<a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/_next/image?url=%2Fassets%2Flogo.webp&w=256&q=75" style="display: block; margin: 0px;margin-top: -20px; border: 0px;margin-right: 20px; padding: 0px; width: 100px; font-family: Arial, sans-serif; font-size: 18px; color: #ffffff;filter:invert(1);" width="100"></a></td></tr><tr>
-                    
-		<tr>
-			
-            <td align="center" style="padding: 5px 0px 5px;">
-            </td></tr><!-- Footer --><tr>
-			<td align="center" style="padding: 0px 10px 18px; font-family: Arial, sans-serif; font-size: 20px; line-height: 1;">
-				<a target="_blank" rel="noopener" referrerpolicy="no-referrer"  data-linkto="https://" href="https://www.facebook.com/vteam.vcp" style="display: inline-block;" title=""><img alt="Facebook" data-assetid="35553" height="36" src="https://vteam-online-ticket.vercel.app/assets/facebook.webp" style="display: block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36"></a>&nbsp;&nbsp;<a target="_blank" referrerpolicy="no-referrer" rel="noopener"  data-linkto="https://" href="https://www.instagram.com/vteam.vcp" style="display: inline-block;" title=""><img alt="Instagram" data-assetid="35550" height="36" src="https://vteam-online-ticket.vercel.app/assets/instagram.webp" style="display: block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36"></a>&nbsp;
-                <a  rel="noopener" target="_blank" referrerpolicy="no-referrer" data-linkto="https://" href="https://www.tiktok.com/@_vteam.vcp_" style="display: inline-block;" title="">
-<img alt="Tiktok" data-assetid="35550" height="36" src="https://vteam-online-ticket.vercel.app/assets/tiktok.webp" style="display: block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36"></a>&nbsp;&nbsp;<a  target="_blank" referrerpolicy="no-referrer" rel="noopener" data-linkto="https://" href="https://open.spotify.com/show/6HyeZrRlgEZPkXT09TPqJu?si=9ba07dbd1a5948f0" style="display: inline-block;" title=""><img alt="Spotify" data-assetid="35550" height="36" src="https://vteam-online-ticket.vercel.app/assets/spotify.webp style="display: block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36"></a>&nbsp; 
-&nbsp;&nbsp;</td></tr><!-- end Social --><!-- bottom of footer start-->
-			<td align="center" style="padding: 0px 0px 10px;">
-				<p style="font-family: Arial, sans-serif; font-size: 12px; font-weight: normal; line-height: 12px; color: #ffffff; text-align: center; margin: 5px; padding: 5px;">
-					Khu đô thị Vinhomes Central Park, Điện Biên Phủ, Bình Thạnh, TP. Hồ Chí Minh<br>
-					<br>
-					&copy; <span>${eventYear}</span>&nbsp;VTEAM</p></td></tr><tr>
-			<td>
-			 </custom></td></tr></table><!-- bottom of footer end--></td></tr></table>
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="padding: 5px 5px 5px;">
+            <a href="https://www.facebook.com/vteam.vcp" target="_blank">
+                <img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/logo-inverted.png" style="display: block; margin: 0px auto; border: 0px; padding: 0px; width: 100px; font-family: Arial, sans-serif; font-size: 18px;" width="100">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="padding: 5px 0px 5px;">
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="padding: 0px 10px 18px; font-family: Arial, sans-serif; font-size: 20px; line-height: 1;">
+            <a target="_blank" rel="noopener" referrerpolicy="no-referrer" data-linkto="https://" href="https://www.facebook.com/vteam.vcp" style="display: inline-block; margin: 0 5px;" title="">
+                <img alt="Facebook" data-assetid="35553" height="36" src="https://vteam-online-ticket.vercel.app/assets/facebook.webp" style="display: inline-block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36">
+            </a>
+            <a target="_blank" referrerpolicy="no-referrer" rel="noopener" data-linkto="https://" href="https://www.instagram.com/vteam.vcp" style="display: inline-block; margin: 0 5px;" title="">
+                <img alt="Instagram" data-assetid="35550" height="36" src="https://vteam-online-ticket.vercel.app/assets/instagram.webp" style="display: inline-block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36">
+            </a>
+            <a rel="noopener" target="_blank" referrerpolicy="no-referrer" data-linkto="https://" href="https://www.tiktok.com/@_vteam.vcp_" style="display: inline-block; margin: 0 5px;" title="">
+                <img alt="Tiktok" data-assetid="35550" height="36" src="https://vteam-online-ticket.vercel.app/assets/tiktok.webp" style="display: inline-block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36">
+            </a>
+            <a target="_blank" referrerpolicy="no-referrer" rel="noopener" data-linkto="https://" href="https://open.spotify.com/show/6HyeZrRlgEZPkXT09TPqJu?si=9ba07dbd1a5948f0" style="display: inline-block; margin: 0 5px;" title="">
+                <img alt="Spotify" data-assetid="35550" height="36" src="https://vteam-online-ticket.vercel.app/assets/spotify.webp" style="display: inline-block; margin: 0px; width: 36px; padding: 0px; text-align: center; height: 36px; border: 0px;" width="36">
+            </a>
+        </td>
+    </tr>
+    <!-- end Social -->
+    <!-- bottom of footer start-->
+    <tr>
+        <td align="center" style="padding: 0px 0px 10px;">
+            <p style="font-family: Arial, sans-serif; font-size: 12px; font-weight: normal; line-height: 16px; color: white; text-align: center; margin: 5px; padding: 5px;">
+                Khu đô thị Vinhomes Central Park, Điện Biên Phủ, Bình Thạnh, TP. Hồ Chí Minh<br>
+                <br>
+                &copy; <span>${eventYear}</span>&nbsp;VTEAM
+            </p>
+        </td>
+    </tr>
+</table>
+<!-- bottom of footer end-->
        </td>
       </tr>
      </table>

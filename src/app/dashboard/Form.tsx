@@ -84,7 +84,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { sendOrderAction, updateOnlineDataAction } from "@/server/actions";
+import {
+  sendOrderAction,
+  updateOfflineDataAction,
+  updateOnlineDataAction,
+} from "@/server/actions";
 import Image from "next/image";
 import SalesSummaryDialog from "@/components/SalesSummaryDialog";
 import UpdateDataDialog from "@/components/UpdateDataDialog";
@@ -784,18 +788,26 @@ const Form = ({
   const { mutate: refetchAllDataMutation } = useMutation({
     mutationKey: ["refetch_all_data"],
     mutationFn: async () => {
-      const results = await Promise.all([
+      const [
+        studentListResult,
+        offlineEventInfoResult,
+        ticketInfoResult,
+        offlineDataResult,
+      ] = await Promise.all([
         refetchStudentList(),
         refetchOfflineEventInfo(),
         refetchTicketInfo(),
+        updateOfflineDataAction(),
       ]);
 
       // Check if any of the refetch operations failed
-      const failedResults = results.filter((result) => result.isError);
-      if (failedResults.length > 0) {
-        throw new Error(
-          `Failed to refetch ${failedResults.length} data source(s)`
-        );
+      if (
+        studentListResult.isError ||
+        offlineEventInfoResult.isError ||
+        ticketInfoResult.isError ||
+        !offlineDataResult.success
+      ) {
+        throw new Error(`Failed to refetch`);
       }
     },
     onSuccess: () => {

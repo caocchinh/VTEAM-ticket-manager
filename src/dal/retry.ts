@@ -52,7 +52,7 @@ export const RETRY_CONFIGS = {
     jitterRange: 1000,
   },
   EMAIL: {
-    maxRetries: 4,
+    maxRetries: 3,
     baseDelay: 1000,
     maxDelay: 8000,
     backoffMultiplier: 2,

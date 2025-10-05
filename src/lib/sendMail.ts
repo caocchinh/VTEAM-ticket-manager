@@ -163,7 +163,7 @@ export async function sendFailedEmail({
     const mailOptionsPrivate = {
       from: process.env.GMAIL_USER,
       to: email,
-      subject: emailInfo.emailSubject,
+      subject: "VTEAM - Thông báo đơn hàng của bạn đã bị từ chối",
       html: htmlContent,
     };
 
@@ -191,7 +191,7 @@ export async function sendFailedEmail({
       }, `sending failed email to ${email}`);
       await updateOnlineOrderEmailStatus({
         studentEmail: email,
-        emailStatus: "Lỗi gửi email",
+        emailStatus: "Đã gửi email",
       });
     } catch (error) {
       console.error(`Failed to send email to ${email}:`, error);

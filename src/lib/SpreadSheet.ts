@@ -920,6 +920,17 @@ export const updateOnlineOrderStatus = async ({
   if (orderIndexInSheet === -1) {
     return { error: true, errorMessage: "Order not found", data: undefined };
   }
+  if (
+    order.verificationStatus === verificationStatus ||
+    (verificationStatus === VERIFICATION_FAILED &&
+      order.verificationStatus === VERIFICATION_APPROVED)
+  ) {
+    return {
+      error: false,
+      errorMessage: undefined,
+      data: undefined,
+    };
+  }
 
   const rowIndexInSheet = orderIndexInSheet + 2;
   const dataToUpdate = [

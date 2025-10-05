@@ -420,7 +420,10 @@ export const updateOnlineOrderStatusAction = async ({
             !emailAndEventInfoData.eventInfo
           )
         ) {
-          if (verificationStatus === VERIFICATION_APPROVED) {
+          if (
+            verificationStatus === VERIFICATION_APPROVED &&
+            result.data.verificationStatus !== VERIFICATION_APPROVED
+          ) {
             await sendSuccessEmail({
               email: result.data!.buyerEmail,
               studentName: result.data.buyerName,
@@ -432,7 +435,10 @@ export const updateOnlineOrderStatusAction = async ({
               purchaseTime: result.data.time,
               typeOfSale: "online",
             });
-          } else if (verificationStatus === VERIFICATION_FAILED) {
+          } else if (
+            verificationStatus === VERIFICATION_FAILED &&
+            !result.data.rejectionReason
+          ) {
             await sendFailedEmail({
               email: result.data.buyerEmail,
               studentName: result.data.buyerName,
@@ -443,7 +449,7 @@ export const updateOnlineOrderStatusAction = async ({
               eventInfo: emailAndEventInfoData.eventInfo,
               purchaseTime: result.data.time,
               proofOfPaymentURL: result.data.proofOfPaymentImage,
-              rejectionReason: result.data.rejectionReason,
+              rejectionReason: rejectionReason as string,
             });
           }
         }
@@ -463,6 +469,94 @@ export const updateOnlineOrderStatusAction = async ({
     const duration = Date.now() - startTime;
     console.error(
       `[${operationId}] Online order status update failed after ${duration}ms:`,
+      error
+    );
+
+    if (error instanceof Error) {
+      console.error(`[${operationId}] Error details:`, error.message);
+      console.error(`[${operationId}] Error stack:`, error.stack);
+    }
+    return createActionError("UNKNOWN_ERROR");
+  }
+};
+
+export const updateOfflineDataAction = async (): Promise<ActionResponse> => {
+  const operationId = randomUUID();
+  const startTime = Date.now();
+
+  console.log(`[${operationId}] Starting offline data update`);
+
+  try {
+    // Session verification
+    const session = await verifySession();
+    if (!session) {
+      console.log(`[${operationId}] Session verification failed`);
+      return createActionError("SESSION_VERIFICATION_FAILED");
+    }
+
+    console.log(
+      `[${operationId}] Session verified for user: ${session.user.email}`
+    );
+
+    // Check staff authorization
+    console.log(`[${operationId}] Checking staff authorization...`);
+    const staffAuth = await checkStaffAuthorization(session.user.email);
+
+    if (!staffAuth.isStaff) {
+      console.log(
+        `[${operationId}] Staff authorization failed: ${
+          staffAuth.error || "Unknown error"
+        }`
+      );
+      return createActionError(
+        staffAuth.error === ERROR_CODES.INTERNAL_SERVER_ERROR
+          ? "INTERNAL_SERVER_ERROR"
+          : "UNAUTHORIZED"
+      );
+    }
+
+    console.log(
+      `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
+    );
+
+    // Clear cache to force fresh data fetch
+    console.log(`[${operationId}] Clearing cached data...`);
+    try {
+      await Promise.all([
+        (async () => {
+          const response = await Cache.delete("email-info");
+          if (!response) {
+            console.error(
+              `[${operationId}] Cache delete failed for email-info`
+            );
+            throw new Error("CACHE_DELETE_FAILED");
+          }
+        })(),
+        (async () => {
+          const response = await Cache.delete("offline-event-info");
+          if (!response) {
+            console.error(
+              `[${operationId}] Cache delete failed for offline-event-info`
+            );
+            throw new Error("CACHE_DELETE_FAILED");
+          }
+        })(),
+      ]);
+      console.log(`[${operationId}] Cache cleared successfully`);
+    } catch (cacheError) {
+      console.error(`[${operationId}] Cache clear failed:`, cacheError);
+      return createActionError("CACHE_ERROR");
+    }
+
+    const duration = Date.now() - startTime;
+    console.log(
+      `[${operationId}] Offline data update completed in ${duration}ms`
+    );
+    return createActionSuccess();
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error(
+      `[${operationId}] Offline data update failed after ${duration}ms:`,
       error
     );
 

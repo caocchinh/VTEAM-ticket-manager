@@ -70,6 +70,11 @@ const UpdateDataDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Xác nhận cập nhật dữ liệu</DialogTitle>
+          <DialogDescription className="text-orange-500">
+            Mỗi khi thông tin trong sheet được cập nhật (ví dụ như giá vé, thông
+            tin sự kiện, thông tin email, ...), bạn cần cập nhật dữ liệu trong
+            app để đảm bảo dữ liệu trong app là mới nhất.
+          </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="offline">
           <TabsList>
@@ -80,8 +85,8 @@ const UpdateDataDialog = ({
             <DialogDescription>
               Hành động này sẽ xóa tất cả thông tin đang nhập trong phiên làm
               việc hiện tại và tải lại thông tin mới (danh sách học sinh & thông
-              tin vé & thông tin sự kiện) từ cơ sở dữ liệu. Bạn có chắc chắn
-              muốn tiếp tục?
+              tin vé & thông tin sự kiện & thông tin email) từ cơ sở dữ liệu.
+              Bạn có chắc chắn muốn tiếp tục?
             </DialogDescription>
             <DialogFooter className="mt-4">
               <Button

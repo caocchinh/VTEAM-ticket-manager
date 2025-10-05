@@ -56,6 +56,10 @@ import {
   VERIFICATION_PENDING_DB,
   VERIFICATION_APPROVED_DB,
   VERIFICATION_FAILED_DB,
+  OFFLINE_SALES_EVENT_INFO_EVENT_TYPE_INDEX,
+  OFFLINE_SALES_EVENT_INFO_EVENT_YEAR_INDEX,
+  OFFLINE_SALES_EVENT_INFO_EVENT_DATE_INDEX,
+  OFFLINE_SALES_EVENT_INFO_EVENT_NAME_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -983,7 +987,7 @@ export const updateOnlineOrderStatus = async ({
   }
 };
 
-export const fetchEventInfo = async (): Promise<{
+export const fetchOfflineEventInfo = async (): Promise<{
   error: boolean;
   data: EventInfo | undefined;
 }> => {
@@ -1008,7 +1012,76 @@ export const fetchEventInfo = async (): Promise<{
     }, "fetchOfflineEventInfo");
 
     if (response.data.values) {
-      const eventInfo = response.data.values[1][0] as EventInfo;
+      const eventInfo = {
+        eventName: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_NAME_INDEX]
+        ),
+        eventDate: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_DATE_INDEX]
+        ),
+        eventYear: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_YEAR_INDEX]
+        ),
+        eventType: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_TYPE_INDEX]
+        ) as "Silencio" | "PROM",
+      };
+      console.log(
+        `[SPREADSHEET] Successfully fetched event info: ${eventInfo}`
+      );
+      return { error: false, data: eventInfo };
+    }
+
+    console.warn("[SPREADSHEET] No event info found in response");
+    return { error: true, data: undefined };
+  } catch (error) {
+    console.error(
+      "[SPREADSHEET] Failed to fetch event info after all retries:",
+      error
+    );
+    return { error: true, data: undefined };
+  }
+};
+
+export const fetchEmailInfo = async (): Promise<{
+  error: boolean;
+  data: EventInfo | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    console.log(
+      `[SPREADSHEET] Starting fetchOfflineEventInfo from sheet: ${OFFLINE_SALES_SHEET_ID}`
+    );
+
+    const response = await retryExternalApi(async () => {
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: OFFLINE_SALES_SHEET_ID,
+        range: `${OFFLINE_SALES_EVENT_INFO_SHEET_NAME}!A:Z`,
+      });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
+    }, "fetchOfflineEventInfo");
+
+    if (response.data.values) {
+      const eventInfo = {
+        eventName: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_NAME_INDEX]
+        ),
+        eventDate: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_DATE_INDEX]
+        ),
+        eventYear: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_YEAR_INDEX]
+        ),
+        eventType: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_TYPE_INDEX]
+        ) as "Silencio" | "PROM",
+      };
       console.log(
         `[SPREADSHEET] Successfully fetched event info: ${eventInfo}`
       );

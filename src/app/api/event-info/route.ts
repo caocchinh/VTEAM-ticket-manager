@@ -1,4 +1,4 @@
-import { fetchEventInfo } from "@/lib/SpreadSheet";
+import { fetchOfflineEventInfo } from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
 import { createApiError, HTTP_STATUS, ERROR_CODES } from "@/constants/errors";
 import { verifySession } from "@/dal/verifySession";
@@ -30,7 +30,7 @@ export async function GET() {
     }
 
     try {
-      const response = await fetchEventInfo();
+      const response = await fetchOfflineEventInfo();
       if (response.error || !response.data) {
         return createApiError(
           "EVENT_INFO_FETCH_FAILED",

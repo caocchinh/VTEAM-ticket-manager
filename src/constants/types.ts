@@ -38,6 +38,9 @@ export type OnlineCoordinator = Staff;
 
 export interface EventInfo {
   eventName: string;
+  eventDate: string;
+  eventYear: string;
+  eventType: "Silencio" | "PROM";
 }
 
 export interface OfflineSalesInfo {

@@ -257,37 +257,37 @@ const Form = ({
     return fuzzyMatch || null;
   };
 
-  const fetchEventInfo = async () => {
+  const fetchOfflineEventInfo = async () => {
     const response = await fetch("/api/event-info");
     if (!response.ok) {
       throw new Error("Failed to fetch event information");
     }
     const data = await response.json();
-    return { eventName: data } as EventInfo;
+    return data as EventInfo;
   };
 
   const {
-    data: eventInfo,
-    isFetching: isEventInfoFetching,
-    isError: isEventInfoError,
-    refetch: refetchEventInfo,
+    data: offlineEventInfo,
+    isFetching: isOfflineEventInfoFetching,
+    isError: isOfflineEventInfoError,
+    refetch: refetchOfflineEventInfo,
   } = useQuery({
-    queryKey: ["event_info"],
+    queryKey: ["offline_event_info"],
     queryFn: async () => {
       try {
-        const cachedData = await getCache<string>("event_info");
+        const cachedData = await getCache<string>("offline_event_info");
         if (cachedData) {
           return JSON.parse(cachedData) as EventInfo;
         } else {
-          const freshData = await fetchEventInfo();
-          await setCache("event_info", JSON.stringify(freshData));
+          const freshData = await fetchOfflineEventInfo();
+          await setCache("offline_event_info", JSON.stringify(freshData));
           return freshData;
         }
       } catch (error) {
         if (error == "Failed to fetch event information") {
           throw new Error("Failed to fetch  event information");
         }
-        return fetchEventInfo();
+        return fetchOfflineEventInfo();
       }
     },
     enabled: mounted,
@@ -786,7 +786,7 @@ const Form = ({
     mutationFn: async () => {
       const results = await Promise.all([
         refetchStudentList(),
-        refetchEventInfo(),
+        refetchOfflineEventInfo(),
         refetchTicketInfo(),
       ]);
 
@@ -944,7 +944,9 @@ const Form = ({
         <div
           className={cn(
             "flex p-2 min-h-[54px] flex-wrap shadow-sm justify-center border-1 text-white rounded-md items-center gap-3  relative",
-            isEventInfoError && !isEventInfoFetching && "bg-red-500/60"
+            isOfflineEventInfoError &&
+              !isOfflineEventInfoFetching &&
+              "bg-red-500/60"
           )}
         >
           <div className="flex items-center ">
@@ -955,30 +957,30 @@ const Form = ({
               className="-mt-2 "
               alt="VTEAM Logo"
             />
-            {!isEventInfoError &&
-              (eventInfo?.eventName || isEventInfoFetching) && (
+            {!isOfflineEventInfoError &&
+              (offlineEventInfo?.eventName || isOfflineEventInfoFetching) && (
                 <CardTitle className="text-sm flex items-center justify-center">
-                  {isEventInfoFetching ? (
+                  {isOfflineEventInfoFetching ? (
                     <span className="text-gray-500">
                       Đang tải thông tin sự kiện...
                     </span>
                   ) : (
                     <TextShimmer className="text-sm" duration={5}>
-                      {truncateText(eventInfo?.eventName || "", 30)}
+                      {truncateText(offlineEventInfo?.eventName || "", 30)}
                     </TextShimmer>
                   )}
                 </CardTitle>
               )}
           </div>
 
-          {isEventInfoError && !isEventInfoFetching && (
+          {isOfflineEventInfoError && !isOfflineEventInfoFetching && (
             <div className=" w-max h-full -ml-4 rounded-md flex items-center justify-center gap-2">
               <p className="text-white text-xs">Lỗi tải thông tin sự kiện</p>
               <Button
                 variant="ghost"
                 size="sm"
                 className="border-white border text-white mt-1 cursor-pointer text-xs h-6"
-                onClick={() => refetchEventInfo()}
+                onClick={() => refetchOfflineEventInfo()}
               >
                 Thử lại
               </Button>

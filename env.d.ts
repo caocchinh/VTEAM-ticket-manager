@@ -17,5 +17,7 @@ namespace NodeJS {
     MAIN_R2_BUCKET_ACCESS_KEY_ID: string;
     MAIN_R2_BUCKET_SECRET_ACCESS_KEY: string;
     MAIN_R2_BUCKET_PUBLIC_URL: string;
+    GMAIL_USER: string;
+    GMAIL_PASS: string;
   }
 }

@@ -43,6 +43,11 @@ export interface EventInfo {
   eventType: "Silencio" | "PROM";
 }
 
+export interface EmailInfo {
+  emailBannerImage: string;
+  emailSubject: string;
+}
+
 export interface OfflineSalesInfo {
   time: string;
   staffName: string;
@@ -119,4 +124,18 @@ export interface OnlineManagementProps {
       buyerId: string;
     }>
   >;
+}
+
+export interface EmailPayload {
+  studentName: string;
+  email: string;
+  studentId: string;
+  eventDay: string;
+  eventYear: string;
+  homeroom: string;
+  bannerImage: string;
+  eventName: string;
+  ticketType: string;
+  eventType: "Silencio" | "PROM";
+  purchaseTime: string;
 }

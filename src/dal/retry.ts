@@ -51,6 +51,13 @@ export const RETRY_CONFIGS = {
     backoffMultiplier: 2,
     jitterRange: 1000,
   },
+  EMAIL: {
+    maxRetries: 4,
+    baseDelay: 1000,
+    maxDelay: 8000,
+    backoffMultiplier: 2,
+    jitterRange: 1000,
+  },
 } as const;
 
 /**
@@ -200,4 +207,14 @@ export function retryFileUpload<T>(
   operationName: string = "file upload operation"
 ): Promise<T> {
   return retryWithBackoff(operation, RETRY_CONFIGS.FILE_UPLOAD, operationName);
+}
+
+/**
+ * Convenience function for email operations
+ */
+export function retryEmail<T>(
+  operation: () => Promise<T>,
+  operationName: string = "email operation"
+): Promise<T> {
+  return retryWithBackoff(operation, RETRY_CONFIGS.EMAIL, operationName);
 }

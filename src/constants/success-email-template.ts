@@ -1,7 +1,8 @@
 import { SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL } from "./constants";
+import { EmailPayload } from "./types";
 
 export default function SUCCESS_EMAIL_TEMPLATE({
-  name,
+  studentName,
   email,
   studentId,
   eventDay,
@@ -12,19 +13,7 @@ export default function SUCCESS_EMAIL_TEMPLATE({
   ticketType,
   purchaseTime,
   eventType,
-}: {
-  name: string;
-  email: string;
-  studentId: string;
-  eventDay: string;
-  eventYear: string;
-  homeroom: string;
-  bannerImage: string;
-  eventName: string;
-  ticketType: string;
-  eventType: "Silencio" | "PROM";
-  purchaseTime: string;
-}) {
+}: EmailPayload) {
   const EMAIL = `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
  <head>
@@ -219,7 +208,7 @@ div.preheader
 										<tr>
 											<td align="left" style="padding: 0px 0px 12px;">
 												<p style="font-family: Roboto, Arial, sans-serif; font-size: 20px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-													Xin chào bạn ${name}, <br>
+													Xin chào bạn ${studentName}, <br>
 													<br>
 													Trước tiên, Hội Đồng Học Sinh VCP xin chúc mừng bạn đã mua vé <span style="color:darkgreen;font-weight:bold;">thành công </span> cho sự kiện PROM. Xin bạn vui lòng kiểm tra lại thông tin cá nhân của bạn ở bên dưới. <span style="color:crimson;font-weight: bold;">Nếu phát hiện bất kỳ sai sót nào</span>, hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
 											

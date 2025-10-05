@@ -159,7 +159,7 @@ export const updateOnlineDataAction = async (): Promise<ActionResponse> => {
     try {
       await Promise.all([
         (async () => {
-          const response = await Cache.delete("event-info");
+          const response = await Cache.delete("online-event-info");
           if (!response) {
             console.error(
               `[${operationId}] Cache delete failed for event-info`
@@ -168,14 +168,14 @@ export const updateOnlineDataAction = async (): Promise<ActionResponse> => {
           }
         })(),
         (async () => {
-          const response = await Cache.delete("form-info");
+          const response = await Cache.delete("online-form-info");
           if (!response) {
             console.error(`[${operationId}] Cache delete failed for form-info`);
             throw new Error("CACHE_DELETE_FAILED");
           }
         })(),
         (async () => {
-          const response = await Cache.delete("ticket-info");
+          const response = await Cache.delete("online-ticket-info");
           if (!response) {
             console.error(
               `[${operationId}] Cache delete failed for ticket-info`
@@ -184,7 +184,7 @@ export const updateOnlineDataAction = async (): Promise<ActionResponse> => {
           }
         })(),
         (async () => {
-          const response = await Cache.delete("student-list");
+          const response = await Cache.delete("online-student-list");
           if (!response) {
             console.error(
               `[${operationId}] Cache delete failed for student-list`

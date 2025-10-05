@@ -60,6 +60,9 @@ import {
   OFFLINE_SALES_EVENT_INFO_EVENT_YEAR_INDEX,
   OFFLINE_SALES_EVENT_INFO_EVENT_DATE_INDEX,
   OFFLINE_SALES_EVENT_INFO_EVENT_NAME_INDEX,
+  OFFLINE_SALES_EMAIL_INFO_SHEET_NAME,
+  OFFLINE_SALES_EMAIL_INFO_EMAIL_BANNER_IMAGE_INDEX,
+  OFFLINE_SALES_EMAIL_INFO_EMAIL_SUBJECT_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -71,6 +74,7 @@ import {
   StudentInput,
   TicketInfo,
   SheetOrderStatus,
+  EmailInfo,
 } from "@/constants/types";
 import { getCurrentTime } from "./utils";
 import { offlineTicketDb } from "@/drizzle/offline/db";
@@ -1045,19 +1049,19 @@ export const fetchOfflineEventInfo = async (): Promise<{
 
 export const fetchEmailInfo = async (): Promise<{
   error: boolean;
-  data: EventInfo | undefined;
+  data: EmailInfo | undefined;
 }> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   try {
     console.log(
-      `[SPREADSHEET] Starting fetchOfflineEventInfo from sheet: ${OFFLINE_SALES_SHEET_ID}`
+      `[SPREADSHEET] Starting fetchEmailInfo from sheet: ${OFFLINE_SALES_SHEET_ID}`
     );
 
     const response = await retryExternalApi(async () => {
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: OFFLINE_SALES_SHEET_ID,
-        range: `${OFFLINE_SALES_EVENT_INFO_SHEET_NAME}!A:Z`,
+        range: `${OFFLINE_SALES_EMAIL_INFO_SHEET_NAME}!A:Z`,
       });
       if (response.status !== 200) {
         throw new Error(
@@ -1065,34 +1069,28 @@ export const fetchEmailInfo = async (): Promise<{
         );
       }
       return response;
-    }, "fetchOfflineEventInfo");
+    }, "fetchEmailInfo");
 
     if (response.data.values) {
-      const eventInfo = {
-        eventName: safeTrim(
-          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_NAME_INDEX]
+      const emailInfo = {
+        emailBannerImage: safeTrim(
+          response.data.values[1][
+            OFFLINE_SALES_EMAIL_INFO_EMAIL_BANNER_IMAGE_INDEX
+          ]
         ),
-        eventDate: safeTrim(
-          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_DATE_INDEX]
+        emailSubject: safeTrim(
+          response.data.values[1][OFFLINE_SALES_EMAIL_INFO_EMAIL_SUBJECT_INDEX]
         ),
-        eventYear: safeTrim(
-          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_YEAR_INDEX]
-        ),
-        eventType: safeTrim(
-          response.data.values[1][OFFLINE_SALES_EVENT_INFO_EVENT_TYPE_INDEX]
-        ) as "Silencio" | "PROM",
       };
-      console.log(
-        `[SPREADSHEET] Successfully fetched event info: ${eventInfo}`
-      );
-      return { error: false, data: eventInfo };
+      console.log(`[SPREADSHEET] Successfully fetched email info`);
+      return { error: false, data: emailInfo };
     }
 
-    console.warn("[SPREADSHEET] No event info found in response");
+    console.warn("[SPREADSHEET] No email info found in response");
     return { error: true, data: undefined };
   } catch (error) {
     console.error(
-      "[SPREADSHEET] Failed to fetch event info after all retries:",
+      "[SPREADSHEET] Failed to fetch email info after all retries:",
       error
     );
     return { error: true, data: undefined };

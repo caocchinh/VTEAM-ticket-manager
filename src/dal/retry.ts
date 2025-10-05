@@ -24,14 +24,14 @@ export const RETRY_CONFIGS = {
     jitterRange: 100,
   },
   DATABASE: {
-    maxRetries: 3,
+    maxRetries: 5,
     baseDelay: 500,
     maxDelay: 2000,
     backoffMultiplier: 2,
     jitterRange: 200,
   },
   EXTERNAL_API: {
-    maxRetries: 3,
+    maxRetries: 6,
     baseDelay: 1000,
     maxDelay: 5000,
     backoffMultiplier: 2,

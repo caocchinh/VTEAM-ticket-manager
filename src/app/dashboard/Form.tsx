@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @next/next/no-img-element */
 
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CardTitle, CardDescription } from "@/components/ui/card";
-import { LogoutButton } from "@/components/LogoutButton";
-import { truncateText } from "@/lib/utils";
-import SpreadsheetQuickAccess from "@/components/SpreadsheetQuickAccess";
 import StatisticsDialog from "@/components/StatisticsDialog";
 import {
   Dialog,
@@ -90,16 +85,31 @@ import {
   updateOfflineDataAction,
   updateOnlineDataAction,
 } from "@/server/actions";
-import Image from "next/image";
 import SalesSummaryDialog from "@/components/SalesSummaryDialog";
 import UpdateDataDialog from "@/components/UpdateDataDialog";
 import SalesInfoCard from "@/components/SalesInfoCard";
 import TicketColorManager from "@/components/TicketColorManager";
-import { TextShimmer } from "@/components/ui/text-shimmer";
 import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
 import OnlineTicketManagement from "@/components/OnlineTicketManagement";
 import { OrderItemInfo } from "@/components/OrderItemInfo";
 import { Switch } from "@/components/ui/switch";
+import {
+  SidebarInset,
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarMenuItem,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarGroup,
+} from "@/components/ui/sidebar";
+import SidebarUser from "@/components/Sidebar/SidebarUser";
+import SidebarEventInfo from "@/components/Sidebar/EventInfo";
+import { SpreadSheetQuickAccess } from "@/components/SpreadSheetQuickAccess";
 
 const Form = ({
   session,
@@ -972,88 +982,47 @@ const Form = ({
     });
 
   return (
-    <>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "299.6px",
+        } as React.CSSProperties
+      }
+    >
+      <Sidebar collapsible="icon" className="bg-sidebar-primary">
+        <SidebarHeader>
+          <SidebarEventInfo
+            offlineEventInfo={offlineEventInfo}
+            isOfflineEventInfoError={isOfflineEventInfoError}
+            isOfflineEventInfoFetching={isOfflineEventInfoFetching}
+            refetchOfflineEventInfo={refetchOfflineEventInfo}
+          />
+          <SidebarSeparator className="mx-0" />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Tiện ích</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SpreadSheetQuickAccess />
+              </SidebarMenuItem>
+              <SidebarMenuItem></SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarUser
+            user={{
+              name: session.user.name,
+              email: session.user.email,
+              avatar: session.user.image,
+            }}
+          />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
       <div className="flex flex-row m-auto w-full flex-wrap items-center justify-center gap-4">
-        <div
-          className={cn(
-            "flex p-2 min-h-[54px] flex-wrap shadow-sm justify-center border-1 text-white rounded-md items-center gap-3  relative",
-            isOfflineEventInfoError &&
-              !isOfflineEventInfoFetching &&
-              "bg-red-500/60"
-          )}
-        >
-          <div className="flex items-center ">
-            <Image
-              src="/assets/logo.webp"
-              width={50}
-              height={50}
-              className="-mt-2 "
-              alt="VTEAM Logo"
-            />
-            {!isOfflineEventInfoError &&
-              (offlineEventInfo?.eventName || isOfflineEventInfoFetching) && (
-                <CardTitle className="text-sm flex items-center justify-center">
-                  {isOfflineEventInfoFetching ? (
-                    <span className="text-gray-500">
-                      Đang tải thông tin sự kiện...
-                    </span>
-                  ) : (
-                    <TextShimmer className="text-sm" duration={5}>
-                      {truncateText(offlineEventInfo?.eventName || "", 30)}
-                    </TextShimmer>
-                  )}
-                </CardTitle>
-              )}
-          </div>
-
-          {isOfflineEventInfoError && !isOfflineEventInfoFetching && (
-            <div className=" w-max h-full -ml-4 rounded-md flex items-center justify-center gap-2">
-              <p className="text-white text-xs">Lỗi tải thông tin sự kiện</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="border-white border text-white mt-1 cursor-pointer text-xs h-6"
-                onClick={() => refetchOfflineEventInfo()}
-              >
-                Thử lại
-              </Button>
-            </div>
-          )}
-        </div>
-        <div className="flex p-2 shadow-sm bg-card rounded-md items-center justify-between gap-3 border-1 ">
-          <div className="flex items-center">
-            <div className="relative">
-              {session.user.image ? (
-                <img
-                  src={session.user.image}
-                  alt={session.user.name || "User Avatar"}
-                  width={35}
-                  height={35}
-                  className="rounded-full border-2  h-[35px] mr-1 border-gray-200"
-                />
-              ) : (
-                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                  <span className="text-gray-600 text-xl font-semibold">
-                    {session.user.name?.charAt(0) ||
-                      session.user.email?.charAt(0) ||
-                      "U"}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div>
-              <CardTitle className="text-sm">
-                {truncateText(staffInfo.name, 24)}
-              </CardTitle>
-              <CardDescription className="text-[10px]">
-                {truncateText(session.user.email, 24)}
-              </CardDescription>
-            </div>
-          </div>
-          <LogoutButton />
-        </div>
-
-        <SpreadsheetQuickAccess />
         <UpdateDataDialog
           isOpen={isRefreshDialogOpen}
           onOpenChange={setIsRefreshDialogOpen}
@@ -1108,7 +1077,7 @@ const Form = ({
           setIsOnlineTicketManagementOpen={setIsOnlineTicketManagementOpen}
         />
       </div>
-      <div className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">
+      <SidebarInset className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">
         <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">
           <h2 className="font-semibold">Điền thông tin người mua</h2>
           <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-full relative">
@@ -1399,7 +1368,9 @@ const Form = ({
                     ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS && (
                       <div
                         className="w-3 h-3 rounded-full border border-gray-300"
-                        style={{ backgroundColor: getTicketColor(ticketType) }}
+                        style={{
+                          backgroundColor: getTicketColor(ticketType),
+                        }}
                         title={`Màu cho ${ticketType}`}
                       />
                     )}
@@ -1945,8 +1916,8 @@ const Form = ({
         <div className="flex-col items-center justify-start gap-2 change_calculator">
           <ChangeCalculator totalAmount={orderSubtotal} />
         </div>
-      </div>
-    </>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 

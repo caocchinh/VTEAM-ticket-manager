@@ -1,33 +1,44 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import Image from "next/image";
-import {
-  OFFLINE_SALES_SHEET_ID,
-  ONLINE_SALES_SHEET_ID,
-  CHECKIN_SHEET_ID,
-  TEACHER_VERIFICATION_SHEET_ID,
-} from "@/constants/constants";
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
-import { ExternalLinkIcon } from "lucide-react";
+"use client";
 
-const SpreadsheetQuickAccess = () => {
+import { ChevronRight, ExternalLinkIcon } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import Image from "next/image";
+import { SPREADSHEET_LINKS } from "@/constants/constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+
+export function SpreadSheetQuickAccess() {
+  const { open: isSidebarOpen, isMobile } = useSidebar();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   return (
-    <Popover>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="h-full w-[50px] !p-2 cursor-pointer"
+    <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
+      <Collapsible asChild defaultOpen={false} className="group/collapsible">
+        <SidebarMenuItem>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton
+              tooltip="Các sheet liên quan"
+              onClick={() => {
+                if (!isSidebarOpen) {
+                  setIsDropdownOpen(true);
+                }
+              }}
             >
               <Image
                 src="/assets/sheet_logo.webp"
@@ -36,54 +47,59 @@ const SpreadsheetQuickAccess = () => {
                 width={50}
                 height={50}
               />
-            </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Sheet bán vé & checkin</TooltipContent>
-      </Tooltip>
-      <PopoverContent className="flex items-center justify-center flex-col text-md">
-        <a
-          target="_blank"
-          rel="noopener"
-          className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
-          href={`https://docs.google.com/spreadsheets/d/${OFFLINE_SALES_SHEET_ID}`}
-        >
-          1. <span>Sheet bán vé offline</span>
-          <ExternalLinkIcon className="w-4 h-4 -ml-2" />
-        </a>
-        <Separator className="my-2" />
-        <a
-          target="_blank"
-          rel="noopener"
-          className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
-          href={`https://docs.google.com/spreadsheets/d/${ONLINE_SALES_SHEET_ID}`}
-        >
-          2. <span>Sheet bán vé online</span>
-          <ExternalLinkIcon className="w-4 h-4 -ml-2" />
-        </a>
-        <Separator className="my-2" />
-        <a
-          target="_blank"
-          rel="noopener"
-          className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
-          href={`https://docs.google.com/spreadsheets/d/${CHECKIN_SHEET_ID}`}
-        >
-          3. <span>Sheet check-in</span>
-          <ExternalLinkIcon className="w-4 h-4 -ml-2" />
-        </a>
-        <Separator className="my-2" />
-        <a
-          target="_blank"
-          rel="noopener"
-          className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
-          href={`https://docs.google.com/spreadsheets/d/${TEACHER_VERIFICATION_SHEET_ID}`}
-        >
-          4. <span>Sheet xác nhận GVCN</span>
-          <ExternalLinkIcon className="w-4 h-4 -ml-2" />
-        </a>
-      </PopoverContent>
-    </Popover>
-  );
-};
+              <span>Sheet liên quan</span>
+              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              <DropdownMenuTrigger asChild>
+                <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />
+              </DropdownMenuTrigger>
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
 
-export default SpreadsheetQuickAccess;
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {SPREADSHEET_LINKS.map((link) => (
+                <SidebarMenuSubItem key={link.id}>
+                  <SidebarMenuSubButton asChild>
+                    <a
+                      target="_blank"
+                      rel="noopener"
+                      className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
+                      href={link.href}
+                    >
+                      {link.number}. <span>{link.label}</span>
+                      <ExternalLinkIcon className="w-4 h-4 -ml-2" />
+                    </a>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </Collapsible>
+      <DropdownMenuContent
+        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+        side={isMobile ? "bottom" : "right"}
+        sideOffset={20}
+        alignOffset={-35}
+        align="start"
+      >
+        {SPREADSHEET_LINKS.map((link) => (
+          <div
+            key={link.id}
+            className="!p-0 focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+          >
+            <a
+              target="_blank"
+              rel="noopener"
+              className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
+              href={link.href}
+            >
+              {link.number}. <span>{link.label}</span>
+              <ExternalLinkIcon className="w-4 h-4 -ml-2" />
+            </a>
+          </div>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

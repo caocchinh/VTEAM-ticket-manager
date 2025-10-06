@@ -281,3 +281,31 @@ export const VERIFICATION_PENDING_DB = DB_ORDER_STATUS.PENDING;
 export const VERIFICATION_APPROVED_DB = DB_ORDER_STATUS.SUCCESS;
 export const SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL =
   "https://silencio-vcp.vercel.app";
+
+// Spreadsheet Links
+export const SPREADSHEET_LINKS = [
+  {
+    id: "offline-sales",
+    number: "1",
+    label: "Sheet bán vé offline",
+    href: `https://docs.google.com/spreadsheets/d/${OFFLINE_SALES_SHEET_ID}`,
+  },
+  {
+    id: "online-sales",
+    number: "2",
+    label: "Sheet bán vé online",
+    href: `https://docs.google.com/spreadsheets/d/${ONLINE_SALES_SHEET_ID}`,
+  },
+  {
+    id: "checkin",
+    number: "3",
+    label: "Sheet check-in",
+    href: `https://docs.google.com/spreadsheets/d/${CHECKIN_SHEET_ID}`,
+  },
+  {
+    id: "teacher-verification",
+    number: "4",
+    label: "Sheet xác nhận GVCN",
+    href: `https://docs.google.com/spreadsheets/d/${TEACHER_VERIFICATION_SHEET_ID}`,
+  },
+];

@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import { errorToast } from "@/lib/utils";
+import { LogOut } from "lucide-react";
 
 export function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,22 +41,10 @@ export function LogoutButton() {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button
-          variant="outline"
-          className="flex items-center gap-2 text-sm cursor-pointer"
+          variant="ghost"
+          className="flex items-center justify-start gap-2 w-full text-sm cursor-pointer"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
+          <LogOut />
           Đăng xuất
         </Button>
       </AlertDialogTrigger>

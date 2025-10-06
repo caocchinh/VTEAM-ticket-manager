@@ -98,6 +98,7 @@ import TicketColorManager from "@/components/TicketColorManager";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
 import OnlineTicketManagement from "@/components/OnlineTicketManagement";
+import { OrderItemInfo } from "@/components/OrderItemInfo";
 
 const Form = ({
   session,
@@ -575,6 +576,17 @@ const Form = ({
 
   const handleSubmit = () => {
     if (validateForm()) {
+      const isDuplicate = currentOrder.some(
+        (order) => order.studentIdInput === selectedStudentIdInput
+      );
+
+      if (isDuplicate) {
+        errorToast({
+          message: `Học sinh với mã số ${selectedStudentIdInput} đã có trong order! 1 HS không được phép mua nhiều vé trong 1 lần.`,
+        });
+        return;
+      }
+
       setCurrentOrders((prev) => [
         ...prev,
         {
@@ -1760,7 +1772,11 @@ const Form = ({
               <p className="font-semibold">
                 Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
               </p>
-              <TeacherVerificationStatus currentOrder={currentOrder} />
+              <TeacherVerificationStatus
+                currentOrder={currentOrder}
+                setCurrentOrders={setCurrentOrders}
+                ticketInfo={ticketInfo}
+              />
             </div>
           </div>
           <AlertDialog
@@ -1961,42 +1977,5 @@ const OrderInfoAccordionItem = ({
         </div>
       </AccordionContent>
     </AccordionItem>
-  );
-};
-
-export const OrderItemInfo = ({
-  order,
-  price,
-}: {
-  order: StudentInput;
-  price: string;
-}) => {
-  return (
-    <>
-      <div className="flex flex-row gap-2">
-        <p className="font-semibold">Lớp:</p>
-        <p>{order.homeroomInput}</p>
-      </div>
-      <div className="flex flex-row gap-2">
-        <p className="font-semibold">Email:</p>
-        <p className="wrap-anywhere">{order.email}</p>
-      </div>
-      <div className="flex flex-row gap-2">
-        <p className="font-semibold">Hạng vé:</p>
-        <p>{order.ticketType}</p>
-      </div>
-      <div className="flex flex-row gap-2">
-        <p className="font-semibold">Giá vé:</p>
-        <p>{formatVietnameseCurrency(parseVietnameseCurrency(price))}</p>
-      </div>
-      <div className="flex flex-row gap-2">
-        <p className="font-semibold">Hình thức:</p>
-        <p>{order.paymentMedium}</p>
-      </div>
-      <div className="flex flex-row gap-2">
-        <p className="font-semibold">Lưu ý:</p>
-        <p>{order.notice || "Không có lưu ý"}</p>
-      </div>
-    </>
   );
 };

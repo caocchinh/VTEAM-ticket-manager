@@ -60,6 +60,7 @@ import {
   Check,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import TeacherVerificationStatus from "@/components/TeacherVerificationStatus";
 import {
   Tooltip,
   TooltipContent,
@@ -1755,9 +1756,12 @@ const Form = ({
                 </Accordion>
               )}
             </ScrollArea>
-            <p className="font-semibold">
-              Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
-            </p>
+            <div className="flex flex-row items-center justify-between w-full">
+              <p className="font-semibold">
+                Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
+              </p>
+              <TeacherVerificationStatus currentOrder={currentOrder} />
+            </div>
           </div>
           <AlertDialog
             open={isConfirmingOrderAlertDialogOpen}

@@ -156,3 +156,10 @@ export interface FailedEmailPayload {
   eventType: "Silencio" | "PROM";
   purchaseTime: string;
 }
+
+export interface TeacherVerificationInfo {
+  name: string;
+  studentId: string;
+  homeroom: string;
+  verificationStatus: string;
+}

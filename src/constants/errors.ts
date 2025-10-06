@@ -24,6 +24,7 @@ export const ERROR_CODES = {
   ORDER_NOT_FOUND: "order-not-found",
   R2_CREDENTIALS_MISSING: "r2-credentials-missing",
   EVENT_INFO_FETCH_FAILED: "event-info-fetch-failed",
+  TEACHER_VERIFICATION_FETCH_FAILED: "teacher-verification-fetch-failed",
 } as const;
 
 // User-friendly error messages
@@ -64,6 +65,8 @@ export const ERROR_MESSAGES = {
     "Thông tin xác thực lưu trữ file không được cấu hình đúng cách",
   [ERROR_CODES.EVENT_INFO_FETCH_FAILED]:
     "Không thể lấy thông tin sự kiện. Vui lòng thử lại sau.",
+  [ERROR_CODES.TEACHER_VERIFICATION_FETCH_FAILED]:
+    "Không thể lấy thông tin GVCN xác nhận. Vui lòng thử lại sau.",
 } as const;
 
 // HTTP status codes for API responses

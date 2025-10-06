@@ -65,6 +65,12 @@ import {
   OFFLINE_SALES_EMAIL_INFO_EMAIL_SUBJECT_INDEX,
   OFFLINE_SALES_ORDER_EMAIL_STATUS_COLUMN,
   ONLINE_SALES_ORDER_EMAIL_STATUS_COLUMN,
+  TEACHER_VERIFICATION_SHEET_ID,
+  TEACHER_VERIFICATION_SHEET_NAME,
+  TEACHER_VERIFICATION_STUDENT_NAME_INDEX,
+  TEACHER_VERIFICATION_STUDENT_ID_INDEX,
+  TEACHER_VERIFICATION_STUDENT_HOMEROOM_INDEX,
+  TEACHER_VERIFICATION_STUDENT_VERIFIFICATION_STATUS_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -77,6 +83,7 @@ import {
   TicketInfo,
   SheetOrderStatus,
   EmailInfo,
+  TeacherVerificationInfo,
 } from "@/constants/types";
 import { getCurrentTime } from "./utils";
 import { offlineTicketDb } from "@/drizzle/offline/db";
@@ -863,6 +870,60 @@ export const fetchOnlineSales = async (): Promise<{
   } catch (error) {
     console.error(
       "[SPREADSHEET] Failed to fetch online sales after all retries:",
+      error
+    );
+    return { error: true, data: undefined };
+  }
+};
+
+export const fetchTeacherVerification = async (): Promise<{
+  error: boolean;
+  data: TeacherVerificationInfo[] | undefined;
+}> => {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    console.log(
+      `[SPREADSHEET] Starting fetchTeacherVerification from sheet: ${TEACHER_VERIFICATION_SHEET_ID}`
+    );
+
+    const response = await retryExternalApi(async () => {
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: TEACHER_VERIFICATION_SHEET_ID,
+        range: `${TEACHER_VERIFICATION_SHEET_NAME}!A:Z`,
+      });
+      if (response.status !== 200) {
+        throw new Error(
+          `Google Sheets API returned status ${response.status}: ${response.statusText}`
+        );
+      }
+      return response;
+    }, "fetchTeacherVerification");
+
+    // Ignore the first row
+    const data = response.data.values?.slice(1).map((value) => ({
+      name: safeTrim(value[TEACHER_VERIFICATION_STUDENT_NAME_INDEX]),
+      studentId: safeTrim(value[TEACHER_VERIFICATION_STUDENT_ID_INDEX]),
+      homeroom: safeTrim(value[TEACHER_VERIFICATION_STUDENT_HOMEROOM_INDEX]),
+      verificationStatus: safeTrim(
+        value[TEACHER_VERIFICATION_STUDENT_VERIFIFICATION_STATUS_INDEX]
+      ),
+    }));
+
+    if (data) {
+      console.log(
+        `[SPREADSHEET] Successfully fetched ${data.length} teacher verification records`
+      );
+      return { error: false, data: data };
+    }
+
+    console.warn(
+      "[SPREADSHEET] No teacher verification data found in response"
+    );
+    return { error: true, data: undefined };
+  } catch (error) {
+    console.error(
+      "[SPREADSHEET] Failed to fetch teacher verification after all retries:",
       error
     );
     return { error: true, data: undefined };

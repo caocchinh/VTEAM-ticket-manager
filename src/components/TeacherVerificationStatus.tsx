@@ -213,7 +213,7 @@ const TeacherVerificationStatus = ({
                           }`}
                         >
                           {student.verificationStatus === "FALSE"
-                            ? "Chưa xác minh"
+                            ? "Chưa xác nhận"
                             : "Đã xác nhận"}
                         </span>
                       </div>
@@ -371,7 +371,7 @@ const TeacherVerificationStatus = ({
                               currentOrder[editingIndex].studentIdInput
                           )?.verificationStatus === "TRUE"
                             ? "✓ Đã xác nhận"
-                            : "✗ Chưa xác minh"}
+                            : "✗ Chưa xác nhận"}
                         </span>
                       </div>
                     </div>

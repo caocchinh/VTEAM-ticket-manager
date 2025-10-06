@@ -274,7 +274,7 @@ export const VERIFICATION_APPROVED = VERIFICATION_STATUS.SUCCESS;
 
 export const PENDING_EMAIL_STATUS = "Chưa gửi email";
 export const SENT_EMAIL_STATUS = "Đã gửi email";
-export const ERROR_EMAIL_STATUS = "Lỗi gửi email";
+export const FAILED_EMAIL_STATUS = "Lỗi gửi email";
 
 export const VERIFICATION_FAILED_DB = DB_ORDER_STATUS.FAILED;
 export const VERIFICATION_PENDING_DB = DB_ORDER_STATUS.PENDING;

@@ -75,6 +75,7 @@ import {
   SENT_EMAIL_STATUS,
   OFFLINE_SALES_ORDER_EMAIL_STATUS_INDEX,
   ONLINE_SALES_ORDER_EMAIL_STATUS_INDEX,
+  FAILED_EMAIL_STATUS,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -1111,7 +1112,8 @@ export const updateOfflineOrderEmailStatus = async ({
   const orderIndexInSheet = offlineSalesData?.findIndex(
     (order) =>
       order.buyerEmail === studentEmail &&
-      order.emailStatus !== SENT_EMAIL_STATUS
+      order.emailStatus !== SENT_EMAIL_STATUS &&
+      order.emailStatus !== FAILED_EMAIL_STATUS
   );
   if (!offlineSalesData) {
     return { error: true, errorMessage: "Failed to fetch online sales" };

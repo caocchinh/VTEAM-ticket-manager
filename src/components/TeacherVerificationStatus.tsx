@@ -75,7 +75,7 @@ const TeacherVerificationStatus = ({
     error,
     refetch,
     isRefetching,
-  } = useTeacherVerification({ enabled: isOpen });
+  } = useTeacherVerification({ enabled: true });
 
   // Handle dialog open
   const handleDialogOpen = (open: boolean) => {
@@ -151,7 +151,7 @@ const TeacherVerificationStatus = ({
                 size="sm"
                 onClick={() => refetch()}
                 disabled={isRefetching}
-                className="ml-2"
+                className="ml-2 cursor-pointer"
               >
                 <RefreshCw
                   className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
@@ -171,7 +171,7 @@ const TeacherVerificationStatus = ({
               Không có dữ liệu xác nhận GVCN
             </div>
           )}
-          {isFetching && (
+          {isFetching && !teacherVerificationData && (
             <div className="flex items-center justify-center py-8">
               <Loader loadingText="Đang tải dữ liệu..." />
             </div>
@@ -186,7 +186,7 @@ const TeacherVerificationStatus = ({
               </span>
             </div>
           )}
-          {teacherVerificationData && !isError && !isFetching && (
+          {teacherVerificationData && !isError && (
             <div className="flex flex-col w-full gap-4">
               {teacherVerificationData
                 .filter((student) =>

@@ -13,6 +13,7 @@ import {
   OFFLINE_SALES_SHEET_ID,
   ONLINE_SALES_SHEET_ID,
   CHECKIN_SHEET_ID,
+  TEACHER_VERIFICATION_SHEET_ID,
 } from "@/constants/constants";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
@@ -68,6 +69,16 @@ const SpreadsheetQuickAccess = () => {
           href={`https://docs.google.com/spreadsheets/d/${CHECKIN_SHEET_ID}`}
         >
           3. <span>Sheet check-in</span>
+          <ExternalLinkIcon className="w-4 h-4 -ml-2" />
+        </a>
+        <Separator className="my-2" />
+        <a
+          target="_blank"
+          rel="noopener"
+          className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
+          href={`https://docs.google.com/spreadsheets/d/${TEACHER_VERIFICATION_SHEET_ID}`}
+        >
+          4. <span>Sheet xác nhận GVCN</span>
           <ExternalLinkIcon className="w-4 h-4 -ml-2" />
         </a>
       </PopoverContent>

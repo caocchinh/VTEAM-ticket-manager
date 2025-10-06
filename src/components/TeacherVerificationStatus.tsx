@@ -186,7 +186,7 @@ const TeacherVerificationStatus = ({
               </span>
             </div>
           )}
-          {teacherVerificationData && !isFetching && (
+          {teacherVerificationData && !isError && !isFetching && (
             <div className="flex flex-col w-full gap-4">
               {teacherVerificationData
                 .filter((student) =>

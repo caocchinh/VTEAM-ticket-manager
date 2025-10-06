@@ -42,10 +42,10 @@ export function SpreadSheetQuickAccess() {
             >
               <Image
                 src="/assets/sheet_logo.webp"
-                className="w-[35px] h-[35px] object-contain"
+                className="w-[21px] h-[21px] object-contain"
                 alt="Google Sheet logo"
-                width={50}
-                height={50}
+                width={21}
+                height={21}
               />
               <span>Sheet liên quan</span>
               <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

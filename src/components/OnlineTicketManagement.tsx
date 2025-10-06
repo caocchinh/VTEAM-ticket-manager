@@ -14,7 +14,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import {
   Box,
   CheckCircle,
@@ -55,6 +54,7 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarInset,
+  SidebarMenuButton,
   SidebarProvider,
   SidebarRail,
 } from "./ui/sidebar";
@@ -653,34 +653,24 @@ const OnlineTicketManagement = ({
           });
         }}
       >
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DialogTrigger asChild>
-              <Button
-                className="cursor-pointer w-[35px] !bg-[#F48120] !text-white relative"
-                disabled={!salesInfo || isSalesInfoError}
-                variant="outline"
-              >
-                <Box />
-                {pendingOrdersCount > 0 && (
-                  <>
-                    <div className="absolute -top-[5px] -right-[4.5px] w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                    <div className="absolute -top-[5px] -right-[4.5px] w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                    <div className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                      {pendingOrdersCount > 99 ? "99+" : pendingOrdersCount}
-                    </div>
-                  </>
-                )}
-              </Button>
-            </DialogTrigger>
-          </TooltipTrigger>
-          <TooltipContent
-            className="!bg-[#F48120] !text-white "
-            arrowClassName="fill-[#F48120] bg-[#F48120]"
+        <DialogTrigger asChild>
+          <SidebarMenuButton
+            className="cursor-pointer !bg-[#F48120] !text-white relative active:bg-[#F48120] hover:bg-[#F48120] hover:text-white active:text-white !overflow-visible"
+            disabled={!salesInfo || isSalesInfoError}
+            tooltip="Kiểm soát vé online"
           >
-            Kiểm soát vé online
-          </TooltipContent>
-        </Tooltip>
+            <Box />
+            <span>Kiểm soát vé online</span>
+            {pendingOrdersCount > 0 && (
+              <>
+                <div className="absolute -top-1 z-[1000007] -right-1 min-w-[14px] h-[14px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  {pendingOrdersCount > 99 ? "99+" : pendingOrdersCount}
+                </div>
+              </>
+            )}
+          </SidebarMenuButton>
+        </DialogTrigger>
+
         <DialogContent
           className="h-[95vh] flex flex-col justify-between overflow-hidden !py-2 !max-w-[100vw] w-[90vw]"
           onKeyDown={(e) => {

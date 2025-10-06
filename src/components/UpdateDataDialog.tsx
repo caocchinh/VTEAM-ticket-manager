@@ -10,15 +10,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CloudDownload, Loader2 } from "lucide-react";
 import { deleteCache } from "@/drizzle/idb";
 import { Dispatch, SetStateAction } from "react";
+import { SidebarMenuButton } from "./ui/sidebar";
 
 interface UpdateDataDialogProps {
   isOpen: boolean;
@@ -54,19 +50,16 @@ const UpdateDataDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button
-              className="h-[50px] w-[50px] border cursor-pointer"
-              variant="ghost"
-            >
-              <CloudDownload />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Cập nhật dữ liệu</TooltipContent>
-      </Tooltip>
+      <DialogTrigger asChild>
+        <SidebarMenuButton
+          tooltip="Cập nhật dữ liệu"
+          className="cursor-pointer"
+        >
+          <CloudDownload />
+          <span>Cập nhật dữ liệu app</span>
+        </SidebarMenuButton>
+      </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Xác nhận cập nhật dữ liệu</DialogTitle>

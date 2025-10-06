@@ -10,11 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartPie, Loader2 } from "lucide-react";
 import { AllSalesInfo } from "@/constants/types";
@@ -24,6 +20,7 @@ import TicketDistributionPieChart from "./TicketDistributionPieChart";
 import PaymentDistributionPieChart from "./PaymentDistributionPieChart";
 import StaffContributionBarChart from "./StaffContributionBarChart";
 import { useState, useMemo } from "react";
+import { SidebarMenuButton } from "./ui/sidebar";
 
 interface StatisticsDialogProps {
   salesInfo: AllSalesInfo | undefined;
@@ -52,19 +49,17 @@ export default function StatisticsDialog({
 
   return (
     <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button
-              className="cursor-pointer w-[35px] -mr-2"
-              disabled={!salesInfo || isSalesInfoError}
-            >
-              <ChartPie />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Xem thống kê</TooltipContent>
-      </Tooltip>
+      <DialogTrigger asChild>
+        <SidebarMenuButton
+          tooltip="Thống kê"
+          className="bg-black active:bg-black text-white hover:bg-black hover:text-white cursor-pointer active:text-white"
+          disabled={!salesInfo || isSalesInfoError}
+        >
+          <ChartPie />
+          <span>Thống kê</span>
+        </SidebarMenuButton>
+      </DialogTrigger>
+
       <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
         <DialogTitle className="sr-only">Thống kê</DialogTitle>
         <div className="flex items-center justify-center gap-2">

@@ -985,7 +985,7 @@ const Form = ({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "299.6px",
+          "--sidebar-width": "289.6px",
         } as React.CSSProperties
       }
     >
@@ -999,15 +999,90 @@ const Form = ({
           />
           <SidebarSeparator className="mx-0" />
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="overflow-x-hidden">
+          <SidebarGroup>
+            <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SalesInfoCard
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  isSalesInfoError={isSalesInfoError}
+                  isMoneyVisible={isMoneyVisible}
+                  totalSalesAmount={totalSalesAmount}
+                  currentStaffStats={currentStaffStats}
+                  onToggleMoneyVisibility={toggleMoneyVisibility}
+                  onRefetchSales={refetchSalesInfo}
+                />
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+
           <SidebarGroup>
             <SidebarGroupLabel>Tiện ích</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SpreadSheetQuickAccess />
               </SidebarMenuItem>
-              <SidebarMenuItem></SidebarMenuItem>
+              <SidebarMenuItem>
+                <UpdateDataDialog
+                  isOpen={isRefreshDialogOpen}
+                  onOpenChange={setIsRefreshDialogOpen}
+                  isStudentListFetching={isStudentListFetching}
+                  isTicketInfoFetching={isTicketInfoFetching}
+                  isOnlineDataUpdating={isOnlineDataUpdating}
+                  onRefreshOfflineData={() => {
+                    localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
+                    localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
+                    clearForm({ clearNotice: true });
+                    setCurrentOrders([]);
+                    refetchAllDataMutation();
+                  }}
+                  onRefreshOnlineData={mutateUpdateOnlineData}
+                />
+              </SidebarMenuItem>
             </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Dữ liệu bán vé</SidebarGroupLabel>
+            <div className="flex flex-col gap-2 w-full">
+              <SidebarMenuItem>
+                <StatisticsDialog
+                  salesInfo={salesInfo}
+                  isSalesInfoError={isSalesInfoError}
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  onRefetchSales={mutateRefetchSales}
+                  isRefetchingSales={isRefetchingSales}
+                />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SalesSummaryDialog
+                  isOpen={isSummaryDialogOpen}
+                  onOpenChange={setIsSummaryDialogOpen}
+                  salesInfo={salesInfo}
+                  ticketInfo={ticketInfo}
+                  staffInfo={staffInfo}
+                  isSalesInfoError={isSalesInfoError}
+                  isRefetchingSales={isRefetchingSales}
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  onRefetchSales={mutateRefetchSales}
+                />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <OnlineTicketManagement
+                  salesInfo={salesInfo?.online}
+                  isSalesInfoError={isSalesInfoError}
+                  onlineTicketInfo={ticketInfo?.online}
+                  isOnlineCoordinator={isOnlineCoordinator}
+                  isRefetchingSales={isRefetchingSales}
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  onRefetchSales={mutateRefetchSales}
+                  isOnlineTicketManagementOpen={isOnlineTicketManagementOpen}
+                  setIsOnlineTicketManagementOpen={
+                    setIsOnlineTicketManagementOpen
+                  }
+                />
+              </SidebarMenuItem>
+            </div>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
@@ -1022,62 +1097,7 @@ const Form = ({
         <SidebarRail />
       </Sidebar>
 
-      <div className="flex flex-row m-auto w-full flex-wrap items-center justify-center gap-4">
-        <UpdateDataDialog
-          isOpen={isRefreshDialogOpen}
-          onOpenChange={setIsRefreshDialogOpen}
-          isStudentListFetching={isStudentListFetching}
-          isTicketInfoFetching={isTicketInfoFetching}
-          isOnlineDataUpdating={isOnlineDataUpdating}
-          onRefreshOfflineData={() => {
-            localStorage.removeItem("currentOrderList"); // Clear saved order list on data refresh
-            localStorage.removeItem("currentFormData"); // Clear saved form data on data refresh
-            clearForm({ clearNotice: true });
-            setCurrentOrders([]);
-            refetchAllDataMutation();
-          }}
-          onRefreshOnlineData={mutateUpdateOnlineData}
-        />
-        <SalesInfoCard
-          isSalesInfoFetching={isSalesInfoFetching}
-          isSalesInfoError={isSalesInfoError}
-          isMoneyVisible={isMoneyVisible}
-          totalSalesAmount={totalSalesAmount}
-          currentStaffStats={currentStaffStats}
-          onToggleMoneyVisibility={toggleMoneyVisibility}
-          onRefetchSales={refetchSalesInfo}
-        />
-        <StatisticsDialog
-          salesInfo={salesInfo}
-          isSalesInfoError={isSalesInfoError}
-          isSalesInfoFetching={isSalesInfoFetching}
-          onRefetchSales={mutateRefetchSales}
-          isRefetchingSales={isRefetchingSales}
-        />
-        <SalesSummaryDialog
-          isOpen={isSummaryDialogOpen}
-          onOpenChange={setIsSummaryDialogOpen}
-          salesInfo={salesInfo}
-          ticketInfo={ticketInfo}
-          staffInfo={staffInfo}
-          isSalesInfoError={isSalesInfoError}
-          isRefetchingSales={isRefetchingSales}
-          isSalesInfoFetching={isSalesInfoFetching}
-          onRefetchSales={mutateRefetchSales}
-        />
-        <OnlineTicketManagement
-          salesInfo={salesInfo?.online}
-          isSalesInfoError={isSalesInfoError}
-          onlineTicketInfo={ticketInfo?.online}
-          isOnlineCoordinator={isOnlineCoordinator}
-          isRefetchingSales={isRefetchingSales}
-          isSalesInfoFetching={isSalesInfoFetching}
-          onRefetchSales={mutateRefetchSales}
-          isOnlineTicketManagementOpen={isOnlineTicketManagementOpen}
-          setIsOnlineTicketManagementOpen={setIsOnlineTicketManagementOpen}
-        />
-      </div>
-      <SidebarInset className="flex flex-row items-start justify-center gap-5 mt-5 flex-wrap w-full">
+      <SidebarInset className="flex flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
         <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">
           <h2 className="font-semibold">Điền thông tin người mua</h2>
           <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-full relative">

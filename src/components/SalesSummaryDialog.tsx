@@ -9,11 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +17,7 @@ import { VERIFICATION_APPROVED } from "@/constants/constants";
 import { AllSalesInfo, AllTicketInfo, Staff } from "@/constants/types";
 import SalesSummary from "@/components/SalesSummary";
 import { Dispatch, SetStateAction } from "react";
+import { SidebarMenuButton } from "./ui/sidebar";
 
 interface SalesSummaryDialogProps {
   isOpen: boolean;
@@ -48,25 +44,17 @@ const SalesSummaryDialog = ({
 }: SalesSummaryDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button
-              className="cursor-pointer w-[35px] -mr-2 !bg-[#0084ff] !text-white"
-              disabled={!salesInfo || isSalesInfoError}
-              variant="outline"
-            >
-              <ChartSpline />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent
-          className="!bg-[#0084ff] !text-white "
-          arrowClassName="fill-[#0084ff] bg-[#0084ff]"
+      <DialogTrigger asChild>
+        <SidebarMenuButton
+          tooltip="Báo cáo doanh thu"
+          className="bg-[#0084ff] text-white active:bg-[#0084ff] hover:bg-[#0084ff] hover:text-white cursor-pointer active:text-white"
+          disabled={!salesInfo || isSalesInfoError}
         >
-          Báo cáo doanh thu
-        </TooltipContent>
-      </Tooltip>
+          <ChartSpline />
+          <span> Báo cáo doanh thu</span>
+        </SidebarMenuButton>
+      </DialogTrigger>
+
       <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
         <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>
         <DialogDescription className="sr-only">

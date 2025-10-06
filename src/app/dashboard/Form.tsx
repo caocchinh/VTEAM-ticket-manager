@@ -142,7 +142,7 @@ const Form = ({
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const [noticeInput, setNoticeInput] = useState("");
   const [ticketType, setTicketType] = useState("");
-  const [shouldSendEmail, setShouldSendEmail] = useState(false);
+  const [shouldSendEmail, setShouldSendEmail] = useState(true);
   const [lastValidTicketType, setLastValidTicketType] = useState("");
   const [paymentMedium, setPaymentMedium] = useState<
     "Tiền mặt" | "Chuyển khoản"

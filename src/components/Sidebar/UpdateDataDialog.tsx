@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CloudDownload, Loader2 } from "lucide-react";
 import { deleteCache } from "@/drizzle/idb";
 import { Dispatch, SetStateAction } from "react";
-import { SidebarMenuButton } from "./ui/sidebar";
+import { SidebarMenuButton } from "../ui/sidebar";
 
 interface UpdateDataDialogProps {
   isOpen: boolean;

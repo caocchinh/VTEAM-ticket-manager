@@ -34,7 +34,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Calendar, TrendingUp, Users, DollarSign, Clock } from "lucide-react";
-import SalesTrendChart from "@/components/SalesTrendChart";
+import SalesTrendChart from "@/components/Sidebar/Charts/SalesTrendChart";
 import {
   format,
   isWithinInterval,

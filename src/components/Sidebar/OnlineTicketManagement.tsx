@@ -1,11 +1,11 @@
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import {
   Fragment,
   useCallback,
@@ -39,7 +39,7 @@ import {
   VERIFICATION_STATUS,
   SheetOrderStatus,
 } from "@/constants/types";
-import { Separator } from "./ui/separator";
+import { Separator } from "../ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
@@ -57,10 +57,10 @@ import {
   SidebarMenuButton,
   SidebarProvider,
   SidebarRail,
-} from "./ui/sidebar";
-import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-import { Input } from "./ui/input";
-import { JumpToTabButton } from "./JumpToTabButton";
+} from "../ui/sidebar";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { Input } from "../ui/input";
+import { JumpToTabButton } from "../JumpToTabButton";
 import {
   VERIFICATION_APPROVED,
   VERIFICATION_PENDING,
@@ -74,11 +74,11 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
   AlertDialogCancel,
-} from "./ui/alert-dialog";
-import Loader from "./Loader/Loader";
+} from "../ui/alert-dialog";
+import Loader from "../Loader/Loader";
 import { useMutation } from "@tanstack/react-query";
 import { updateOnlineOrderStatusAction } from "@/server/actions";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../ui/textarea";
 import Image from "next/image";
 
 const OrderSelect = ({
@@ -663,7 +663,7 @@ const OnlineTicketManagement = ({
             <span>Kiểm soát vé online</span>
             {pendingOrdersCount > 0 && (
               <>
-                <div className="absolute -top-1 z-[1000007] -right-1 min-w-[14px] h-[14px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                <div className="absolute -top-1 z-[1000007] -right-[7px] w-max h-max py-[1px] px-[3px] min-w-[17px] min-h-[14px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
                   {pendingOrdersCount > 99 ? "99+" : pendingOrdersCount}
                 </div>
               </>
@@ -1338,6 +1338,13 @@ const OnlineTicketManagement = ({
                               <p className="font-bold text-gray-900">Lớp:</p>
                               <p className="break-words max-w-full">
                                 {currentOrderData?.buyerClass}
+                              </p>
+                            </div>
+                            <Separator />
+                            <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
+                              <p className="font-bold text-gray-900">Email:</p>
+                              <p className="break-words max-w-full">
+                                {currentOrderData?.buyerEmail}
                               </p>
                             </div>
                           </div>

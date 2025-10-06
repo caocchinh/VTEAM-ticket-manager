@@ -15,12 +15,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartPie, Loader2 } from "lucide-react";
 import { AllSalesInfo } from "@/constants/types";
 import { VERIFICATION_APPROVED } from "@/constants/constants";
-import ClassDistributionBarChart from "./ClassDistributionBarChart";
-import TicketDistributionPieChart from "./TicketDistributionPieChart";
-import PaymentDistributionPieChart from "./PaymentDistributionPieChart";
-import StaffContributionBarChart from "./StaffContributionBarChart";
+import ClassDistributionBarChart from "./Charts/ClassDistributionBarChart";
+import TicketDistributionPieChart from "./Charts/TicketDistributionPieChart";
+import PaymentDistributionPieChart from "./Charts/PaymentDistributionPieChart";
+import StaffContributionBarChart from "./Charts/StaffContributionBarChart";
 import { useState, useMemo } from "react";
-import { SidebarMenuButton } from "./ui/sidebar";
+import { SidebarMenuButton } from "../ui/sidebar";
 
 interface StatisticsDialogProps {
   salesInfo: AllSalesInfo | undefined;

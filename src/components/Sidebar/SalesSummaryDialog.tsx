@@ -15,9 +15,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartSpline, Loader2 } from "lucide-react";
 import { VERIFICATION_APPROVED } from "@/constants/constants";
 import { AllSalesInfo, AllTicketInfo, Staff } from "@/constants/types";
-import SalesSummary from "@/components/SalesSummary";
+import SalesSummary from "@/components/Sidebar/SalesSummary";
 import { Dispatch, SetStateAction } from "react";
-import { SidebarMenuButton } from "./ui/sidebar";
+import { SidebarMenuButton } from "../ui/sidebar";
 
 interface SalesSummaryDialogProps {
   isOpen: boolean;

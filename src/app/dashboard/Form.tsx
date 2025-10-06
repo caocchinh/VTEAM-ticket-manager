@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import StatisticsDialog from "@/components/StatisticsDialog";
+import StatisticsDialog from "@/components/Sidebar/StatisticsDialog";
 import {
   Dialog,
   DialogClose,
@@ -85,12 +85,12 @@ import {
   updateOfflineDataAction,
   updateOnlineDataAction,
 } from "@/server/actions";
-import SalesSummaryDialog from "@/components/SalesSummaryDialog";
-import UpdateDataDialog from "@/components/UpdateDataDialog";
-import SalesInfoCard from "@/components/SalesInfoCard";
+import SalesSummaryDialog from "@/components/Sidebar/SalesSummaryDialog";
+import UpdateDataDialog from "@/components/Sidebar/UpdateDataDialog";
+import SalesInfoCard from "@/components/Sidebar/SalesInfoCard";
 import TicketColorManager from "@/components/TicketColorManager";
 import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
-import OnlineTicketManagement from "@/components/OnlineTicketManagement";
+import OnlineTicketManagement from "@/components/Sidebar/OnlineTicketManagement";
 import { OrderItemInfo } from "@/components/OrderItemInfo";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -109,7 +109,7 @@ import {
 } from "@/components/ui/sidebar";
 import SidebarUser from "@/components/Sidebar/SidebarUser";
 import SidebarEventInfo from "@/components/Sidebar/EventInfo";
-import { SpreadSheetQuickAccess } from "@/components/SpreadSheetQuickAccess";
+import { SpreadSheetQuickAccess } from "@/components/Sidebar/SpreadSheetQuickAccess";
 
 const Form = ({
   session,
@@ -1003,6 +1003,28 @@ const Form = ({
           <SidebarGroup>
             <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SalesInfoCard
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  isSalesInfoError={isSalesInfoError}
+                  isMoneyVisible={isMoneyVisible}
+                  totalSalesAmount={totalSalesAmount}
+                  currentStaffStats={currentStaffStats}
+                  onToggleMoneyVisibility={toggleMoneyVisibility}
+                  onRefetchSales={refetchSalesInfo}
+                />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SalesInfoCard
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  isSalesInfoError={isSalesInfoError}
+                  isMoneyVisible={isMoneyVisible}
+                  totalSalesAmount={totalSalesAmount}
+                  currentStaffStats={currentStaffStats}
+                  onToggleMoneyVisibility={toggleMoneyVisibility}
+                  onRefetchSales={refetchSalesInfo}
+                />
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SalesInfoCard
                   isSalesInfoFetching={isSalesInfoFetching}

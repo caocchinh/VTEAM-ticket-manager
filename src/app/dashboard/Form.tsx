@@ -99,6 +99,7 @@ import { TextShimmer } from "@/components/ui/text-shimmer";
 import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
 import OnlineTicketManagement from "@/components/OnlineTicketManagement";
 import { OrderItemInfo } from "@/components/OrderItemInfo";
+import { Switch } from "@/components/ui/switch";
 
 const Form = ({
   session,
@@ -141,6 +142,7 @@ const Form = ({
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const [noticeInput, setNoticeInput] = useState("");
   const [ticketType, setTicketType] = useState("");
+  const [shouldSendEmail, setShouldSendEmail] = useState(false);
   const [lastValidTicketType, setLastValidTicketType] = useState("");
   const [paymentMedium, setPaymentMedium] = useState<
     "Tiền mặt" | "Chuyển khoản"
@@ -229,6 +231,7 @@ const Form = ({
         setTicketType(parsedFormData.ticketType || "");
         setLastValidTicketType(parsedFormData.lastValidTicketType || "");
         setPaymentMedium(parsedFormData.paymentMedium || "Tiền mặt");
+        setShouldSendEmail(parsedFormData.shouldSendEmail || false);
       } catch (error) {
         console.error("Failed to parse saved form data:", error);
       }
@@ -427,6 +430,7 @@ const Form = ({
         ticketType,
         lastValidTicketType,
         paymentMedium,
+        shouldSendEmail,
       };
       localStorage.setItem("currentFormData", JSON.stringify(formData));
     }
@@ -440,6 +444,7 @@ const Form = ({
     ticketType,
     lastValidTicketType,
     paymentMedium,
+    shouldSendEmail,
   ]);
 
   // Update autocomplete when studentList becomes available or when student ID changes
@@ -758,7 +763,10 @@ const Form = ({
   const { mutate: mutateOrder, isPending: isOrderMutating } = useMutation({
     mutationKey: ["submit_order"],
     mutationFn: async () => {
-      const result = await sendOrderAction({ orders: currentOrder });
+      const result = await sendOrderAction({
+        orders: currentOrder,
+        shouldSendEmail,
+      });
       if (!result.success) {
         throw new Error(result.message);
       }
@@ -1801,6 +1809,17 @@ const Form = ({
                   tin sẽ được lưu về spreadsheet và khách hàng sẽ nhận được
                   email xác nhận.
                 </AlertDialogDescription>
+                <div className="flex flex-row items-center gap-2">
+                  <Label htmlFor="send-email">Gửi email xác nhận</Label>
+                  <Switch
+                    className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] cursor-pointer"
+                    id="send-email"
+                    checked={shouldSendEmail}
+                    onCheckedChange={(checked) =>
+                      setShouldSendEmail(checked === true)
+                    }
+                  />
+                </div>
               </AlertDialogHeader>
               <ScrollArea className="h-[45vh] pr-4" type="always">
                 <Accordion type="multiple">

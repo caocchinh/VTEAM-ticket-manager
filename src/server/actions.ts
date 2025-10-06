@@ -110,8 +110,10 @@ const getEmailAndEventInfo = async (): Promise<{
 
 export const sendOrderAction = async ({
   orders,
+  shouldSendEmail,
 }: {
   orders: StudentInput[];
+  shouldSendEmail: boolean;
 }): Promise<ActionResponse> => {
   const operationId = randomUUID();
   const startTime = Date.now();
@@ -181,33 +183,34 @@ export const sendOrderAction = async ({
     });
 
     if (result.success) {
-      const { error: emailAndEventInfoError, data: emailAndEventInfoData } =
-        await getEmailAndEventInfo();
+      if (shouldSendEmail) {
+        const { error: emailAndEventInfoError, data: emailAndEventInfoData } =
+          await getEmailAndEventInfo();
 
-      if (
-        !(
-          emailAndEventInfoError ||
-          !emailAndEventInfoData.emailInfo ||
-          !emailAndEventInfoData.eventInfo
-        )
-      ) {
-        await Promise.allSettled(
-          orders.map(async (order) => {
-            await sendSuccessEmail({
-              email: order.email,
-              studentName: order.nameInput,
-              studentId: order.studentIdInput,
-              homeroom: order.homeroomInput,
-              ticketType: order.ticketType,
-              emailInfo: emailAndEventInfoData.emailInfo!,
-              eventInfo: emailAndEventInfoData.eventInfo!,
-              purchaseTime: getCurrentTime({ includeTime: true }),
-              typeOfSale: "offline",
-            });
-          })
-        );
+        if (
+          !(
+            emailAndEventInfoError ||
+            !emailAndEventInfoData.emailInfo ||
+            !emailAndEventInfoData.eventInfo
+          )
+        ) {
+          await Promise.allSettled(
+            orders.map(async (order) => {
+              await sendSuccessEmail({
+                email: order.email,
+                studentName: order.nameInput,
+                studentId: order.studentIdInput,
+                homeroom: order.homeroomInput,
+                ticketType: order.ticketType,
+                emailInfo: emailAndEventInfoData.emailInfo!,
+                eventInfo: emailAndEventInfoData.eventInfo!,
+                purchaseTime: getCurrentTime({ includeTime: true }),
+                typeOfSale: "offline",
+              });
+            })
+          );
+        }
       }
-
       const duration = Date.now() - startTime;
       console.log(
         `[${operationId}] Orders submitted successfully in ${duration}ms`

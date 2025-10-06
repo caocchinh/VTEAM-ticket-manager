@@ -71,6 +71,10 @@ import {
   TEACHER_VERIFICATION_STUDENT_ID_INDEX,
   TEACHER_VERIFICATION_STUDENT_HOMEROOM_INDEX,
   TEACHER_VERIFICATION_STUDENT_VERIFIFICATION_STATUS_INDEX,
+  PENDING_EMAIL_STATUS,
+  SENT_EMAIL_STATUS,
+  OFFLINE_SALES_ORDER_EMAIL_STATUS_INDEX,
+  ONLINE_SALES_ORDER_EMAIL_STATUS_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -644,7 +648,7 @@ export const sendOfflineOrder = async ({
                 order.studentIdInput, // G: Buyer ID
                 order.ticketType, // H: Ticket type
                 order.notice, // I: Notice
-                "Chưa gửi email", // J: Email status
+                PENDING_EMAIL_STATUS, // J: Email status
               ]),
             },
           });
@@ -795,6 +799,7 @@ export const fetchOfflineSales = async (): Promise<{
       buyerId: safeTrim(value[OFFLINE_SALES_ORDER_BUYER_ID_INDEX]),
       buyerTicketType: safeTrim(value[OFFLINE_SALES_ORDER_TICKET_TYPE_INDEX]),
       buyerNotice: safeTrim(value[OFFLINE_SALES_ORDER_NOTICE_INDEX]),
+      emailStatus: safeTrim(value[OFFLINE_SALES_ORDER_EMAIL_STATUS_INDEX]),
     }));
 
     if (data) {
@@ -856,6 +861,7 @@ export const fetchOnlineSales = async (): Promise<{
       verificationStatus: safeTrim(
         value[ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX]
       ) as SheetOrderStatus,
+      emailStatus: safeTrim(value[ONLINE_SALES_ORDER_EMAIL_STATUS_INDEX]),
     }));
 
     if (data) {
@@ -1103,7 +1109,9 @@ export const updateOfflineOrderEmailStatus = async ({
   }
   const offlineSalesData = offlineSales.data;
   const orderIndexInSheet = offlineSalesData?.findIndex(
-    (order) => order.buyerEmail === studentEmail
+    (order) =>
+      order.buyerEmail === studentEmail &&
+      order.emailStatus !== SENT_EMAIL_STATUS
   );
   if (!offlineSalesData) {
     return { error: true, errorMessage: "Failed to fetch online sales" };
@@ -1179,7 +1187,9 @@ export const updateOnlineOrderEmailStatus = async ({
   }
   const onlineSalesData = onlineSales.data;
   const orderIndexInSheet = onlineSalesData?.findIndex(
-    (order) => order.buyerEmail === studentEmail
+    (order) =>
+      order.buyerEmail === studentEmail &&
+      order.emailStatus !== SENT_EMAIL_STATUS
   );
   if (!onlineSalesData) {
     return { error: true, errorMessage: "Failed to fetch online sales" };

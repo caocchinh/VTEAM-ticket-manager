@@ -8,6 +8,7 @@ import nodemailer from "nodemailer";
 import { retryEmail } from "@/dal/retry";
 import { EmailInfo, EventInfo } from "@/constants/types";
 import FAILED_EMAIL_TEMPLATE from "@/constants/failed-email-template";
+import { ERROR_EMAIL_STATUS, SENT_EMAIL_STATUS } from "@/constants/constants";
 
 export async function sendSuccessEmail({
   email,
@@ -85,12 +86,12 @@ export async function sendSuccessEmail({
       if (typeOfSale === "offline") {
         await updateOfflineOrderEmailStatus({
           studentEmail: email,
-          emailStatus: "Đã gửi email",
+          emailStatus: SENT_EMAIL_STATUS,
         });
       } else if (typeOfSale === "online") {
         await updateOnlineOrderEmailStatus({
           studentEmail: email,
-          emailStatus: "Đã gửi email",
+          emailStatus: SENT_EMAIL_STATUS,
         });
       }
     } catch (error) {
@@ -98,12 +99,12 @@ export async function sendSuccessEmail({
       if (typeOfSale === "offline") {
         await updateOfflineOrderEmailStatus({
           studentEmail: email,
-          emailStatus: "Lỗi gửi email",
+          emailStatus: ERROR_EMAIL_STATUS,
         });
       } else if (typeOfSale === "online") {
         await updateOnlineOrderEmailStatus({
           studentEmail: email,
-          emailStatus: "Lỗi gửi email",
+          emailStatus: ERROR_EMAIL_STATUS,
         });
       }
     }
@@ -191,13 +192,13 @@ export async function sendFailedEmail({
       }, `sending failed email to ${email}`);
       await updateOnlineOrderEmailStatus({
         studentEmail: email,
-        emailStatus: "Đã gửi email",
+        emailStatus: SENT_EMAIL_STATUS,
       });
     } catch (error) {
       console.error(`Failed to send email to ${email}:`, error);
       await updateOnlineOrderEmailStatus({
         studentEmail: email,
-        emailStatus: "Lỗi gửi email",
+        emailStatus: ERROR_EMAIL_STATUS,
       });
     }
   } catch (error) {

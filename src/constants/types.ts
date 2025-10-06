@@ -58,6 +58,7 @@ export interface OfflineSalesInfo {
   buyerId: string;
   buyerTicketType: string;
   buyerNotice: string;
+  emailStatus: string;
 }
 
 export interface OnlineSalesInfo {
@@ -70,6 +71,7 @@ export interface OnlineSalesInfo {
   proofOfPaymentImage: string;
   rejectionReason: string;
   verificationStatus: string;
+  emailStatus: string;
 }
 
 export interface AllSalesInfo {
@@ -136,7 +138,6 @@ export interface SuccessEmailPayload {
   bannerImage: string;
   eventName: string;
   ticketType: string;
-
   eventType: "Silencio" | "PROM";
   purchaseTime: string;
 }

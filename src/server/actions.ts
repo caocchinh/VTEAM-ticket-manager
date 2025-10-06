@@ -152,6 +152,17 @@ export const sendOrderAction = async ({
       }
     }
 
+    // Check for duplicate studentId in orders
+    const studentIds = orders.map((order) => order.studentIdInput);
+    const uniqueStudentIds = new Set(studentIds);
+    if (studentIds.length !== uniqueStudentIds.size) {
+      console.log(`[${operationId}] Duplicate studentId detected in orders`);
+      return createActionError(
+        "DUPLICATE_ORDER",
+        "Có học sinh trùng lặp trong danh sách đơn hàng. Vui lòng kiểm tra lại mã số học sinh."
+      );
+    }
+
     console.log(`[${operationId}] Input validation passed`);
 
     // Check staff authorization

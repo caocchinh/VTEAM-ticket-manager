@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Loader2, UserStar } from "lucide-react";
 import { formatVietnameseCurrency } from "@/lib/utils";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -18,23 +18,22 @@ import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { Separator } from "../ui/separator";
 
-interface SalesInfoCardProps {
-  totalOfflineOrders: number;
+interface StaffInfoProps {
   isSalesInfoFetching: boolean;
-  totalOnlineOrders: number;
+  staffInfo: {
+    revenue: number;
+    orderCount: number;
+  };
   totalRevenue: number;
-  offlineRevenue: number;
-  onlineRevenue: number;
+  totalRevenueOffline: number;
 }
 
-const SalesInfoCard = ({
-  totalOfflineOrders,
+const StaffInfo = ({
   isSalesInfoFetching,
-  totalOnlineOrders,
+  staffInfo,
   totalRevenue,
-  offlineRevenue,
-  onlineRevenue,
-}: SalesInfoCardProps) => {
+  totalRevenueOffline,
+}: StaffInfoProps) => {
   const { open: isSidebarOpen, isMobile } = useSidebar();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -44,21 +43,21 @@ const SalesInfoCard = ({
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton
-              tooltip="Tổng doanh thu"
+              tooltip="Doanh thu của bạn"
               onClick={() => {
                 if (!isSidebarOpen) {
                   setIsDropdownOpen(true);
                 }
               }}
             >
-              <ShoppingCart size={20} className="text-green-600" />
+              <UserStar size={20} className="text-yellow-500" />
               <div className="whitespace-nowrap flex items-center gap-2">
-                Tổng danh thu:{" "}
+                Doanh thu của bạn:
                 {isSalesInfoFetching ? (
                   <Loader2 className="animate-spin" size={16} />
                 ) : (
                   <span className="font-medium text-green-600">
-                    {formatVietnameseCurrency(totalRevenue)}
+                    {formatVietnameseCurrency(staffInfo.revenue)}
                   </span>
                 )}
               </div>
@@ -73,17 +72,21 @@ const SalesInfoCard = ({
             <SidebarMenuSub>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
                 Tổng đơn hàng:{" "}
+                <span className="font-medium">{staffInfo.orderCount}</span>
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+                % tổng doanh thu:
                 <span className="font-medium">
-                  {totalOfflineOrders + totalOnlineOrders}
+                  {" "}
+                  {Math.round((staffInfo.revenue / totalRevenue) * 100)}%
                 </span>
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-                Đơn hàng offline:{" "}
-                <span className="font-medium">{totalOfflineOrders}</span>
-              </SidebarMenuSubItem>
-              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-                Đơn hàng online:{" "}
-                <span className="font-medium">{totalOnlineOrders}</span>
+                % tổng doanh thu offline:
+                <span className="font-medium">
+                  {" "}
+                  {Math.round((staffInfo.revenue / totalRevenueOffline) * 100)}%
+                </span>
               </SidebarMenuSubItem>
             </SidebarMenuSub>
           </CollapsibleContent>
@@ -97,42 +100,30 @@ const SalesInfoCard = ({
         align="start"
       >
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-          Tổng danh thu:{" "}
+          Doanh thu của bạn:{" "}
           <span className="font-medium text-green-600">
-            {formatVietnameseCurrency(totalRevenue)}
+            {formatVietnameseCurrency(staffInfo.revenue)}
           </span>
         </p>
         <Separator orientation="horizontal" />
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-          Doanh thu offline:{" "}
-          <span className="font-medium text-blue-600">
-            {formatVietnameseCurrency(offlineRevenue)}
-          </span>
+          Đơn hàng: <span className="font-medium">{staffInfo.orderCount}</span>
         </p>
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-          Doanh thu online:{" "}
-          <span className="font-medium text-orange-600">
-            {formatVietnameseCurrency(onlineRevenue)}
-          </span>
-        </p>
-        <Separator orientation="horizontal" />
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-          Tổng đơn hàng:{" "}
+          % tổng doanh thu:{" "}
           <span className="font-medium">
-            {totalOfflineOrders + totalOnlineOrders}
+            {Math.round((staffInfo.revenue / totalRevenue) * 100)}%
           </span>
         </p>
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-          Đơn hàng offline:{" "}
-          <span className="font-medium">{totalOfflineOrders}</span>
-        </p>
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-          Đơn hàng online:{" "}
-          <span className="font-medium">{totalOnlineOrders}</span>
+          % tổng doanh thu offline:{" "}
+          <span className="font-medium">
+            {Math.round((staffInfo.revenue / totalRevenueOffline) * 100)}%
+          </span>
         </p>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
-export default SalesInfoCard;
+export default StaffInfo;

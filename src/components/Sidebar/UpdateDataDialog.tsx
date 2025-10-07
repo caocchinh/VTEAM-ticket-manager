@@ -52,7 +52,7 @@ const UpdateDataDialog = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <SidebarMenuButton
-          tooltip="Cập nhật dữ liệu"
+          tooltip="Cập nhật dữ liệu app"
           className="cursor-pointer"
         >
           <CloudDownload />
@@ -66,7 +66,8 @@ const UpdateDataDialog = ({
           <DialogDescription className="text-orange-500">
             Mỗi khi thông tin trong sheet được cập nhật (ví dụ như giá vé, thông
             tin sự kiện, thông tin email, ...), bạn cần cập nhật dữ liệu trong
-            app để đảm bảo dữ liệu trong app là mới nhất.
+            app để đảm bảo dữ liệu trong app là mới nhất (Dữ liệu ở đây không
+            phải là thông tin sales).
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="offline">

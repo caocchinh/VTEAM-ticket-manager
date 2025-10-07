@@ -111,6 +111,7 @@ import SidebarUser from "@/components/Sidebar/SidebarUser";
 import SidebarEventInfo from "@/components/Sidebar/EventInfo";
 import { SpreadSheetQuickAccess } from "@/components/Sidebar/SpreadSheetQuickAccess";
 import RefreshSales from "@/components/Sidebar/RefreshSales";
+import StaffInfo from "@/components/Sidebar/StaffInfo";
 
 const Form = ({
   session,
@@ -164,7 +165,6 @@ const Form = ({
   ] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
-  const [isMoneyVisible, setIsMoneyVisible] = useState(true);
   const [ticketColors, setTicketColors] = useState<Record<string, string>>({});
 
   // State for validation errors
@@ -202,11 +202,6 @@ const Form = ({
 
   useEffect(() => {
     setMounted(true);
-    // Load money visibility preference from localStorage
-    const savedVisibility = localStorage.getItem("moneyVisibility");
-    if (savedVisibility !== null) {
-      setIsMoneyVisible(JSON.parse(savedVisibility));
-    }
 
     // Load ticket colors from localStorage
     const savedColors = localStorage.getItem("ticketColors");
@@ -404,12 +399,6 @@ const Form = ({
       setErrors((prev) => ({ ...prev, homeroom: false }));
     }
   }, [homeroomInput, ticketInfo?.offline]);
-
-  const toggleMoneyVisibility = () => {
-    const newVisibility = !isMoneyVisible;
-    setIsMoneyVisible(newVisibility);
-    localStorage.setItem("moneyVisibility", JSON.stringify(newVisibility));
-  };
 
   const handleTicketColorChange = (ticketType: string, color: string) => {
     const newColors = { ...ticketColors, [ticketType]: color };
@@ -852,6 +841,7 @@ const Form = ({
 
   const {
     data: salesInfo,
+    isPending: isSalesInfoPending,
     isFetching: isSalesInfoFetching,
     isError: isSalesInfoError,
     refetch: refetchSalesInfo,
@@ -869,13 +859,12 @@ const Form = ({
     enabled: mounted,
   });
 
-  const totalSalesAmount = useMemo(() => {
+  const offlineRevenue = useMemo(() => {
     if (
       salesInfo &&
-      salesInfo.offline.length + salesInfo.online.length > 0 &&
+      salesInfo.offline.length > 0 &&
       ticketInfo &&
-      ticketInfo.offline.length > 0 &&
-      ticketInfo.online.length > 0
+      ticketInfo.offline.length > 0
     ) {
       let total = 0;
       salesInfo.offline.forEach((sale) => {
@@ -886,6 +875,19 @@ const Form = ({
         const numericPrice = parseVietnameseCurrency(ticketPrice);
         total += numericPrice;
       });
+      return total;
+    }
+    return 0;
+  }, [salesInfo, ticketInfo]);
+
+  const onlineRevenue = useMemo(() => {
+    if (
+      salesInfo &&
+      salesInfo.online.length > 0 &&
+      ticketInfo &&
+      ticketInfo.online.length > 0
+    ) {
+      let total = 0;
       salesInfo.online.forEach((sale) => {
         const ticketPrice =
           ticketInfo.online.find(
@@ -900,6 +902,10 @@ const Form = ({
     }
     return 0;
   }, [salesInfo, ticketInfo]);
+
+  const totalRevenue = useMemo(() => {
+    return offlineRevenue + onlineRevenue;
+  }, [offlineRevenue, onlineRevenue]);
 
   const currentStaffStats = useMemo(() => {
     if (
@@ -987,7 +993,7 @@ const Form = ({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "289.6px",
+          "--sidebar-width": "300px",
         } as React.CSSProperties
       }
     >
@@ -1005,46 +1011,24 @@ const Form = ({
           <SidebarGroup>
             <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <RefreshSales
-                  isSalesInfoFetching={isSalesInfoFetching || isRefetchingSales}
-                  isSalesInfoError={isSalesInfoError}
-                  onRefetchSales={mutateRefetchSales}
-                />
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SalesInfoCard
-                  isSalesInfoFetching={isSalesInfoFetching}
-                  isSalesInfoError={isSalesInfoError}
-                  isMoneyVisible={isMoneyVisible}
-                  totalSalesAmount={totalSalesAmount}
-                  currentStaffStats={currentStaffStats}
-                  onToggleMoneyVisibility={toggleMoneyVisibility}
-                  onRefetchSales={refetchSalesInfo}
-                />
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SalesInfoCard
-                  isSalesInfoFetching={isSalesInfoFetching}
-                  isSalesInfoError={isSalesInfoError}
-                  isMoneyVisible={isMoneyVisible}
-                  totalSalesAmount={totalSalesAmount}
-                  currentStaffStats={currentStaffStats}
-                  onToggleMoneyVisibility={toggleMoneyVisibility}
-                  onRefetchSales={refetchSalesInfo}
-                />
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SalesInfoCard
-                  isSalesInfoFetching={isSalesInfoFetching}
-                  isSalesInfoError={isSalesInfoError}
-                  isMoneyVisible={isMoneyVisible}
-                  totalSalesAmount={totalSalesAmount}
-                  currentStaffStats={currentStaffStats}
-                  onToggleMoneyVisibility={toggleMoneyVisibility}
-                  onRefetchSales={refetchSalesInfo}
-                />
-              </SidebarMenuItem>
+              <SalesInfoCard
+                isSalesInfoFetching={isSalesInfoPending}
+                totalRevenue={totalRevenue}
+                offlineRevenue={offlineRevenue}
+                onlineRevenue={onlineRevenue}
+                totalOfflineOrders={salesInfo?.offline?.length ?? 0}
+                totalOnlineOrders={
+                  salesInfo?.online?.filter(
+                    (sale) => sale.verificationStatus === VERIFICATION_APPROVED
+                  ).length ?? 0
+                }
+              />
+              <StaffInfo
+                isSalesInfoFetching={isSalesInfoPending}
+                staffInfo={currentStaffStats}
+                totalRevenue={totalRevenue}
+                totalRevenueOffline={offlineRevenue}
+              />
             </SidebarMenu>
           </SidebarGroup>
 
@@ -1053,6 +1037,13 @@ const Form = ({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SpreadSheetQuickAccess />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <RefreshSales
+                  isSalesInfoFetching={isSalesInfoFetching || isRefetchingSales}
+                  isSalesInfoError={isSalesInfoError}
+                  onRefetchSales={mutateRefetchSales}
+                />
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <UpdateDataDialog

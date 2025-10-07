@@ -16,7 +16,7 @@ const RefreshSales = ({
 }: RefreshSalesProps) => {
   return (
     <SidebarMenuButton
-      tooltip={isSalesInfoError ? "Lỗi! Tải lại" : "Cập nhật dữ liệu sales."}
+      tooltip={isSalesInfoError ? "Lỗi! Tải lại" : "Cập nhật dữ liệu sales"}
       className={cn(
         "cursor-pointer",
         isSalesInfoError &&

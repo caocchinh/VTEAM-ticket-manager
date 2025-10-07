@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/collapsible";
 import {
   SidebarMenuButton,
-  SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
@@ -29,52 +28,50 @@ export function SpreadSheetQuickAccess() {
 
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
-      <Collapsible asChild defaultOpen={false} className="group/collapsible">
-        <SidebarMenuItem>
-          <CollapsibleTrigger asChild>
-            <SidebarMenuButton
-              tooltip="Các sheet liên quan"
-              onClick={() => {
-                if (!isSidebarOpen) {
-                  setIsDropdownOpen(true);
-                }
-              }}
-            >
-              <Image
-                src="/assets/sheet_logo.webp"
-                className="w-[21px] h-[21px] object-contain"
-                alt="Google Sheet logo"
-                width={21}
-                height={21}
-              />
-              <span className="whitespace-nowrap">Sheet liên quan</span>
-              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-              <DropdownMenuTrigger asChild>
-                <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />
-              </DropdownMenuTrigger>
-            </SidebarMenuButton>
-          </CollapsibleTrigger>
+      <Collapsible defaultOpen={false} className="group/collapsible">
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            tooltip="Các sheet liên quan"
+            onClick={() => {
+              if (!isSidebarOpen) {
+                setIsDropdownOpen(true);
+              }
+            }}
+          >
+            <Image
+              src="/assets/sheet_logo.webp"
+              className="w-[21px] h-[21px] object-contain"
+              alt="Google Sheet logo"
+              width={21}
+              height={21}
+            />
+            <span className="whitespace-nowrap">Sheet liên quan</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            <DropdownMenuTrigger asChild>
+              <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />
+            </DropdownMenuTrigger>
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
 
-          <CollapsibleContent>
-            <SidebarMenuSub>
-              {SPREADSHEET_LINKS.map((link) => (
-                <SidebarMenuSubItem key={link.id}>
-                  <SidebarMenuSubButton asChild>
-                    <a
-                      target="_blank"
-                      rel="noopener"
-                      className="w-full flex whitespace-nowrap items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
-                      href={link.href}
-                    >
-                      {link.number}. <span>{link.label}</span>
-                      <ExternalLinkIcon className="w-4 h-4 -ml-2" />
-                    </a>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
-            </SidebarMenuSub>
-          </CollapsibleContent>
-        </SidebarMenuItem>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {SPREADSHEET_LINKS.map((link) => (
+              <SidebarMenuSubItem key={link.id}>
+                <SidebarMenuSubButton asChild>
+                  <a
+                    target="_blank"
+                    rel="noopener"
+                    className="w-full flex whitespace-nowrap items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
+                    href={link.href}
+                  >
+                    {link.number}. <span>{link.label}</span>
+                    <ExternalLinkIcon className="w-4 h-4 -ml-2" />
+                  </a>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
       </Collapsible>
       <DropdownMenuContent
         className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"

@@ -5,7 +5,6 @@ import { formatVietnameseCurrency } from "@/lib/utils";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
   useSidebar,
@@ -17,6 +16,7 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { Separator } from "../ui/separator";
+import { Skeleton } from "../ui/skeleton";
 
 interface SalesInfoCardProps {
   totalOfflineOrders: number;
@@ -40,95 +40,137 @@ const SalesInfoCard = ({
 
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
-      <Collapsible asChild defaultOpen={false} className="group/collapsible">
-        <SidebarMenuItem>
-          <CollapsibleTrigger asChild>
-            <SidebarMenuButton
-              tooltip="Tổng doanh thu"
-              onClick={() => {
-                if (!isSidebarOpen) {
-                  setIsDropdownOpen(true);
-                }
-              }}
-            >
-              <ShoppingCart size={20} className="text-green-600" />
-              <div className="whitespace-nowrap flex items-center gap-2">
-                Tổng danh thu:{" "}
-                {isSalesInfoFetching ? (
-                  <Loader2 className="animate-spin" size={16} />
-                ) : (
-                  <span className="font-medium text-green-600">
-                    {formatVietnameseCurrency(totalRevenue)}
-                  </span>
-                )}
-              </div>
-              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-              <DropdownMenuTrigger asChild>
-                <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />
-              </DropdownMenuTrigger>
-            </SidebarMenuButton>
-          </CollapsibleTrigger>
-
-          <CollapsibleContent>
-            <SidebarMenuSub>
-              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-                Tổng đơn hàng:{" "}
-                <span className="font-medium">
-                  {totalOfflineOrders + totalOnlineOrders}
+      <Collapsible defaultOpen={false} className="group/collapsible">
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            tooltip="Tổng doanh thu"
+            onClick={() => {
+              if (!isSidebarOpen) {
+                setIsDropdownOpen(true);
+              }
+            }}
+          >
+            <ShoppingCart size={20} className="text-green-600" />
+            <div className="whitespace-nowrap flex items-center gap-2">
+              Tổng danh thu:{" "}
+              {isSalesInfoFetching ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : (
+                <span className="font-medium text-green-600">
+                  {formatVietnameseCurrency(totalRevenue)}
                 </span>
-              </SidebarMenuSubItem>
-              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-                Đơn hàng offline:{" "}
-                <span className="font-medium">{totalOfflineOrders}</span>
-              </SidebarMenuSubItem>
-              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
-                Đơn hàng online:{" "}
-                <span className="font-medium">{totalOnlineOrders}</span>
-              </SidebarMenuSubItem>
-            </SidebarMenuSub>
-          </CollapsibleContent>
-        </SidebarMenuItem>
+              )}
+            </div>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            <DropdownMenuTrigger asChild>
+              <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />
+            </DropdownMenuTrigger>
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              Tổng đơn hàng:{" "}
+              <span className="font-medium">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  totalOfflineOrders + totalOnlineOrders
+                )}
+              </span>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              Đơn hàng offline:{" "}
+              <span className="font-medium">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  totalOfflineOrders
+                )}
+              </span>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              Đơn hàng online:{" "}
+              <span className="font-medium">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  totalOnlineOrders
+                )}
+              </span>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </CollapsibleContent>
       </Collapsible>
       <DropdownMenuContent
-        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg cursor-default"
+        className="min-w-(--radix-dropdown-menu-trigger-width) rounded-lg cursor-default"
         side={isMobile ? "bottom" : "right"}
         sideOffset={20}
         alignOffset={-35}
         align="start"
       >
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Tổng danh thu:{" "}
           <span className="font-medium text-green-600">
-            {formatVietnameseCurrency(totalRevenue)}
+            {isSalesInfoFetching ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              formatVietnameseCurrency(totalRevenue)
+            )}
           </span>
         </p>
         <Separator orientation="horizontal" />
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Doanh thu offline:{" "}
           <span className="font-medium text-blue-600">
-            {formatVietnameseCurrency(offlineRevenue)}
+            {isSalesInfoFetching ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              formatVietnameseCurrency(offlineRevenue)
+            )}
           </span>
         </p>
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Doanh thu online:{" "}
           <span className="font-medium text-orange-600">
-            {formatVietnameseCurrency(onlineRevenue)}
+            {isSalesInfoFetching ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              formatVietnameseCurrency(onlineRevenue)
+            )}
           </span>
         </p>
         <Separator orientation="horizontal" />
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Tổng đơn hàng:{" "}
           <span className="font-medium">
-            {totalOfflineOrders + totalOnlineOrders}
+            {isSalesInfoFetching ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              totalOfflineOrders + totalOnlineOrders
+            )}
           </span>
         </p>
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Đơn hàng offline:{" "}
-          <span className="font-medium">{totalOfflineOrders}</span>
+          <span className="font-medium">
+            {isSalesInfoFetching ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              totalOfflineOrders
+            )}
+          </span>
         </p>
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap">
+        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Đơn hàng online:{" "}
-          <span className="font-medium">{totalOnlineOrders}</span>
+          <span className="font-medium">
+            {isSalesInfoFetching ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              totalOnlineOrders
+            )}
+          </span>
         </p>
       </DropdownMenuContent>
     </DropdownMenu>

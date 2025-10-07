@@ -112,6 +112,8 @@ import SidebarEventInfo from "@/components/Sidebar/EventInfo";
 import { SpreadSheetQuickAccess } from "@/components/Sidebar/SpreadSheetQuickAccess";
 import RefreshSales from "@/components/Sidebar/RefreshSales";
 import StaffInfo from "@/components/Sidebar/StaffInfo";
+import SidebarToggle from "@/components/Sidebar/SidebarToggle";
+import InlineSidebarTrigger from "@/components/Sidebar/InlineSidebarTrigger";
 
 const Form = ({
   session,
@@ -1011,24 +1013,29 @@ const Form = ({
           <SidebarGroup>
             <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
             <SidebarMenu>
-              <SalesInfoCard
-                isSalesInfoFetching={isSalesInfoPending}
-                totalRevenue={totalRevenue}
-                offlineRevenue={offlineRevenue}
-                onlineRevenue={onlineRevenue}
-                totalOfflineOrders={salesInfo?.offline?.length ?? 0}
-                totalOnlineOrders={
-                  salesInfo?.online?.filter(
-                    (sale) => sale.verificationStatus === VERIFICATION_APPROVED
-                  ).length ?? 0
-                }
-              />
-              <StaffInfo
-                isSalesInfoFetching={isSalesInfoPending}
-                staffInfo={currentStaffStats}
-                totalRevenue={totalRevenue}
-                totalRevenueOffline={offlineRevenue}
-              />
+              <SidebarMenuItem>
+                <SalesInfoCard
+                  isSalesInfoFetching={isSalesInfoPending}
+                  totalRevenue={totalRevenue}
+                  offlineRevenue={offlineRevenue}
+                  onlineRevenue={onlineRevenue}
+                  totalOfflineOrders={salesInfo?.offline?.length ?? 0}
+                  totalOnlineOrders={
+                    salesInfo?.online?.filter(
+                      (sale) =>
+                        sale.verificationStatus === VERIFICATION_APPROVED
+                    ).length ?? 0
+                  }
+                />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <StaffInfo
+                  isSalesInfoFetching={isSalesInfoPending}
+                  staffInfo={currentStaffStats}
+                  totalRevenue={totalRevenue}
+                  totalRevenueOffline={offlineRevenue}
+                />
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
 
@@ -1108,6 +1115,7 @@ const Form = ({
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
+          <SidebarToggle />
           <SidebarUser
             user={{
               name: session.user.name,
@@ -1119,7 +1127,8 @@ const Form = ({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="flex flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
+      <SidebarInset className="flex relative flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
+        <InlineSidebarTrigger className="absolute top-1 left-1 w-[35px] cursor-pointer" />
         <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">
           <h2 className="font-semibold">Điền thông tin người mua</h2>
           <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-full relative">

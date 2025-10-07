@@ -37,6 +37,13 @@ const StaffInfo = ({
   const { open: isSidebarOpen, isMobile } = useSidebar();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const calculatePercentage = (part: number, whole: number): number => {
+    if (!Number.isFinite(part) || !Number.isFinite(whole) || whole <= 0) {
+      return 0;
+    }
+    return Math.round((part / whole) * 100);
+  };
+
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
       <Collapsible defaultOpen={false} className="group/collapsible">
@@ -84,7 +91,7 @@ const StaffInfo = ({
               ) : (
                 <span className="font-medium">
                   {" "}
-                  {Math.round((staffInfo.revenue / totalRevenue) * 100)}%
+                  {calculatePercentage(staffInfo.revenue, totalRevenue)}%
                 </span>
               )}
             </SidebarMenuSubItem>
@@ -95,7 +102,7 @@ const StaffInfo = ({
               ) : (
                 <span className="font-medium">
                   {" "}
-                  {Math.round((staffInfo.revenue / totalRevenueOffline) * 100)}%
+                  {calculatePercentage(staffInfo.revenue, totalRevenueOffline)}%
                 </span>
               )}
             </SidebarMenuSubItem>
@@ -136,7 +143,7 @@ const StaffInfo = ({
             {isSalesInfoFetching ? (
               <Skeleton className="w-20 h-4" />
             ) : (
-              Math.round((staffInfo.revenue / totalRevenue) * 100)
+              calculatePercentage(staffInfo.revenue, totalRevenue)
             )}
           </span>
         </p>
@@ -146,7 +153,7 @@ const StaffInfo = ({
             {isSalesInfoFetching ? (
               <Skeleton className="w-20 h-4" />
             ) : (
-              Math.round((staffInfo.revenue / totalRevenueOffline) * 100)
+              calculatePercentage(staffInfo.revenue, totalRevenueOffline)
             )}
           </span>
         </p>

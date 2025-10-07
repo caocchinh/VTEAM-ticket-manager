@@ -1129,9 +1129,9 @@ const Form = ({
 
       <SidebarInset className="flex relative flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
         <InlineSidebarTrigger className="absolute top-1 left-1 w-[35px] cursor-pointer" />
-        <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[440px]">
+        <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[35%] ">
           <h2 className="font-semibold">Điền thông tin người mua</h2>
-          <div className="flex flex-col border shadow-sm p-4 rounded-md gap-4 items-start w-full relative">
+          <div className="flex flex-col border shadow-sm p-4 rounded-md gap-[15px] items-start w-full relative">
             {(isTicketInfoFetching || isStudentListFetching) && (
               <div className="absolute w-full h-full bg-black/40 z-[10] top-0 left-0 rounded-md flex items-center justify-center flex-col">
                 <p className="text-white">
@@ -1450,7 +1450,7 @@ const Form = ({
               </div>
             </div>
 
-            <div className="flex flex-col w-full items-center gap-3 justify-center">
+            <div className="flex flex-col w-full items-center gap-2 justify-center">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 self-start">
                 Phương thức thanh toán
               </Label>
@@ -1562,7 +1562,10 @@ const Form = ({
                   onChange={(e) => {
                     setNoticeInput(e.target.value);
                   }}
-                  placeholder={"Nếu có"}
+                  placeholder="Nếu có"
+                  autoResize
+                  rows={1}
+                  className="!min-h-[30px] py-1"
                 />
                 <X
                   className="absolute right-1 top-1 cursor-pointer  text-red-400"
@@ -1610,7 +1613,7 @@ const Form = ({
             </Dialog>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center gap-2 w-[90%] sm:w-[425px]">
+        <div className="flex flex-col items-center justify-center gap-2 w-[90%] sm:w-[35%] ">
           <div className="flex items-start h-max justify-between  w-full">
             <h2 className="font-semibold">Thông tin order</h2>
             {ticketInfo && (
@@ -1623,10 +1626,7 @@ const Form = ({
             )}
           </div>
           <div className="flex flex-col gap-2 -mt-2 w-full border rounded-md shadow-sm p-4">
-            <ScrollArea
-              className="h-[50vh] !max-h-[460px] !min-h-[460px] pr-4"
-              type="always"
-            >
+            <ScrollArea className="h-[403px] pr-4" type="always">
               {currentOrder.length === 0 && (
                 <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
               )}
@@ -1964,9 +1964,7 @@ const Form = ({
           </Dialog>
         </div>
 
-        <div className="flex-col items-center justify-start gap-2 change_calculator">
-          <ChangeCalculator totalAmount={orderSubtotal} />
-        </div>
+        <ChangeCalculator totalAmount={orderSubtotal} />
       </SidebarInset>
     </SidebarProvider>
   );

@@ -47,7 +47,7 @@ export function SpreadSheetQuickAccess() {
                 width={21}
                 height={21}
               />
-              <span>Sheet liên quan</span>
+              <span className="whitespace-nowrap">Sheet liên quan</span>
               <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
               <DropdownMenuTrigger asChild>
                 <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />
@@ -63,7 +63,7 @@ export function SpreadSheetQuickAccess() {
                     <a
                       target="_blank"
                       rel="noopener"
-                      className="w-full flex items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
+                      className="w-full flex whitespace-nowrap items-center justify-start gap-4 hover:bg-muted p-2 rounded-md"
                       href={link.href}
                     >
                       {link.number}. <span>{link.label}</span>

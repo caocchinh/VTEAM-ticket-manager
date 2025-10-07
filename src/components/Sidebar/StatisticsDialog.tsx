@@ -56,7 +56,7 @@ export default function StatisticsDialog({
           disabled={!salesInfo || isSalesInfoError}
         >
           <ChartPie />
-          <span>Thống kê</span>
+          <span className="whitespace-nowrap">Thống kê</span>
         </SidebarMenuButton>
       </DialogTrigger>
 

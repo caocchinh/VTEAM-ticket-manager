@@ -51,7 +51,7 @@ const SalesSummaryDialog = ({
           disabled={!salesInfo || isSalesInfoError}
         >
           <ChartSpline />
-          <span> Báo cáo doanh thu</span>
+          <span className="whitespace-nowrap"> Báo cáo doanh thu</span>
         </SidebarMenuButton>
       </DialogTrigger>
 

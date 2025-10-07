@@ -36,7 +36,7 @@ export default function SidebarEventInfo({
                 "bg-red-500/60"
             )}
           >
-            <div className="flex items-center gap-0">
+            <div className="flex items-center justify-start gap-0">
               <Image
                 src="/assets/logo.webp"
                 width={50}
@@ -46,7 +46,7 @@ export default function SidebarEventInfo({
               />
               {!isOfflineEventInfoError &&
                 (offlineEventInfo?.eventName || isOfflineEventInfoFetching) && (
-                  <div className="text-sm flex items-center justify-center font-semibold">
+                  <div className="text-sm flex items-center justify-center whitespace-nowrap font-semibold">
                     {isOfflineEventInfoFetching ? (
                       <span className="text-gray-500">
                         Đang tải thông tin sự kiện...

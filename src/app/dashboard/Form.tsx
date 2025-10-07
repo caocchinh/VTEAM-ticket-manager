@@ -110,6 +110,7 @@ import {
 import SidebarUser from "@/components/Sidebar/SidebarUser";
 import SidebarEventInfo from "@/components/Sidebar/EventInfo";
 import { SpreadSheetQuickAccess } from "@/components/Sidebar/SpreadSheetQuickAccess";
+import RefreshSales from "@/components/Sidebar/RefreshSales";
 
 const Form = ({
   session,
@@ -856,6 +857,7 @@ const Form = ({
     refetch: refetchSalesInfo,
   } = useQuery({
     queryKey: ["sales_info"],
+
     queryFn: async () => {
       const response = await fetch("/api/sales");
       if (!response.ok) {
@@ -1004,6 +1006,13 @@ const Form = ({
             <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
+                <RefreshSales
+                  isSalesInfoFetching={isSalesInfoFetching || isRefetchingSales}
+                  isSalesInfoError={isSalesInfoError}
+                  onRefetchSales={mutateRefetchSales}
+                />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <SalesInfoCard
                   isSalesInfoFetching={isSalesInfoFetching}
                   isSalesInfoError={isSalesInfoError}
@@ -1073,7 +1082,7 @@ const Form = ({
                   isSalesInfoError={isSalesInfoError}
                   isSalesInfoFetching={isSalesInfoFetching}
                   onRefetchSales={mutateRefetchSales}
-                  isRefetchingSales={isRefetchingSales}
+                  isRefetchingSales={isRefetchingSales || isRefetchingSales}
                 />
               </SidebarMenuItem>
               <SidebarMenuItem>

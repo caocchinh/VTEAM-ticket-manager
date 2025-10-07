@@ -660,7 +660,7 @@ const OnlineTicketManagement = ({
             tooltip="Kiểm soát vé online"
           >
             <Box />
-            <span>Kiểm soát vé online</span>
+            <span className="whitespace-nowrap">Kiểm soát vé online</span>
             {pendingOrdersCount > 0 && (
               <>
                 <div className="absolute -top-1 z-[1000007] -right-[7px] w-max h-max py-[1px] px-[3px] min-w-[17px] min-h-[14px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">

@@ -125,9 +125,6 @@
   .change_calculator {
     display: none;
   }
-  .calculator_dialog_trigger {
-    display: flex;
-  }
 
   .subtotal_text {
     display: none;

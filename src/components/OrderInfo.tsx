@@ -51,6 +51,7 @@ import TicketColorManager from "./TicketColorManager";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sendOrderAction } from "@/server/actions";
 import { useSidebar } from "./ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const OrderInfo = ({
   ticketColors,
@@ -127,6 +128,8 @@ const OrderInfo = ({
     setEditingIndex(index);
     setIsEditDialogOpen(true);
   };
+
+  const isMobile = useIsMobile({ breakpoint: 1216 });
 
   const handleConfirmEdit = () => {
     if (editingIndex !== null) {
@@ -342,27 +345,36 @@ const OrderInfo = ({
         </ScrollArea>
 
         <div className="flex flex-row items-center justify-between flex-wrap w-full gap-4 ">
-          <p className="font-semibold subtotal_text">
-            Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
-          </p>
+          {!isSidebarOpen && (
+            <p className="font-semibold subtotal_text">
+              Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
+            </p>
+          )}
           <Dialog>
             <DialogTrigger
               asChild
-              className="calculator_dialog_trigger hidden flex-1"
+              className={cn(
+                " flex-1",
+                isSidebarOpen && !isMobile ? "flex" : "hidden",
+                isMobile && "!flex"
+              )}
+              title="Tính tiền"
             >
               <Button className="cursor-pointer" variant="outline">
-                {formatVietnameseCurrency(orderSubtotal)}
+                Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
                 <Calculator />
               </Button>
             </DialogTrigger>
             <DialogContent className="!py-2">
               <DialogTitle className="sr-only">Tính tiền</DialogTitle>
-              <div className="flex-col items-center justify-center w-full flex gap-2 ">
-                <ChangeCalculator totalAmount={orderSubtotal} />
-              </div>
+              <ScrollArea className="h-[83dvh]">
+                <div className="flex-col items-center justify-center w-full flex gap-2 ">
+                  <ChangeCalculator totalAmount={orderSubtotal} />
+                </div>
+              </ScrollArea>
               <DialogFooter className="w-full">
                 <DialogClose asChild>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full cursor-pointer">
                     Đóng
                   </Button>
                 </DialogClose>

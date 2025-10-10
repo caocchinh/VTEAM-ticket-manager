@@ -180,14 +180,22 @@ function Sidebar({
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
+  callBack,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
+  callback?: () => void;
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, openMobile, setOpenMobile, open } = useSidebar();
+
+  useEffect(() => {
+    if (callBack) {
+      callBack();
+    }
+  }, [callBack, open]);
 
   if (collapsible === "none") {
     return (

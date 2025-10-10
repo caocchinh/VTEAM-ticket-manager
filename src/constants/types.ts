@@ -164,3 +164,75 @@ export interface TeacherVerificationInfo {
   homeroom: string;
   verificationStatus: string;
 }
+
+export interface InputFormProps {
+  selectedStudentIdInput: string;
+  emailInput: string;
+  homeroomInput: string;
+  studentNameInput: string;
+  ticketType: string;
+  mounted: boolean;
+  isTicketInfoError: boolean;
+  noticeInput: string;
+  studentList: Student[] | undefined;
+  ticketInfo: AllTicketInfo | undefined;
+  isStudentListFetching: boolean;
+  isTicketInfoFetching: boolean;
+  getTicketColor: (ticketType: string) => string;
+  isStudentListError: boolean;
+  errors: {
+    studentId: boolean;
+    studentName: boolean;
+    homeroom: boolean;
+    email: boolean;
+  };
+  setErrors: Dispatch<
+    SetStateAction<{
+      studentId: boolean;
+      studentName: boolean;
+      homeroom: boolean;
+      email: boolean;
+    }>
+  >;
+  clearForm: ({ clearNotice }: { clearNotice: boolean }) => void;
+  studentNameAutoCompleteValue: string;
+  homeroomAutoCompleteValue: string;
+  emailAutoCompleteValue: string;
+  bestMatchStudentId: string;
+  setStudentNameInput: Dispatch<SetStateAction<string>>;
+  setHomeroomInput: Dispatch<SetStateAction<string>>;
+  setEmailInput: Dispatch<SetStateAction<string>>;
+  setTicketType: Dispatch<SetStateAction<string>>;
+  setNoticeInput: Dispatch<SetStateAction<string>>;
+  setSelectedStudentIdInput: Dispatch<SetStateAction<string>>;
+  currentOrder: StudentInput[];
+  setCurrentOrders: Dispatch<SetStateAction<StudentInput[]>>;
+  lastValidTicketType: string;
+  setLastValidTicketType: Dispatch<SetStateAction<string>>;
+  paymentMedium: "Tiền mặt" | "Chuyển khoản";
+  setPaymentMedium: Dispatch<SetStateAction<"Tiền mặt" | "Chuyển khoản">>;
+  setStudentNameAutoCompleteValue: Dispatch<SetStateAction<string>>;
+  setHomeroomAutoCompleteValue: Dispatch<SetStateAction<string>>;
+  setEmailAutoCompleteValue: Dispatch<SetStateAction<string>>;
+  setBestMatchStudentId: Dispatch<SetStateAction<string>>;
+}
+
+export interface OrderInfoProps {
+  ticketColors: Record<string, string>;
+  setTicketColors: Dispatch<SetStateAction<Record<string, string>>>;
+  currentOrder: StudentInput[];
+  setCurrentOrders: Dispatch<SetStateAction<StudentInput[]>>;
+  clearForm: ({ clearNotice }: { clearNotice: boolean }) => void;
+  ticketInfo: AllTicketInfo | undefined;
+  setNoticeInput: Dispatch<SetStateAction<string>>;
+  setStudentNameInput: Dispatch<SetStateAction<string>>;
+  setHomeroomInput: Dispatch<SetStateAction<string>>;
+  setEmailInput: Dispatch<SetStateAction<string>>;
+  setTicketType: Dispatch<SetStateAction<string>>;
+  setSelectedStudentIdInput: Dispatch<SetStateAction<string>>;
+  setPaymentMedium: Dispatch<SetStateAction<"Tiền mặt" | "Chuyển khoản">>;
+  getTicketColor: (ticketType: string) => string;
+  shouldSendEmail: boolean;
+  setShouldSendEmail: Dispatch<SetStateAction<boolean>>;
+  orderSubtotal: number;
+}

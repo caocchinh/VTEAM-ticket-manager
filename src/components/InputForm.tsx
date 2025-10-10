@@ -2,7 +2,7 @@ import {
   INVALID_TICKET_DUE_TO_INVALID_CLASS,
   NOT_STUDENT_IN_SCHOOL,
 } from "@/constants/constants";
-import { AllTicketInfo, Student, StudentInput } from "@/constants/types";
+import { InputFormProps, Student } from "@/constants/types";
 import {
   cn,
   errorToast,
@@ -21,19 +21,11 @@ import {
   TriangleAlert,
   X,
 } from "lucide-react";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-
 import EnhancedSelect from "./EnhancedSelect";
 import {
   DialogHeader,
@@ -45,58 +37,7 @@ import {
   DialogDescription,
 } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
-
-interface InputFormProps {
-  selectedStudentIdInput: string;
-  emailInput: string;
-  homeroomInput: string;
-  studentNameInput: string;
-  ticketType: string;
-  mounted: boolean;
-  isTicketInfoError: boolean;
-  noticeInput: string;
-  studentList: Student[] | undefined;
-  ticketInfo: AllTicketInfo | undefined;
-  isStudentListFetching: boolean;
-  isTicketInfoFetching: boolean;
-  getTicketColor: (ticketType: string) => string;
-  isStudentListError: boolean;
-  errors: {
-    studentId: boolean;
-    studentName: boolean;
-    homeroom: boolean;
-    email: boolean;
-  };
-  setErrors: Dispatch<
-    SetStateAction<{
-      studentId: boolean;
-      studentName: boolean;
-      homeroom: boolean;
-      email: boolean;
-    }>
-  >;
-  clearForm: ({ clearNotice }: { clearNotice: boolean }) => void;
-  studentNameAutoCompleteValue: string;
-  homeroomAutoCompleteValue: string;
-  emailAutoCompleteValue: string;
-  bestMatchStudentId: string;
-  setStudentNameInput: Dispatch<SetStateAction<string>>;
-  setHomeroomInput: Dispatch<SetStateAction<string>>;
-  setEmailInput: Dispatch<SetStateAction<string>>;
-  setTicketType: Dispatch<SetStateAction<string>>;
-  setNoticeInput: Dispatch<SetStateAction<string>>;
-  setSelectedStudentIdInput: Dispatch<SetStateAction<string>>;
-  currentOrder: StudentInput[];
-  setCurrentOrders: Dispatch<SetStateAction<StudentInput[]>>;
-  lastValidTicketType: string;
-  setLastValidTicketType: Dispatch<SetStateAction<string>>;
-  paymentMedium: "Tiền mặt" | "Chuyển khoản";
-  setPaymentMedium: Dispatch<SetStateAction<"Tiền mặt" | "Chuyển khoản">>;
-  setStudentNameAutoCompleteValue: Dispatch<SetStateAction<string>>;
-  setHomeroomAutoCompleteValue: Dispatch<SetStateAction<string>>;
-  setEmailAutoCompleteValue: Dispatch<SetStateAction<string>>;
-  setBestMatchStudentId: Dispatch<SetStateAction<string>>;
-}
+import { useSidebar } from "./ui/sidebar";
 
 const InputForm = ({
   selectedStudentIdInput,
@@ -120,7 +61,6 @@ const InputForm = ({
   setHomeroomAutoCompleteValue,
   homeroomAutoCompleteValue,
   emailAutoCompleteValue,
-
   studentNameAutoCompleteValue,
   errors,
   setErrors,
@@ -142,6 +82,7 @@ const InputForm = ({
   const [whichInputIsBeingFocused, setWhichInputIsBeingFocused] = useState<
     "id" | "name" | "homeroom" | "email"
   >("id");
+  const { open: isSidebarOpen } = useSidebar();
 
   // Validation useEffect hooks for each input field
   useEffect(() => {
@@ -412,7 +353,13 @@ const InputForm = ({
   };
 
   return (
-    <div className="flex flex-col items-center  gap-2 justify-center w-[90%] sm:w-[35%] ">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 w-[90%]",
+        isSidebarOpen ? "sm:w-[48%]" : " sm:w-[35%]"
+      )}
+    >
+      {" "}
       <h2 className="font-semibold">Điền thông tin người mua</h2>
       <div className="flex flex-col border shadow-sm p-4 rounded-md gap-[15px] items-start w-full relative">
         {(isTicketInfoFetching || isStudentListFetching) && (

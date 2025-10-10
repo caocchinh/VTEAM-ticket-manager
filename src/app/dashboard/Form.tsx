@@ -20,7 +20,6 @@ import {
 import { useIsMutating, useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { getCache, setCache } from "@/drizzle/idb";
-import ChangeCalculator from "@/components/ChangeCalculator";
 import {
   updateOfflineDataAction,
   updateOnlineDataAction,
@@ -53,6 +52,7 @@ import SidebarToggle from "@/components/Sidebar/SidebarToggle";
 import InlineSidebarTrigger from "@/components/Sidebar/InlineSidebarTrigger";
 import InputForm from "@/components/InputForm";
 import OrderInfo from "@/components/OrderInfo";
+import CalculatorWrapper from "@/components/CalculatorWrapper";
 
 const Form = ({
   session,
@@ -93,6 +93,7 @@ const Form = ({
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [ticketColors, setTicketColors] = useState<Record<string, string>>({});
+  const [isSideBarTranisitioning, setIsSidebarTransitioning] = useState(false);
   // State for validation errors
   const [errors, setErrors] = useState({
     studentId: false,
@@ -567,7 +568,18 @@ const Form = ({
         } as React.CSSProperties
       }
     >
-      <Sidebar collapsible="icon" className="bg-sidebar-primary">
+      <Sidebar
+        collapsible="icon"
+        className="bg-sidebar-primary"
+        onTransitionEnd={() => {
+          setTimeout(() => {
+            setIsSidebarTransitioning(false);
+          }, 1000);
+        }}
+        callback={() => {
+          setIsSidebarTransitioning(true);
+        }}
+      >
         <SidebarHeader>
           <SidebarEventInfo
             offlineEventInfo={offlineEventInfo}
@@ -756,7 +768,10 @@ const Form = ({
           setSelectedStudentIdInput={setSelectedStudentIdInput}
         />
 
-        <ChangeCalculator totalAmount={orderSubtotal} />
+        <CalculatorWrapper
+          orderSubtotal={orderSubtotal}
+          isSideBarTranisitioning={isSideBarTranisitioning}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

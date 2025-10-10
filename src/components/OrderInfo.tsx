@@ -1,5 +1,5 @@
-import { AllTicketInfo, StudentInput } from "@/constants/types";
-import React, { Dispatch, SetStateAction, Fragment, useState } from "react";
+import { OrderInfoProps, StudentInput } from "@/constants/types";
+import React, { Fragment, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -35,7 +35,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-import { errorToast, formatVietnameseCurrency, sucessToast } from "@/lib/utils";
+import {
+  cn,
+  errorToast,
+  formatVietnameseCurrency,
+  sucessToast,
+} from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
@@ -45,26 +50,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import TicketColorManager from "./TicketColorManager";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sendOrderAction } from "@/server/actions";
-
-interface OrderInfoProps {
-  ticketColors: Record<string, string>;
-  setTicketColors: Dispatch<SetStateAction<Record<string, string>>>;
-  currentOrder: StudentInput[];
-  setCurrentOrders: Dispatch<SetStateAction<StudentInput[]>>;
-  clearForm: ({ clearNotice }: { clearNotice: boolean }) => void;
-  ticketInfo: AllTicketInfo | undefined;
-  setNoticeInput: Dispatch<SetStateAction<string>>;
-  setStudentNameInput: Dispatch<SetStateAction<string>>;
-  setHomeroomInput: Dispatch<SetStateAction<string>>;
-  setEmailInput: Dispatch<SetStateAction<string>>;
-  setTicketType: Dispatch<SetStateAction<string>>;
-  setSelectedStudentIdInput: Dispatch<SetStateAction<string>>;
-  setPaymentMedium: Dispatch<SetStateAction<"Tiền mặt" | "Chuyển khoản">>;
-  getTicketColor: (ticketType: string) => string;
-  shouldSendEmail: boolean;
-  setShouldSendEmail: Dispatch<SetStateAction<boolean>>;
-  orderSubtotal: number;
-}
+import { useSidebar } from "./ui/sidebar";
 
 const OrderInfo = ({
   ticketColors,
@@ -95,6 +81,7 @@ const OrderInfo = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+  const { open: isSidebarOpen } = useSidebar();
 
   const handleTicketColorChange = (ticketType: string, color: string) => {
     const newColors = { ...ticketColors, [ticketType]: color };
@@ -173,7 +160,12 @@ const OrderInfo = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2 w-[90%] sm:w-[35%] ">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 w-[90%]",
+        isSidebarOpen ? "sm:w-[48%]" : " sm:w-[35%]"
+      )}
+    >
       <div className="flex items-start h-max justify-between  w-full">
         <h2 className="font-semibold">Thông tin order</h2>
         {ticketInfo && (

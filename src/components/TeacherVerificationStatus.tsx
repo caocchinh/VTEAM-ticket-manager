@@ -27,6 +27,9 @@ import Loader from "./Loader/Loader";
 import { ScrollArea } from "./ui/scroll-area";
 import { Textarea } from "./ui/textarea";
 import { OrderItemInfo } from "./OrderItemInfo";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useSidebar } from "./ui/sidebar";
 
 const TeacherVerificationStatus = ({
   currentOrder,
@@ -128,20 +131,25 @@ const TeacherVerificationStatus = ({
     setEditingIndex(null);
     setEditingNotice("");
   };
+  const isMobile = useIsMobile({ breakpoint: 1216 });
+  const { open: isSidebarOpen } = useSidebar();
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="cursor-pointer"
+          className={cn(
+            isSidebarOpen && !isMobile ? "flex-1" : null,
+            isMobile && "flex-1"
+          )}
           disabled={currentOrder.length === 0}
         >
           GVCN xác nhận
           <List />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className=" max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Trạng thái xác nhận GVCN</span>
@@ -199,7 +207,7 @@ const TeacherVerificationStatus = ({
                     key={`${student.studentId}-${index}`}
                     className="border rounded-lg p-4 flex flex-col gap-4 w-full"
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center gap-5 flex-wrap">
                       <div className="flex justify-start items-center gap-2">
                         <p>{index + 1}.</p>
                         <div className="font-medium">{student.name}</div>

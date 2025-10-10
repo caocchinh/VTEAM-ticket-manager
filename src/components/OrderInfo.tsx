@@ -403,7 +403,7 @@ const OrderInfo = ({
             Chốt deal <WandSparkles />
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="py-3">
           <AlertDialogHeader>
             <AlertDialogTitle>
               Lưu thông tin về spreadsheet & gửi email xác nhận
@@ -417,6 +417,7 @@ const OrderInfo = ({
               <Switch
                 className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] cursor-pointer"
                 id="send-email"
+                disabled={isOrderMutating}
                 checked={shouldSendEmail}
                 onCheckedChange={(checked) =>
                   setShouldSendEmail(checked === true)
@@ -424,7 +425,7 @@ const OrderInfo = ({
               />
             </div>
           </AlertDialogHeader>
-          <ScrollArea className="h-[45vh] pr-4" type="always">
+          <ScrollArea className="h-[42vh] pr-4" type="always">
             <Accordion type="multiple">
               {currentOrder.map((order, index) => (
                 <Fragment key={index}>

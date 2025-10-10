@@ -744,7 +744,7 @@ export const sendOfflineOrder = async ({
         checkinSheetResult.reason
       );
     }
-
+    // Determine overall success based on main sheet result, other sheets are auxiliary
     const success =
       mainSheetResult.status === "fulfilled" &&
       mainSheetResult.value.status === 200;

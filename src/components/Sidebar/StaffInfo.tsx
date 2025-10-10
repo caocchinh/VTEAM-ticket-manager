@@ -19,7 +19,7 @@ import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 
 interface StaffInfoProps {
-  isSalesInfoPending: boolean;
+  isSalesInfoFetching: boolean;
   staffInfo: {
     revenue: number;
     orderCount: number;
@@ -30,7 +30,7 @@ interface StaffInfoProps {
 }
 
 const StaffInfo = ({
-  isSalesInfoPending,
+  isSalesInfoFetching,
   isSalesInfoError,
   staffInfo,
   totalRevenue,
@@ -49,7 +49,7 @@ const StaffInfo = ({
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
       <Collapsible defaultOpen={false} className="group/collapsible">
-        <CollapsibleTrigger asChild disabled={isSalesInfoPending}>
+        <CollapsibleTrigger asChild>
           <SidebarMenuButton
             tooltip="Doanh thu của bạn"
             onClick={() => {
@@ -61,11 +61,13 @@ const StaffInfo = ({
             <UserStar size={20} className="text-yellow-500" />
             <div className="whitespace-nowrap flex items-center gap-2">
               Doanh thu của bạn:
-              {isSalesInfoError ? (
+              {isSalesInfoError && !isSalesInfoFetching && (
                 <span className="text-red-600"> Lỗi </span>
-              ) : isSalesInfoPending ? (
+              )}
+              {isSalesInfoFetching && (
                 <Loader2 className="animate-spin" size={16} />
-              ) : (
+              )}
+              {!isSalesInfoError && !isSalesInfoFetching && (
                 <span className="font-medium text-green-600">
                   {formatVietnameseCurrency(staffInfo.revenue)}
                 </span>
@@ -79,38 +81,51 @@ const StaffInfo = ({
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <SidebarMenuSub>
-            <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Tổng đơn hàng:{" "}
-              {isSalesInfoPending ? (
-                <Skeleton className="w-25 h-4" />
-              ) : (
-                <span className="font-medium">{staffInfo.orderCount}</span>
-              )}
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              % tổng doanh thu:
-              {isSalesInfoPending ? (
-                <Skeleton className="w-25 h-4" />
-              ) : (
-                <span className="font-medium">
-                  {" "}
-                  {calculatePercentage(staffInfo.revenue, totalRevenue)}%
-                </span>
-              )}
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              % tổng doanh thu offline:
-              {isSalesInfoPending ? (
-                <Skeleton className="w-25 h-4" />
-              ) : (
-                <span className="font-medium">
-                  {" "}
-                  {calculatePercentage(staffInfo.revenue, totalRevenueOffline)}%
-                </span>
-              )}
-            </SidebarMenuSubItem>
-          </SidebarMenuSub>
+          {(!isSalesInfoError || isSalesInfoFetching) && (
+            <SidebarMenuSub>
+              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+                Tổng đơn hàng:{" "}
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  <span className="font-medium">{staffInfo.orderCount}</span>
+                )}
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+                % tổng doanh thu:
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  <span className="font-medium">
+                    {" "}
+                    {calculatePercentage(staffInfo.revenue, totalRevenue)}%
+                  </span>
+                )}
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+                % tổng doanh thu offline:
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  <span className="font-medium">
+                    {" "}
+                    {calculatePercentage(
+                      staffInfo.revenue,
+                      totalRevenueOffline
+                    )}
+                    %
+                  </span>
+                )}
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          )}
+          {isSalesInfoError && !isSalesInfoFetching && (
+            <SidebarMenuSub>
+              <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2 text-red-600">
+                Lỗi khi lấy dữ liệu
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          )}
         </CollapsibleContent>
       </Collapsible>
       <DropdownMenuContent
@@ -120,47 +135,56 @@ const StaffInfo = ({
         alignOffset={-35}
         align="start"
       >
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-          Doanh thu của bạn:{" "}
-          <span className="font-medium text-green-600">
-            {isSalesInfoPending ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              formatVietnameseCurrency(staffInfo.revenue)
-            )}
-          </span>
-        </p>
-        <Separator orientation="horizontal" />
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-          Đơn hàng:{" "}
-          <span className="font-medium">
-            {isSalesInfoPending ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              staffInfo.orderCount
-            )}
-          </span>
-        </p>
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-          % tổng doanh thu:{" "}
-          <span className="font-medium">
-            {isSalesInfoPending ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              calculatePercentage(staffInfo.revenue, totalRevenue)
-            )}
-          </span>
-        </p>
-        <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-          % tổng doanh thu offline:{" "}
-          <span className="font-medium">
-            {isSalesInfoPending ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              calculatePercentage(staffInfo.revenue, totalRevenueOffline)
-            )}
-          </span>
-        </p>
+        {(!isSalesInfoError || isSalesInfoFetching) && (
+          <>
+            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              Doanh thu của bạn:{" "}
+              <span className="font-medium text-green-600">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-20 h-4" />
+                ) : (
+                  formatVietnameseCurrency(staffInfo.revenue)
+                )}
+              </span>
+            </p>
+            <Separator orientation="horizontal" />
+            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              Đơn hàng:{" "}
+              <span className="font-medium">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-20 h-4" />
+                ) : (
+                  staffInfo.orderCount
+                )}
+              </span>
+            </p>
+            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              % tổng doanh thu:{" "}
+              <span className="font-medium">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-20 h-4" />
+                ) : (
+                  calculatePercentage(staffInfo.revenue, totalRevenue)
+                )}
+              </span>
+            </p>
+            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+              % tổng doanh thu offline:{" "}
+              <span className="font-medium">
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-20 h-4" />
+                ) : (
+                  calculatePercentage(staffInfo.revenue, totalRevenueOffline)
+                )}
+              </span>
+            </p>
+          </>
+        )}
+        {isSalesInfoError && !isSalesInfoFetching && (
+          <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2 text-red-600">
+            Lỗi khi lấy dữ liệu
+          </p>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

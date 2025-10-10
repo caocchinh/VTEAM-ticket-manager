@@ -53,6 +53,7 @@ import InlineSidebarTrigger from "@/components/Sidebar/InlineSidebarTrigger";
 import InputForm from "@/components/InputForm";
 import OrderInfo from "@/components/OrderInfo";
 import CalculatorWrapper from "@/components/CalculatorWrapper";
+import { TicketsInfo } from "@/components/Sidebar/TicketsInfo";
 
 const Form = ({
   session,
@@ -407,7 +408,6 @@ const Form = ({
 
   const {
     data: salesInfo,
-    isPending: isSalesInfoPending,
     isFetching: isSalesInfoFetching,
     isError: isSalesInfoError,
     refetch: refetchSalesInfo,
@@ -415,6 +415,7 @@ const Form = ({
     queryKey: ["sales_info"],
 
     queryFn: async () => {
+      throw new Error("Failed to fetch sales info");
       const response = await fetch("/api/sales");
       if (!response.ok) {
         throw new Error("Failed to fetch sales info");
@@ -595,7 +596,7 @@ const Form = ({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SalesInfoCard
-                  isSalesInfoPending={isSalesInfoPending}
+                  isSalesInfoFetching={isSalesInfoFetching}
                   isSalesInfoError={isSalesInfoError}
                   totalRevenue={totalRevenue}
                   offlineRevenue={offlineRevenue}
@@ -612,7 +613,7 @@ const Form = ({
               <SidebarMenuItem>
                 <StaffInfo
                   isSalesInfoError={isSalesInfoError}
-                  isSalesInfoPending={isSalesInfoPending}
+                  isSalesInfoFetching={isSalesInfoFetching}
                   staffInfo={currentStaffStats}
                   totalRevenue={totalRevenue}
                   totalRevenueOffline={offlineRevenue}
@@ -646,6 +647,14 @@ const Form = ({
                     refetchAllDataMutation();
                   }}
                   onRefreshOnlineData={mutateUpdateOnlineData}
+                />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <TicketsInfo
+                  ticketInfo={ticketInfo}
+                  getTicketColor={getTicketColor}
+                  isTicketInfoFetching={isTicketInfoFetching}
+                  isTicketInfoError={isTicketInfoError}
                 />
               </SidebarMenuItem>
               <SidebarMenuItem>

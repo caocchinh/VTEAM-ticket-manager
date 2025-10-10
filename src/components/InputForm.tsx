@@ -355,7 +355,7 @@ const InputForm = ({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-2 w-[90%] min-w-full sm:min-w-[400px]",
+        "flex flex-col items-center justify-center gap-2 w-[90%] min-w-full sm:min-w-[400px] max-w-[550px]",
         isSidebarOpen ? "w-[48%]" : " w-[35%]"
       )}
     >

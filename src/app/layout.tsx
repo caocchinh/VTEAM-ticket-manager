@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/context/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
-import Image from "next/image";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,16 +35,7 @@ export default function RootLayout({
       >
         <QueryProvider>{children}</QueryProvider>
         <Toaster />
-        <footer className="w-full bg-black mt-4 flex items-center justify-center text-white text-center p-2">
-          <Image
-            src="/assets/logo.webp"
-            width={26}
-            height={26}
-            className="invert -mt-[2px]"
-            alt="VTEAM Logo"
-          />
-          VTEAM - Vinschool Central Park
-        </footer>
+        <Footer />
       </body>
     </html>
   );

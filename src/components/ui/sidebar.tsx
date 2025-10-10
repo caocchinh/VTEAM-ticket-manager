@@ -180,22 +180,23 @@ function Sidebar({
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
-  callBack,
+  sideBarOpenCallback,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
-  callback?: () => void;
+  sideBarOpenCallback?: () => void;
 }) {
   const { isMobile, state, openMobile, setOpenMobile, open } = useSidebar();
 
   useEffect(() => {
-    if (callBack) {
-      callBack();
+    if (sideBarOpenCallback) {
+      sideBarOpenCallback();
     }
-  }, [callBack, open]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (collapsible === "none") {
     return (

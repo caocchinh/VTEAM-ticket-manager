@@ -574,9 +574,9 @@ const Form = ({
         onTransitionEnd={() => {
           setTimeout(() => {
             setIsSidebarTransitioning(false);
-          }, 1000);
+          }, 0);
         }}
-        callback={() => {
+        sideBarOpenCallback={() => {
           setIsSidebarTransitioning(true);
         }}
       >

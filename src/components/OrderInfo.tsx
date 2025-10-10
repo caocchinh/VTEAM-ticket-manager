@@ -162,8 +162,8 @@ const OrderInfo = ({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-2 w-[90%]",
-        isSidebarOpen ? "sm:w-[48%]" : " sm:w-[35%]"
+        "flex flex-col items-center justify-center gap-2 w-[90%]  min-w-full sm:min-w-[400px]",
+        isSidebarOpen ? "w-[48%]" : " w-[35%]"
       )}
     >
       <div className="flex items-start h-max justify-between  w-full">
@@ -340,10 +340,35 @@ const OrderInfo = ({
             </Accordion>
           )}
         </ScrollArea>
-        <div className="flex flex-row items-center justify-between w-full">
-          <p className="font-semibold">
+
+        <div className="flex flex-row items-center justify-between flex-wrap w-full gap-4 ">
+          <p className="font-semibold subtotal_text">
             Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
           </p>
+          <Dialog>
+            <DialogTrigger
+              asChild
+              className="calculator_dialog_trigger hidden flex-1"
+            >
+              <Button className="cursor-pointer" variant="outline">
+                {formatVietnameseCurrency(orderSubtotal)}
+                <Calculator />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="!py-2">
+              <DialogTitle className="sr-only">Tính tiền</DialogTitle>
+              <div className="flex-col items-center justify-center w-full flex gap-2 ">
+                <ChangeCalculator totalAmount={orderSubtotal} />
+              </div>
+              <DialogFooter className="w-full">
+                <DialogClose asChild>
+                  <Button variant="outline" className="w-full">
+                    Đóng
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <TeacherVerificationStatus
             currentOrder={currentOrder}
             setCurrentOrders={setCurrentOrders}
@@ -437,26 +462,6 @@ const OrderInfo = ({
           </div>
         </AlertDialogContent>
       </AlertDialog>
-      <Dialog>
-        <DialogTrigger asChild className="calculator_dialog_trigger hidden">
-          <Button className="w-full bg-[#0084ff] hover:bg-[#0084ff] cursor-pointer">
-            Tính tiền <Calculator />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="!py-2">
-          <DialogTitle className="sr-only">Tính tiền</DialogTitle>
-          <div className="flex-col items-center justify-center w-full flex gap-2 ">
-            <ChangeCalculator totalAmount={orderSubtotal} />
-          </div>
-          <DialogFooter className="w-full">
-            <DialogClose asChild>
-              <Button variant="outline" className="w-full">
-                Đóng
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog
         open={isDeleteAllDialogOpen}

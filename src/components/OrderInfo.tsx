@@ -111,6 +111,9 @@ const OrderInfo = ({
     onSuccess: () => {
       clearForm({ clearNotice: true });
       setCurrentOrders([]);
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       localStorage.removeItem("currentOrderList"); // Clear saved order list after successful submission
       localStorage.removeItem("currentFormData"); // Clear saved form data after successful submission
       sucessToast({ message: "Chốt deal thành công!" });

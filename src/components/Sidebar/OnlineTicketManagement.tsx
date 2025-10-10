@@ -65,6 +65,7 @@ import {
   VERIFICATION_APPROVED,
   VERIFICATION_PENDING,
   VERIFICATION_FAILED,
+  ONLINE_SALES_SHEET_ID,
 } from "@/constants/constants";
 import {
   AlertDialog,
@@ -80,6 +81,7 @@ import { useMutation } from "@tanstack/react-query";
 import { updateOnlineOrderStatusAction } from "@/server/actions";
 import { Textarea } from "../ui/textarea";
 import Image from "next/image";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const OrderSelect = ({
   order,
@@ -1144,7 +1146,6 @@ const OnlineTicketManagement = ({
                         {isInspectSidebarOpen ? "Hide" : "Show"}
                         <PanelsTopLeft />
                       </Button>
-
                       <Button
                         onClick={() => onRefetchSales()}
                         variant="ghost"
@@ -1160,6 +1161,24 @@ const OnlineTicketManagement = ({
                           <Loader2 className="animate-spin " />
                         )}
                       </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={`https://docs.google.com/spreadsheets/d/${ONLINE_SALES_SHEET_ID}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Image
+                              src="/assets/sheet_logo.webp"
+                              className="w-[30px] h-[30px] object-contain"
+                              alt="Google Sheet logo"
+                              width={30}
+                              height={30}
+                            />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>Sheet bán vé online</TooltipContent>
+                      </Tooltip>
                     </div>
 
                     <ScrollBar
@@ -1169,7 +1188,7 @@ const OnlineTicketManagement = ({
                   </ScrollArea>
                   {allOrders.length > 0 ? (
                     <ScrollArea
-                      className="h-[75dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-4"
+                      className="h-[74dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-4"
                       type="always"
                     >
                       <div className="w-full h-full flex-wrap gap-4 flex items-start justify-center">
@@ -1188,7 +1207,7 @@ const OnlineTicketManagement = ({
                             Màn hình chuyển khoản
                           </h4>
                           <ScrollArea
-                            className="h-[70dvh] max-h-[420px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
+                            className="h-[69dvh] max-h-[420px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
                             type="always"
                             viewportRef={answerScrollAreaRef}
                           >

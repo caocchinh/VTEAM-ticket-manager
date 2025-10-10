@@ -308,4 +308,10 @@ export const SPREADSHEET_LINKS = [
     label: "Sheet xác nhận GVCN",
     href: `https://docs.google.com/spreadsheets/d/${TEACHER_VERIFICATION_SHEET_ID}`,
   },
+  {
+    id: "backup-form",
+    number: "5",
+    label: "Form bán vé dự phòng",
+    href: `https://docs.google.com/forms/d/e/1FAIpQLSfpRH5kU4lqvTnwgs_lmOHtYjo_RqZ2EDGlS6d7hewavX6zBg/viewform?usp=sharing&ouid=103069438122563507136`,
+  },
 ];

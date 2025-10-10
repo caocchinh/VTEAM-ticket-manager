@@ -25,7 +25,11 @@ const RefreshSales = ({
       disabled={isSalesInfoFetching}
       onClick={onRefetchSales}
     >
-      {isSalesInfoFetching && <RefreshCw className="size-4 animate-spin" />}
+      {!isSalesInfoError && (
+        <RefreshCw
+          className={cn("size-4", isSalesInfoFetching && "animate-spin")}
+        />
+      )}
       {isSalesInfoError && !isSalesInfoFetching && (
         <TriangleAlert className="size-4 text-white " />
       )}

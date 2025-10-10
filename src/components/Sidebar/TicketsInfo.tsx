@@ -41,7 +41,7 @@ export function TicketsInfo({
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
       <Collapsible defaultOpen={false} className="group/tickets">
-        <CollapsibleTrigger asChild disabled={isTicketInfoFetching}>
+        <CollapsibleTrigger asChild>
           <SidebarMenuButton
             tooltip="Thông tin vé"
             onClick={() => {

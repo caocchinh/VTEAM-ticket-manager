@@ -413,9 +413,7 @@ const Form = ({
     refetch: refetchSalesInfo,
   } = useQuery({
     queryKey: ["sales_info"],
-
     queryFn: async () => {
-      throw new Error("Failed to fetch sales info");
       const response = await fetch("/api/sales");
       if (!response.ok) {
         throw new Error("Failed to fetch sales info");

@@ -595,7 +595,8 @@ const Form = ({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SalesInfoCard
-                  isSalesInfoFetching={isSalesInfoPending}
+                  isSalesInfoPending={isSalesInfoPending}
+                  isSalesInfoError={isSalesInfoError}
                   totalRevenue={totalRevenue}
                   offlineRevenue={offlineRevenue}
                   onlineRevenue={onlineRevenue}
@@ -610,7 +611,8 @@ const Form = ({
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <StaffInfo
-                  isSalesInfoFetching={isSalesInfoPending}
+                  isSalesInfoError={isSalesInfoError}
+                  isSalesInfoPending={isSalesInfoPending}
                   staffInfo={currentStaffStats}
                   totalRevenue={totalRevenue}
                   totalRevenueOffline={offlineRevenue}
@@ -622,9 +624,6 @@ const Form = ({
           <SidebarGroup>
             <SidebarGroupLabel>Tiện ích</SidebarGroupLabel>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SpreadSheetQuickAccess />
-              </SidebarMenuItem>
               <SidebarMenuItem>
                 <RefreshSales
                   isSalesInfoFetching={isSalesInfoFetching || isRefetchingSales}
@@ -648,6 +647,9 @@ const Form = ({
                   }}
                   onRefreshOnlineData={mutateUpdateOnlineData}
                 />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SpreadSheetQuickAccess />
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>

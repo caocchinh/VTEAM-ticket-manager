@@ -19,17 +19,19 @@ import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 
 interface StaffInfoProps {
-  isSalesInfoFetching: boolean;
+  isSalesInfoPending: boolean;
   staffInfo: {
     revenue: number;
     orderCount: number;
   };
+  isSalesInfoError: boolean;
   totalRevenue: number;
   totalRevenueOffline: number;
 }
 
 const StaffInfo = ({
-  isSalesInfoFetching,
+  isSalesInfoPending,
+  isSalesInfoError,
   staffInfo,
   totalRevenue,
   totalRevenueOffline,
@@ -47,7 +49,7 @@ const StaffInfo = ({
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
       <Collapsible defaultOpen={false} className="group/collapsible">
-        <CollapsibleTrigger asChild>
+        <CollapsibleTrigger asChild disabled={isSalesInfoPending}>
           <SidebarMenuButton
             tooltip="Doanh thu của bạn"
             onClick={() => {
@@ -59,7 +61,9 @@ const StaffInfo = ({
             <UserStar size={20} className="text-yellow-500" />
             <div className="whitespace-nowrap flex items-center gap-2">
               Doanh thu của bạn:
-              {isSalesInfoFetching ? (
+              {isSalesInfoError ? (
+                <span className="text-red-600"> Lỗi </span>
+              ) : isSalesInfoPending ? (
                 <Loader2 className="animate-spin" size={16} />
               ) : (
                 <span className="font-medium text-green-600">
@@ -78,7 +82,7 @@ const StaffInfo = ({
           <SidebarMenuSub>
             <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Tổng đơn hàng:{" "}
-              {isSalesInfoFetching ? (
+              {isSalesInfoPending ? (
                 <Skeleton className="w-25 h-4" />
               ) : (
                 <span className="font-medium">{staffInfo.orderCount}</span>
@@ -86,7 +90,7 @@ const StaffInfo = ({
             </SidebarMenuSubItem>
             <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               % tổng doanh thu:
-              {isSalesInfoFetching ? (
+              {isSalesInfoPending ? (
                 <Skeleton className="w-25 h-4" />
               ) : (
                 <span className="font-medium">
@@ -97,7 +101,7 @@ const StaffInfo = ({
             </SidebarMenuSubItem>
             <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               % tổng doanh thu offline:
-              {isSalesInfoFetching ? (
+              {isSalesInfoPending ? (
                 <Skeleton className="w-25 h-4" />
               ) : (
                 <span className="font-medium">
@@ -119,7 +123,7 @@ const StaffInfo = ({
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Doanh thu của bạn:{" "}
           <span className="font-medium text-green-600">
-            {isSalesInfoFetching ? (
+            {isSalesInfoPending ? (
               <Skeleton className="w-20 h-4" />
             ) : (
               formatVietnameseCurrency(staffInfo.revenue)
@@ -130,7 +134,7 @@ const StaffInfo = ({
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           Đơn hàng:{" "}
           <span className="font-medium">
-            {isSalesInfoFetching ? (
+            {isSalesInfoPending ? (
               <Skeleton className="w-20 h-4" />
             ) : (
               staffInfo.orderCount
@@ -140,7 +144,7 @@ const StaffInfo = ({
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           % tổng doanh thu:{" "}
           <span className="font-medium">
-            {isSalesInfoFetching ? (
+            {isSalesInfoPending ? (
               <Skeleton className="w-20 h-4" />
             ) : (
               calculatePercentage(staffInfo.revenue, totalRevenue)
@@ -150,7 +154,7 @@ const StaffInfo = ({
         <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
           % tổng doanh thu offline:{" "}
           <span className="font-medium">
-            {isSalesInfoFetching ? (
+            {isSalesInfoPending ? (
               <Skeleton className="w-20 h-4" />
             ) : (
               calculatePercentage(staffInfo.revenue, totalRevenueOffline)

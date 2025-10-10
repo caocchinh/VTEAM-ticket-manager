@@ -19,7 +19,6 @@ const ChangeCalculator = ({
   calculatorBodyClassName,
 }: ChangeCalculatorProps) => {
   const [customAmount, setCustomAmount] = useState("");
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
 
   // Preset amounts in VND
   const presetAmounts = [200000, 300000, 500000, 1000000];
@@ -28,9 +27,7 @@ const ChangeCalculator = ({
   const change = useMemo(() => {
     let paidAmount = 0;
 
-    if (selectedAmount) {
-      paidAmount = selectedAmount;
-    } else if (customAmount) {
+    if (customAmount) {
       // Parse custom amount - add 000 if user enters just numbers
       const cleanAmount = customAmount.replace(/[^\d]/g, "");
       if (cleanAmount) {
@@ -39,21 +36,19 @@ const ChangeCalculator = ({
     }
 
     return paidAmount - totalAmount;
-  }, [customAmount, selectedAmount, totalAmount]);
+  }, [customAmount, totalAmount]);
 
   const handlePresetClick = (amount: number) => {
-    setSelectedAmount(amount);
-    setCustomAmount(""); // Clear custom input when preset is selected
+    // Only update custom amount with the selected preset amount
+    setCustomAmount((amount / 1000).toString());
   };
 
   const handleCustomAmountChange = (value: string) => {
     setCustomAmount(value);
-    setSelectedAmount(null); // Clear preset selection when custom amount is entered
   };
 
   const clearAll = () => {
     setCustomAmount("");
-    setSelectedAmount(null);
   };
 
   return (
@@ -64,12 +59,12 @@ const ChangeCalculator = ({
 
       <div
         className={cn(
-          "flex flex-col gap-4 rounded-md p-4 w-full mt-2",
+          "flex flex-col gap-3 rounded-md p-4 w-full mt-2",
           calculatorBodyClassName
         )}
       >
         {/* Total Amount Display */}
-        <div className="p-3 bg-blue-50 rounded-md">
+        <div className="p-2 bg-blue-50 rounded-md">
           <Label className="text-sm font-medium text-blue-700">
             Tổng tiền cần thanh toán:
           </Label>
@@ -87,7 +82,11 @@ const ChangeCalculator = ({
             {presetAmounts.map((amount) => (
               <Button
                 key={amount}
-                variant={selectedAmount === amount ? "default" : "outline"}
+                variant={
+                  customAmount === (amount / 1000).toString()
+                    ? "default"
+                    : "outline"
+                }
                 onClick={() => handlePresetClick(amount)}
                 className="flex items-center gap-1"
               >
@@ -124,7 +123,7 @@ const ChangeCalculator = ({
           )}
         </div>
 
-        {((parseInt(customAmount) ?? 0) > 0 || selectedAmount) && (
+        {(parseInt(customAmount) ?? 0) > 0 && (
           <div className="p-3 bg-green-50 rounded-md border border-green-200">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
@@ -132,11 +131,9 @@ const ChangeCalculator = ({
                   Khách đưa:
                 </span>
                 <span className="font-bold text-green-900 wrap-anywhere">
-                  {selectedAmount
-                    ? formatVietnameseCurrency(selectedAmount)
-                    : formatVietnameseCurrency(
-                        parseVietnameseCurrency(customAmount) * 1000
-                      )}
+                  {formatVietnameseCurrency(
+                    parseVietnameseCurrency(customAmount) * 1000
+                  )}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -162,7 +159,7 @@ const ChangeCalculator = ({
           </div>
         )}
 
-        {(selectedAmount || customAmount) && (
+        {customAmount && (
           <Button
             variant="outline"
             onClick={clearAll}

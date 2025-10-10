@@ -367,7 +367,7 @@ const OrderInfo = ({
             </DialogTrigger>
             <DialogContent className="!py-2">
               <DialogTitle className="sr-only">Tính tiền</DialogTitle>
-              <ScrollArea className="h-[83dvh]">
+              <ScrollArea className="h-[84dvh]">
                 <div className="flex-col items-center justify-center w-full flex gap-2 ">
                   <ChangeCalculator totalAmount={orderSubtotal} />
                 </div>

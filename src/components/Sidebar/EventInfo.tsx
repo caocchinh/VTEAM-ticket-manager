@@ -25,44 +25,46 @@ export default function SidebarEventInfo({
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
+          tooltip={
+            isOfflineEventInfoFetching
+              ? "Đang tải thông tin sự kiện..."
+              : isOfflineEventInfoError
+              ? "Lỗi tải thông tin sự kiện"
+              : offlineEventInfo?.eventName || "Thông tin sự kiện"
+          }
           size="lg"
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          className={cn(
+            "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+            isOfflineEventInfoError &&
+              !isOfflineEventInfoFetching &&
+              "!bg-red-500/60"
+          )}
         >
-          <div
-            className={cn(
-              " text-black  items-center gap-3",
-              isOfflineEventInfoError &&
-                !isOfflineEventInfoFetching &&
-                "bg-red-500/60"
-            )}
-          >
-            <div className="flex items-center justify-start gap-0">
-              <Image
-                src="/assets/logo.webp"
-                width={50}
-                height={50}
-                className="-mt-2 -ml-[9px] "
-                alt="VTEAM Logo"
-              />
-              {!isOfflineEventInfoError &&
-                (offlineEventInfo?.eventName || isOfflineEventInfoFetching) && (
-                  <div className="text-sm flex items-center justify-center whitespace-nowrap font-semibold">
-                    {isOfflineEventInfoFetching ? (
-                      <span className="text-gray-500">
-                        Đang tải thông tin sự kiện...
-                      </span>
-                    ) : (
-                      <p>
-                        {truncateText(offlineEventInfo?.eventName || "", 30)}
-                      </p>
-                    )}
-                  </div>
-                )}
-            </div>
-
+          <div className="flex items-center justify-start gap-0">
+            <Image
+              src="/assets/logo.webp"
+              width={50}
+              height={50}
+              className="-mt-2 -ml-[9px] "
+              alt="VTEAM Logo"
+            />
+            {!isOfflineEventInfoError &&
+              (offlineEventInfo?.eventName || isOfflineEventInfoFetching) && (
+                <div className="text-sm flex items-center justify-center whitespace-nowrap font-semibold">
+                  {isOfflineEventInfoFetching ? (
+                    <span className="text-gray-500">
+                      Đang tải thông tin sự kiện...
+                    </span>
+                  ) : (
+                    <p>{truncateText(offlineEventInfo?.eventName || "", 30)}</p>
+                  )}
+                </div>
+              )}
             {isOfflineEventInfoError && !isOfflineEventInfoFetching && (
-              <div className=" w-max h-full -ml-4 rounded-md flex items-center justify-center gap-2">
-                <p className="text-white text-xs">Lỗi tải thông tin sự kiện</p>
+              <div className=" w-max h-full rounded-md flex items-center justify-center gap-2">
+                <p className="text-white text-xs whitespace-nowrap">
+                  Lỗi tải thông tin sự kiện
+                </p>
                 <Button
                   variant="ghost"
                   size="sm"

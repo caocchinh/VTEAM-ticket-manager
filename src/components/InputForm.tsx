@@ -33,15 +33,17 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+import EnhancedSelect from "./EnhancedSelect";
 import {
+  DialogHeader,
+  DialogFooter,
   Dialog,
   DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogDescription,
-} from "@radix-ui/react-dialog";
-import EnhancedSelect from "./EnhancedSelect";
-import { DialogHeader, DialogFooter } from "./ui/dialog";
+} from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
 
 interface InputFormProps {

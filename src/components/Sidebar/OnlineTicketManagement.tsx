@@ -298,6 +298,7 @@ const OnlineTicketManagement = ({
   );
 
   const updateOrderStatusMutation = useMutation({
+    mutationKey: ["update_online"],
     mutationFn: async (order: OnlineSalesInfo) => {
       const result = await updateOnlineOrderStatusAction({
         studentId: order.buyerId,

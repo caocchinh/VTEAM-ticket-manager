@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
+import { Student } from "@/constants/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -306,4 +307,31 @@ export const isOverScrolling = ({
       isOverScrollingRight: false,
     };
   }
+};
+
+export const findBestStudentMatch = (
+  input: string,
+  students: Student[]
+): Student | null => {
+  if (!input) return null;
+  if (!safeTrim(input) || !students.length) return null;
+
+  // First try exact match
+  const exactMatch = students.find(
+    (student) => student.studentId.toLowerCase() === input.toLowerCase()
+  );
+  if (exactMatch) return exactMatch;
+
+  // Then try prefix match
+  const prefixMatch = students.find((student) =>
+    student.studentId.toLowerCase().startsWith(input.toLowerCase())
+  );
+  if (prefixMatch) return prefixMatch;
+
+  // Finally, fuzzy match - find student ID that contains the input
+  const fuzzyMatch = students.find((student) =>
+    student.studentId.toLowerCase().includes(input.toLowerCase())
+  );
+
+  return fuzzyMatch || null;
 };

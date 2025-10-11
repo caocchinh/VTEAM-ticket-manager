@@ -267,22 +267,24 @@ const TeacherVerificationStatus = ({
                       />
                     </div>
 
-                    <div className="text-sm text-gray-600 wrap-anywhere">
-                      Mã số HS: {student.studentId}
+                    <div className="text-sm text-black wrap-anywhere">
+                      <span className="font-semibold">Mã số HS:</span>{" "}
+                      {student.studentId}
                     </div>
-                    <div className="text-sm text-gray-600 wrap-anywhere">
-                      Lớp: {student.homeroom}
+                    <div className="text-sm text-black wrap-anywhere">
+                      <span className="font-semibold">Lớp:</span>{" "}
+                      {student.homeroom}
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Lưu ý của bạn:{" "}
+                    <div className="text-sm text-black">
+                      <span className="font-semibold">Lưu ý của bạn:</span>{" "}
                       <span className="whitespace-pre-wrap wrap-anywhere">
                         {currentOrder.find(
                           (order) => order.studentIdInput === student.studentId
                         )?.notice || "Không có lưu ý"}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Ghi chú của GVCN:{" "}
+                    <div className="text-sm text-black">
+                      <span className="font-semibold">Ghi chú của GVCN:</span>{" "}
                       <span className="whitespace-pre-wrap wrap-anywhere">
                         {student.teacherNotice || "Không có ghi chú"}
                       </span>

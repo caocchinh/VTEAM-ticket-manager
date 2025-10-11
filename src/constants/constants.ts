@@ -297,37 +297,31 @@ export const SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL =
 export const SPREADSHEET_LINKS = [
   {
     id: "offline-sales",
-    number: "1",
     label: "Sheet bán vé offline",
     href: `https://docs.google.com/spreadsheets/d/${OFFLINE_SALES_SHEET_ID}`,
   },
   {
     id: "online-sales",
-    number: "2",
     label: "Sheet bán vé online",
     href: `https://docs.google.com/spreadsheets/d/${ONLINE_SALES_SHEET_ID}`,
   },
   {
     id: "checkin",
-    number: "3",
     label: "Sheet check-in",
     href: `https://docs.google.com/spreadsheets/d/${CHECKIN_SHEET_ID}`,
   },
   {
     id: "teacher-verification",
-    number: "4",
     label: "Sheet xác nhận GVCN",
     href: `https://docs.google.com/spreadsheets/d/${TEACHER_VERIFICATION_SHEET_ID}`,
   },
   {
     id: "backup-form",
-    number: "5",
     label: "Form bán vé dự phòng",
     href: `https://docs.google.com/forms/d/e/1FAIpQLSfpRH5kU4lqvTnwgs_lmOHtYjo_RqZ2EDGlS6d7hewavX6zBg/viewform?usp=sharing&ouid=103069438122563507136`,
   },
   {
     id: "backup-sheet",
-    number: "6",
     label: "Sheet bán vé dự phòng",
     href: `https://docs.google.com/spreadsheets/d/1jV3n7OyCSe5WSVTNqBtb9csoIgye1-ue7VdntDPCzrY/edit?usp=sharing`,
   },

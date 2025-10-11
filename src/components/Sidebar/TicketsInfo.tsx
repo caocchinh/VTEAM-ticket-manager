@@ -187,7 +187,7 @@ export function TicketsInfo({
                 Vé Offline
               </p>
               {ticketInfo.offline.map((ticket, index) => (
-                <p
+                <div
                   key={`dropdown-offline-${index}`}
                   className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center justify-between gap-2"
                 >
@@ -203,7 +203,7 @@ export function TicketsInfo({
                     </span>
                   </span>
                   <span className="font-medium">{ticket.price}</span>
-                </p>
+                </div>
               ))}
               <Separator orientation="horizontal" />
             </>
@@ -219,7 +219,7 @@ export function TicketsInfo({
                 Vé Online
               </p>
               {ticketInfo.online.map((ticket, index) => (
-                <p
+                <div
                   key={`dropdown-online-${index}`}
                   className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center justify-between gap-2"
                 >
@@ -229,7 +229,7 @@ export function TicketsInfo({
                     </span>
                   </span>
                   <span className="font-medium">{ticket.price}</span>
-                </p>
+                </div>
               ))}
             </>
           )}
@@ -237,17 +237,17 @@ export function TicketsInfo({
         {/* Loading State in Dropdown */}
         {isTicketInfoFetching && (
           <>
-            <p className="p-2 rounded-md text-sm">
+            <div className="p-2 rounded-md text-sm">
               <Skeleton className="h-4 w-20" />
-            </p>
+            </div>
             {[1, 2, 3].map((_, index) => (
-              <p
+              <div
                 key={`dropdown-loading-${index}`}
                 className="p-2 rounded-md text-sm whitespace-nowrap flex items-center justify-between gap-2"
               >
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-16" />
-              </p>
+              </div>
             ))}
           </>
         )}

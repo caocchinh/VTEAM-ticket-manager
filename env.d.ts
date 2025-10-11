@@ -4,8 +4,6 @@ namespace NodeJS {
   interface ProcessEnv {
     BETTER_AUTH_SECRET: string;
     BETTER_AUTH_URL: string;
-    OAUTH_GOOGLE_CLIENT_ID: string;
-    OAUTH_GOOGLE_CLIENT_SECRET: string;
     OFFLINE_TICKET_NEON_DATABASE_URL: string;
     ONLINE_TICKET_NEON_DATABASE_URL: string;
     OAUTH_GOOGLE_CLIENT_SECRET: string;

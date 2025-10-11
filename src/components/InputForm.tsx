@@ -569,7 +569,7 @@ const InputForm = ({
             </Tooltip>
           </div>
         </div>
-        <div className="flex flex-row items-center justify-between gap-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
           <div className="w-full flex flex-col items-start gap-2">
             <Label
               htmlFor="homeroom"
@@ -629,7 +629,7 @@ const InputForm = ({
               </Tooltip>
             </div>
           </div>
-          <div className="w-full flex flex-col items-start gap-3 ">
+          <div className="w-full flex flex-col items-start gap-3">
             <div className="flex items-center gap-2">
               <Label
                 htmlFor="ticket-type"

@@ -75,14 +75,14 @@ const EnhancedSelect = ({
   );
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 w-full">
       <Popover modal={modal || isMobileDevice} open={isOpen}>
         <PopoverTrigger asChild>
           <Button
             ref={triggerRef}
             aria-expanded={isOpen}
             className={cn(
-              "h-max w-[200px] justify-between whitespace-pre-wrap",
+              "h-max w-full justify-between whitespace-pre-wrap",
               triggerClassName
             )}
             disabled={!!prerequisite}

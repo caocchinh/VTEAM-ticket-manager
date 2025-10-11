@@ -9,8 +9,10 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
 /src/drizzle/offline/migrations
 /src/drizzle/online/migrations
+/src/drizzle/silencio/migrations
 
 # testing
 /coverage

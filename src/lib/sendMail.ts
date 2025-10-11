@@ -88,11 +88,17 @@ export async function sendSuccessEmail({
           studentEmail: email,
           emailStatus: SENT_EMAIL_STATUS,
         });
+        console.log(
+          `Updated offline order email status to ${SENT_EMAIL_STATUS} for ${email}`
+        );
       } else if (typeOfSale === "online") {
         await updateOnlineOrderEmailStatus({
           studentEmail: email,
           emailStatus: SENT_EMAIL_STATUS,
         });
+        console.log(
+          `Updated online order email status to ${SENT_EMAIL_STATUS} for ${email}`
+        );
       }
     } catch (error) {
       console.error(`Failed to send email to ${email}:`, error);
@@ -101,11 +107,17 @@ export async function sendSuccessEmail({
           studentEmail: email,
           emailStatus: FAILED_EMAIL_STATUS,
         });
+        console.log(
+          `Updated offline order email status to ${FAILED_EMAIL_STATUS} for ${email}`
+        );
       } else if (typeOfSale === "online") {
         await updateOnlineOrderEmailStatus({
           studentEmail: email,
           emailStatus: FAILED_EMAIL_STATUS,
         });
+        console.log(
+          `Updated online order email status to ${FAILED_EMAIL_STATUS} for ${email}`
+        );
       }
     }
   } catch (error) {
@@ -194,12 +206,18 @@ export async function sendFailedEmail({
         studentEmail: email,
         emailStatus: SENT_EMAIL_STATUS,
       });
+      console.log(
+        `Updated online order email status to ${SENT_EMAIL_STATUS} for ${email} (failed email sent)`
+      );
     } catch (error) {
       console.error(`Failed to send email to ${email}:`, error);
       await updateOnlineOrderEmailStatus({
         studentEmail: email,
         emailStatus: FAILED_EMAIL_STATUS,
       });
+      console.log(
+        `Updated online order email status to ${FAILED_EMAIL_STATUS} for ${email} (failed email attempt)`
+      );
     }
   } catch (error) {
     console.error(`Failed to send email to ${email}:`, error);

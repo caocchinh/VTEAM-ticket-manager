@@ -17,7 +17,7 @@ export interface RetryConfig {
  */
 export const RETRY_CONFIGS = {
   AUTH: {
-    maxRetries: 2,
+    maxRetries: 3,
     baseDelay: 300,
     maxDelay: 1000,
     backoffMultiplier: 2,

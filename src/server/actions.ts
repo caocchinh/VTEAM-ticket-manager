@@ -25,6 +25,9 @@ import {
 import { sendFailedEmail, sendSuccessEmail } from "@/lib/sendMail";
 import { getCurrentTime } from "@/lib/utils";
 import { EmailInfo, EventInfo } from "@/constants/types";
+import { retryDatabase } from "@/dal/retry";
+import { silencioQueueDb } from "@/drizzle/silencio/db";
+import { customer } from "@/drizzle/silencio/schema";
 
 const getEmailInfo = async (): Promise<{
   error: boolean;
@@ -83,7 +86,8 @@ const getEventInfo = async (): Promise<{
 };
 
 const getEmailAndEventInfo = async (): Promise<{
-  error: boolean;
+  emailError: boolean;
+  eventError: boolean;
   data: { emailInfo: EmailInfo | undefined; eventInfo: EventInfo | undefined };
 }> => {
   const [emailInfoResult, eventInfoResult] = await Promise.allSettled([
@@ -102,8 +106,8 @@ const getEmailAndEventInfo = async (): Promise<{
       : { error: true, data: undefined };
 
   return {
-    error:
-      emailInfo.error || eventInfo.error || !emailInfo.data || !eventInfo.data,
+    emailError: emailInfo.error || !emailInfo.data,
+    eventError: eventInfo.error || !eventInfo.data,
     data: { emailInfo: emailInfo.data, eventInfo: eventInfo.data },
   };
 };
@@ -186,6 +190,16 @@ export const sendOrderAction = async ({
       `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
     );
 
+    const {
+      emailError,
+      eventError,
+      data: emailAndEventInfoData,
+    } = await getEmailAndEventInfo();
+
+    if (eventError || emailError) {
+      return createActionError("INTERNAL_SERVER_ERROR");
+    }
+
     // Submit orders
     console.log(`[${operationId}] Submitting orders to spreadsheet...`);
     const result = await sendOfflineOrder({
@@ -194,33 +208,56 @@ export const sendOrderAction = async ({
     });
 
     if (result.success) {
-      if (shouldSendEmail) {
-        const { error: emailAndEventInfoError, data: emailAndEventInfoData } =
-          await getEmailAndEventInfo();
-
-        if (
-          !(
-            emailAndEventInfoError ||
-            !emailAndEventInfoData.emailInfo ||
-            !emailAndEventInfoData.eventInfo
-          )
-        ) {
-          await Promise.allSettled(
-            orders.map(async (order) => {
-              await sendSuccessEmail({
-                email: order.email,
-                studentName: order.nameInput,
-                studentId: order.studentIdInput,
-                homeroom: order.homeroomInput,
-                ticketType: order.ticketType,
-                emailInfo: emailAndEventInfoData.emailInfo!,
-                eventInfo: emailAndEventInfoData.eventInfo!,
-                purchaseTime: getCurrentTime({ includeTime: true }),
-                typeOfSale: "offline",
-              });
-            })
+      // Append to customer database - batch insert with conflict handling
+      if (emailAndEventInfoData.eventInfo!.eventType === "Silencio") {
+        const customerInfos = orders.map((order) => ({
+          name: order.nameInput,
+          email: order.email,
+          studentId: order.studentIdInput,
+          homeroom: order.homeroomInput,
+          ticketType: order.ticketType,
+        }));
+        console.log(
+          `[${operationId}] Appending ${customerInfos.length} records to Silencio queue database...`
+        );
+        const dbStartTime = Date.now();
+        try {
+          await retryDatabase(async () => {
+            await silencioQueueDb
+              .insert(customer)
+              .values(customerInfos)
+              .onConflictDoNothing();
+          }, "sendOrderAction - batch append to database");
+          const dbDuration = Date.now() - dbStartTime;
+          console.log(
+            `[${operationId}] Database batch insert completed in ${dbDuration}ms`
           );
+        } catch (dbError) {
+          const dbDuration = Date.now() - dbStartTime;
+          console.error(
+            `[${operationId}] Database batch insert failed after ${dbDuration}ms:`,
+            dbError
+          );
+          throw dbError;
         }
+      }
+
+      if (shouldSendEmail) {
+        await Promise.allSettled(
+          orders.map(async (order) => {
+            await sendSuccessEmail({
+              email: order.email,
+              studentName: order.nameInput,
+              studentId: order.studentIdInput,
+              homeroom: order.homeroomInput,
+              ticketType: order.ticketType,
+              emailInfo: emailAndEventInfoData.emailInfo!,
+              eventInfo: emailAndEventInfoData.eventInfo!,
+              purchaseTime: getCurrentTime({ includeTime: true }),
+              typeOfSale: "offline",
+            });
+          })
+        );
       }
       const duration = Date.now() - startTime;
       console.log(
@@ -414,6 +451,16 @@ export const updateOnlineOrderStatusAction = async ({
 
     console.log(`[${operationId}] Input validation passed`);
 
+    const {
+      emailError,
+      eventError,
+      data: emailAndEventInfoData,
+    } = await getEmailAndEventInfo();
+
+    if (eventError || emailError) {
+      return createActionError("INTERNAL_SERVER_ERROR");
+    }
+
     // Update online order status
     console.log(`[${operationId}] Updating online order status...`);
     const result = await updateOnlineOrderStatus({
@@ -423,49 +470,65 @@ export const updateOnlineOrderStatusAction = async ({
     });
 
     if (!result.error) {
+      // If there's result.data, it means that data it actually had updated the order status, thus send email and append to database. Otherwise, it means that the order status has not been updated, thus do not send email.
       if (result.data) {
-        const { error: emailAndEventInfoError, data: emailAndEventInfoData } =
-          await getEmailAndEventInfo();
-
-        if (
-          !(
-            emailAndEventInfoError ||
-            !emailAndEventInfoData.emailInfo ||
-            !emailAndEventInfoData.eventInfo
-          )
-        ) {
-          if (
-            verificationStatus === VERIFICATION_APPROVED &&
-            result.data.verificationStatus !== VERIFICATION_APPROVED
-          ) {
-            await sendSuccessEmail({
+        if (verificationStatus === VERIFICATION_APPROVED) {
+          if (emailAndEventInfoData.eventInfo!.eventType === "Silencio") {
+            const customerInfo = {
+              name: result.data!.buyerName,
               email: result.data!.buyerEmail,
-              studentName: result.data.buyerName,
-              studentId: result.data.buyerId,
-              homeroom: result.data.buyerClass,
-              ticketType: result.data.buyerTicketType,
-              emailInfo: emailAndEventInfoData.emailInfo,
-              eventInfo: emailAndEventInfoData.eventInfo,
-              purchaseTime: result.data.time,
-              typeOfSale: "online",
-            });
-          } else if (
-            verificationStatus === VERIFICATION_FAILED &&
-            !result.data.rejectionReason
-          ) {
-            await sendFailedEmail({
-              email: result.data.buyerEmail,
-              studentName: result.data.buyerName,
-              studentId: result.data.buyerId,
-              homeroom: result.data.buyerClass,
-              ticketType: result.data.buyerTicketType,
-              emailInfo: emailAndEventInfoData.emailInfo,
-              eventInfo: emailAndEventInfoData.eventInfo,
-              purchaseTime: result.data.time,
-              proofOfPaymentURL: result.data.proofOfPaymentImage,
-              rejectionReason: rejectionReason as string,
-            });
+              studentId: result.data!.buyerId,
+              homeroom: result.data!.buyerClass,
+              ticketType: result.data!.buyerTicketType,
+            };
+            console.log(
+              `[${operationId}] Appending customer to Silencio queue database (studentId: ${customerInfo.studentId})...`
+            );
+            const dbStartTime = Date.now();
+            try {
+              await retryDatabase(async () => {
+                await silencioQueueDb
+                  .insert(customer)
+                  .values(customerInfo)
+                  .onConflictDoNothing();
+              }, "addSilencioCustomer - append to database");
+              const dbDuration = Date.now() - dbStartTime;
+              console.log(
+                `[${operationId}] Database insert completed in ${dbDuration}ms`
+              );
+            } catch (dbError) {
+              const dbDuration = Date.now() - dbStartTime;
+              console.error(
+                `[${operationId}] Database insert failed after ${dbDuration}ms:`,
+                dbError
+              );
+              throw dbError;
+            }
           }
+          await sendSuccessEmail({
+            email: result.data!.buyerEmail,
+            studentName: result.data.buyerName,
+            studentId: result.data.buyerId,
+            homeroom: result.data.buyerClass,
+            ticketType: result.data.buyerTicketType,
+            emailInfo: emailAndEventInfoData.emailInfo!,
+            eventInfo: emailAndEventInfoData.eventInfo!,
+            purchaseTime: result.data.time,
+            typeOfSale: "online",
+          });
+        } else if (verificationStatus === VERIFICATION_FAILED) {
+          await sendFailedEmail({
+            email: result.data.buyerEmail,
+            studentName: result.data.buyerName,
+            studentId: result.data.buyerId,
+            homeroom: result.data.buyerClass,
+            ticketType: result.data.buyerTicketType,
+            emailInfo: emailAndEventInfoData.emailInfo!,
+            eventInfo: emailAndEventInfoData.eventInfo!,
+            purchaseTime: result.data.time,
+            proofOfPaymentURL: result.data.proofOfPaymentImage,
+            rejectionReason: rejectionReason as string,
+          });
         }
       }
       const duration = Date.now() - startTime;

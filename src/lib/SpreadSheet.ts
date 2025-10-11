@@ -604,7 +604,10 @@ export const sendOfflineOrder = async ({
       }));
 
       await retryDatabase(async () => {
-        return await offlineTicketDb.insert(backUpOrder).values(backupData);
+        return await offlineTicketDb
+          .insert(backUpOrder)
+          .values(backupData)
+          .onConflictDoNothing();
       }, "sendOfflineOrder - database backup");
 
       console.log(
@@ -969,7 +972,9 @@ export const updateOnlineOrderStatus = async ({
   }
   const onlineSalesData = onlineSales.data;
   const orderIndexInSheet = onlineSalesData?.findIndex(
-    (order) => order.buyerId === studentId
+    (order) =>
+      order.buyerId === studentId &&
+      order.verificationStatus !== verificationStatus
   );
   if (!onlineSalesData) {
     return {
@@ -977,6 +982,9 @@ export const updateOnlineOrderStatus = async ({
       errorMessage: "Failed to fetch online sales",
       data: undefined,
     };
+  }
+  if (orderIndexInSheet === -1) {
+    return { error: true, errorMessage: "Order not found", data: undefined };
   }
   const order = onlineSalesData?.[orderIndexInSheet] as OnlineSalesInfo;
   if (
@@ -992,13 +1000,10 @@ export const updateOnlineOrderStatus = async ({
       data: undefined,
     };
   }
-  if (orderIndexInSheet === -1) {
-    return { error: true, errorMessage: "Order not found", data: undefined };
-  }
+
   if (
-    order.verificationStatus === verificationStatus ||
-    (verificationStatus === VERIFICATION_FAILED &&
-      order.verificationStatus === VERIFICATION_APPROVED)
+    verificationStatus === VERIFICATION_FAILED &&
+    order.verificationStatus === VERIFICATION_APPROVED
   ) {
     return {
       error: false,
@@ -1012,6 +1017,10 @@ export const updateOnlineOrderStatus = async ({
     {
       range: `${ONLINE_SALES_ORDER_SHEET_NAME}!${ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_COLUMN}${rowIndexInSheet}`,
       values: [[verificationStatus as string]],
+    },
+    {
+      range: `${ONLINE_SALES_ORDER_SHEET_NAME}!${ONLINE_SALES_ORDER_EMAIL_STATUS_COLUMN}${rowIndexInSheet}`,
+      values: [[PENDING_EMAIL_STATUS as string]],
     },
   ];
   if (verificationStatus === VERIFICATION_FAILED) {
@@ -1125,6 +1134,9 @@ export const updateOfflineOrderEmailStatus = async ({
   if (!offlineSalesData) {
     return { error: true, errorMessage: "Failed to fetch online sales" };
   }
+  if (orderIndexInSheet === -1) {
+    return { error: true, errorMessage: "Order not found" };
+  }
   const order = offlineSalesData?.[orderIndexInSheet] as OfflineSalesInfo;
   if (
     !order.buyerId ||
@@ -1134,9 +1146,6 @@ export const updateOfflineOrderEmailStatus = async ({
     !order.buyerTicketType
   ) {
     return { error: true, errorMessage: "Order data is invalid" };
-  }
-  if (orderIndexInSheet === -1) {
-    return { error: true, errorMessage: "Order not found" };
   }
 
   const rowIndexInSheet = orderIndexInSheet + 2;
@@ -1198,10 +1207,14 @@ export const updateOnlineOrderEmailStatus = async ({
   const orderIndexInSheet = onlineSalesData?.findIndex(
     (order) =>
       order.buyerEmail === studentEmail &&
-      order.emailStatus !== SENT_EMAIL_STATUS
+      order.emailStatus !== SENT_EMAIL_STATUS &&
+      order.emailStatus !== FAILED_EMAIL_STATUS
   );
   if (!onlineSalesData) {
     return { error: true, errorMessage: "Failed to fetch online sales" };
+  }
+  if (orderIndexInSheet === -1) {
+    return { error: true, errorMessage: "Order not found" };
   }
   const order = onlineSalesData?.[orderIndexInSheet] as OnlineSalesInfo;
   if (
@@ -1212,9 +1225,6 @@ export const updateOnlineOrderEmailStatus = async ({
     !order.buyerTicketType
   ) {
     return { error: true, errorMessage: "Order data is invalid" };
-  }
-  if (orderIndexInSheet === -1) {
-    return { error: true, errorMessage: "Order not found" };
   }
 
   const rowIndexInSheet = orderIndexInSheet + 2;

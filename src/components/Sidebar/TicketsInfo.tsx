@@ -53,15 +53,14 @@ export function TicketsInfo({
             <TicketIcon className="w-[21px] h-[21px]" />
             <div className="whitespace-nowrap flex items-center gap-2">
               Thông tin vé{" "}
-              {isTicketInfoError ? (
+              {isTicketInfoError && !isTicketInfoFetching && (
                 <span className="text-red-600"> Lỗi </span>
-              ) : (
-                <>
-                  {isTicketInfoFetching && (
-                    <Loader2 className="animate-spin" size={16} />
-                  )}
-                </>
               )}
+              <>
+                {isTicketInfoFetching && (
+                  <Loader2 className="animate-spin" size={16} />
+                )}
+              </>
             </div>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/tickets:rotate-90" />
             <DropdownMenuTrigger asChild>
@@ -156,7 +155,7 @@ export function TicketsInfo({
             )}
 
             {/* Error State */}
-            {isTicketInfoError && (
+            {isTicketInfoError && !isTicketInfoFetching && (
               <SidebarMenuSubItem>
                 <div className="px-2 py-1 text-sm text-red-600">
                   Không thể tải thông tin vé. Vui lòng thử lại sau.
@@ -253,7 +252,7 @@ export function TicketsInfo({
         )}
 
         {/* Error State in Dropdown */}
-        {isTicketInfoError && (
+        {isTicketInfoError && !isTicketInfoFetching && (
           <p className="p-2 rounded-md text-sm text-red-600">
             Không thể tải thông tin vé. Vui lòng thử lại sau.
           </p>

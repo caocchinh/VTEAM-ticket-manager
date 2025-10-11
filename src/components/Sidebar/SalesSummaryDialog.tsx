@@ -100,7 +100,7 @@ const SalesSummaryDialog = ({
                   staffName={staffInfo.name}
                 />
               ) : (
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center text-center">
                   Không có đủ dữ kiện offline để trình bày
                 </div>
               )}
@@ -123,7 +123,7 @@ const SalesSummaryDialog = ({
                   staffName={staffInfo.name}
                 />
               ) : (
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center text-center">
                   Không có đủ dữ kiện online đã xác minh để trình bày
                 </div>
               )}

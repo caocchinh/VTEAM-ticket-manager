@@ -161,7 +161,7 @@ const SalesTrendChart = ({
     return (
       <Card>
         <CardContent className="text-center py-8">
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Không có đủ dữ liệu để hiển thị biểu đồ xu hướng
           </p>
         </CardContent>

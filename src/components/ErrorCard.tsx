@@ -14,7 +14,7 @@ interface ErrorCardProps {
 export function ErrorCard({ message }: ErrorCardProps) {
   return (
     <div className="h-[calc(100vh-17px)] flex items-center justify-center p-2 w-full -mt-10">
-      <Card className="w-[90%] max-w-md">
+      <Card className="w-[90%] max-w-md border-red-500">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <TriangleAlert

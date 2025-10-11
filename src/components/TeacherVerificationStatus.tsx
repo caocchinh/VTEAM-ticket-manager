@@ -171,7 +171,8 @@ const TeacherVerificationStatus = ({
           variant="outline"
           className={cn(
             isSidebarOpen && !isMobile ? "flex-1" : null,
-            isMobile && "flex-1"
+            isMobile && "flex-1",
+            "cursor-pointer"
           )}
           disabled={currentOrder.length === 0}
         >

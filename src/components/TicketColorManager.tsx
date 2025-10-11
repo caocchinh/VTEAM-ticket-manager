@@ -66,7 +66,11 @@ const TicketColorManager = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 -mt-2 mb-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 -mt-2 mb-2 cursor-pointer"
+        >
           <Palette size={16} />
           Màu vé
         </Button>
@@ -112,12 +116,15 @@ const TicketColorManager = ({
           <Button
             variant="outline"
             onClick={onResetColors}
-            className="gap-2 w-full sm:w-auto"
+            className="gap-2 w-full sm:w-auto cursor-pointer"
           >
             <RotateCcw size={16} />
             Đặt lại màu mặc định
           </Button>
-          <Button onClick={() => setIsOpen(false)} className="w-full sm:w-auto">
+          <Button
+            onClick={() => setIsOpen(false)}
+            className="w-full sm:w-auto cursor-pointer"
+          >
             Xong
           </Button>
         </DialogFooter>

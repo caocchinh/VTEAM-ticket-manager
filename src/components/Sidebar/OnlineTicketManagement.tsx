@@ -1207,7 +1207,7 @@ const OnlineTicketManagement = ({
                             Màn hình chuyển khoản
                           </h4>
                           <ScrollArea
-                            className="h-[69dvh] max-h-[420px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
+                            className="h-[68dvh] max-h-[410px] w-full [&_.bg-border]:bg-logo-main/25 !pr-2"
                             type="always"
                             viewportRef={answerScrollAreaRef}
                           >
@@ -1550,18 +1550,24 @@ export const InspectOrderImages = ({
 }: {
   imageSource: string | undefined;
 }) => {
+  const [isImageLoading, setIsImageLoading] = useState(true);
   if (!imageSource || imageSource.length === 0) {
     return <p className="text-center text-red-600">Unable to fetch resource</p>;
   }
   return (
     <div className="flex flex-col flex-wrap w-full relative items-center">
-      <Loader2 className="animate-spin absolute left-1/2 -translate-x-1/2 z-0" />
+      {isImageLoading && (
+        <div className=" w-full h-full top-0 left-0 bg-white/50 z-20 flex items-center justify-center">
+          <Loader2 className="animate-spin" />
+        </div>
+      )}
       {imageSource && (
         <img
           className="w-full h-full object-contain relative z-10 !max-w-[750px] bg-white"
           src={imageSource}
           alt="Order image"
           loading="lazy"
+          onLoad={() => setIsImageLoading(false)}
         />
       )}
     </div>

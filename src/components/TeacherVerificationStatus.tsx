@@ -30,6 +30,36 @@ import { OrderItemInfo } from "./OrderItemInfo";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSidebar } from "./ui/sidebar";
+import { TeacherVerificationStatus as TeacherVerificationStatusType } from "@/constants/types";
+
+// Helper function to get verification status styling and text
+const getVerificationStatus = (
+  acceptStatus: TeacherVerificationStatusType,
+  rejectStatus: TeacherVerificationStatusType
+) => {
+  if (acceptStatus === "TRUE") {
+    return {
+      className: "bg-green-100 text-green-800",
+      text: "Được tham gia",
+      fullClassName: "bg-green-100 text-green-800 border border-green-200",
+      fullText: "✓ Được tham gia",
+    };
+  }
+  if (rejectStatus === "TRUE") {
+    return {
+      className: "bg-red-100 text-red-800",
+      text: "Không được tham gia",
+      fullClassName: "bg-red-100 text-red-800 border border-red-200",
+      fullText: "✗ Không được tham gia",
+    };
+  }
+  return {
+    className: "bg-orange-100 text-orange-800",
+    text: "Chưa xác nhận",
+    fullClassName: "bg-orange-100 text-orange-800 border border-orange-200",
+    fullText: "⏳ Chưa xác nhận",
+  };
+};
 
 const TeacherVerificationStatus = ({
   currentOrder,
@@ -212,17 +242,20 @@ const TeacherVerificationStatus = ({
                         <p>{index + 1}.</p>
                         <div className="font-medium">{student.name}</div>
                         <span
-                          className={`px-2 py-1 rounded text-xs font-medium ${
-                            student.verificationStatus === "TRUE"
-                              ? "bg-green-100 text-green-800"
-                              : student.verificationStatus === "PENDING"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                          className={cn(
+                            "px-2 py-1 rounded text-xs font-medium",
+                            getVerificationStatus(
+                              student.acceptStatus,
+                              student.rejectStatus
+                            ).className
+                          )}
                         >
-                          {student.verificationStatus === "FALSE"
-                            ? "Chưa xác nhận"
-                            : "Đã xác nhận"}
+                          {
+                            getVerificationStatus(
+                              student.acceptStatus,
+                              student.rejectStatus
+                            ).text
+                          }
                         </span>
                       </div>
                       <OrderItemActions
@@ -241,11 +274,17 @@ const TeacherVerificationStatus = ({
                       Lớp: {student.homeroom}
                     </div>
                     <div className="text-sm text-gray-600">
-                      Lưu ý:{" "}
+                      Lưu ý của bạn:{" "}
                       <span className="whitespace-pre-wrap wrap-anywhere">
                         {currentOrder.find(
                           (order) => order.studentIdInput === student.studentId
                         )?.notice || "Không có lưu ý"}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Ghi chú của GVCN:{" "}
+                      <span className="whitespace-pre-wrap wrap-anywhere">
+                        {student.teacherNotice || "Không có ghi chú"}
                       </span>
                     </div>
                   </div>
@@ -321,7 +360,7 @@ const TeacherVerificationStatus = ({
               <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                 <PencilLine className="w-3 h-3 text-blue-600" />
               </div>
-              Chỉnh sửa lưu ý
+              Chỉnh sửa lưu ý của bạn
             </DialogTitle>
             <DialogDescription>
               Cập nhật thông tin lưu ý cho đơn hàng này. Thay đổi sẽ được lưu
@@ -345,44 +384,11 @@ const TeacherVerificationStatus = ({
                       {currentOrder[editingIndex].studentIdInput}
                     </p>
                   </div>
-                  {teacherVerificationData && (
-                    <div className="flex flex-col gap-2 mt-3">
-                      <div className="flex flex-row gap-2">
-                        <p className="font-semibold text-gray-700">Lớp:</p>
-                        <p className="text-gray-900">
-                          {teacherVerificationData.find(
-                            (student) =>
-                              student.studentId ===
-                              currentOrder[editingIndex].studentIdInput
-                          )?.homeroom ||
-                            currentOrder[editingIndex]?.homeroomInput}
-                        </p>
-                      </div>
-                      <div className="flex flex-row gap-2 items-center">
-                        <p className="font-semibold text-gray-700">
-                          Trạng thái xác nhận:
-                        </p>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            teacherVerificationData.find(
-                              (student) =>
-                                student.studentId ===
-                                currentOrder[editingIndex].studentIdInput
-                            )?.verificationStatus === "TRUE"
-                              ? "bg-green-100 text-green-800 border border-green-200"
-                              : "bg-red-100 text-red-800 border border-red-200"
-                          }`}
-                        >
-                          {teacherVerificationData.find(
-                            (student) =>
-                              student.studentId ===
-                              currentOrder[editingIndex].studentIdInput
-                          )?.verificationStatus === "TRUE"
-                            ? "✓ Đã xác nhận"
-                            : "✗ Chưa xác nhận"}
-                        </span>
-                      </div>
-                    </div>
+                  {teacherVerificationData && editingIndex !== null && (
+                    <StudentVerificationInfo
+                      studentId={currentOrder[editingIndex].studentIdInput}
+                      teacherVerificationData={teacherVerificationData}
+                    />
                   )}
                 </div>
               </div>
@@ -438,6 +444,44 @@ const TeacherVerificationStatus = ({
   );
 };
 
+// StudentVerificationInfo component - displays student homeroom and verification status
+const StudentVerificationInfo = ({
+  studentId,
+  teacherVerificationData,
+}: {
+  studentId: string;
+  teacherVerificationData: TeacherVerificationInfo[];
+}) => {
+  const studentData = teacherVerificationData.find(
+    (student) => student.studentId === studentId
+  );
+
+  const verificationStatus = getVerificationStatus(
+    studentData?.acceptStatus || "",
+    studentData?.rejectStatus || ""
+  );
+
+  return (
+    <div className="flex flex-col gap-2 mt-3">
+      <div className="flex flex-row gap-2">
+        <p className="font-semibold text-gray-700">Lớp:</p>
+        <p className="text-gray-900">{studentData?.homeroom}</p>
+      </div>
+      <div className="flex flex-row gap-2 items-center">
+        <p className="font-semibold text-gray-700">Trạng thái xác nhận:</p>
+        <span
+          className={cn(
+            "px-2 py-1 rounded-full text-xs font-medium",
+            verificationStatus.fullClassName
+          )}
+        >
+          {verificationStatus.fullText}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 // OrderItemActions component for edit and delete functionality
 const OrderItemActions = ({
   orderIndex,
@@ -461,7 +505,7 @@ const OrderItemActions = ({
             <PencilLine size={12} />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Sửa lưu ý</TooltipContent>
+        <TooltipContent>Sửa lưu ý của bạn</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>

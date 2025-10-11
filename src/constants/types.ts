@@ -158,11 +158,15 @@ export interface FailedEmailPayload {
   purchaseTime: string;
 }
 
+export type TeacherVerificationStatus = "TRUE" | "FALSE" | "";
+
 export interface TeacherVerificationInfo {
   name: string;
   studentId: string;
   homeroom: string;
-  verificationStatus: string;
+  acceptStatus: TeacherVerificationStatus;
+  rejectStatus: TeacherVerificationStatus;
+  teacherNotice: string;
 }
 
 export interface InputFormProps {

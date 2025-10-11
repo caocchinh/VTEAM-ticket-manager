@@ -70,12 +70,14 @@ import {
   TEACHER_VERIFICATION_STUDENT_NAME_INDEX,
   TEACHER_VERIFICATION_STUDENT_ID_INDEX,
   TEACHER_VERIFICATION_STUDENT_HOMEROOM_INDEX,
-  TEACHER_VERIFICATION_STUDENT_VERIFIFICATION_STATUS_INDEX,
   PENDING_EMAIL_STATUS,
   SENT_EMAIL_STATUS,
   OFFLINE_SALES_ORDER_EMAIL_STATUS_INDEX,
   ONLINE_SALES_ORDER_EMAIL_STATUS_INDEX,
   FAILED_EMAIL_STATUS,
+  TEACHER_VERIFICATION_TEACHER_NOTICE_INDEX,
+  TEACHER_VERIFICATION_STUDENT_ACCEPT_STATUS_INDEX,
+  TEACHER_VERIFICATION_STUDENT_REJECT_STATUS_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -89,6 +91,7 @@ import {
   SheetOrderStatus,
   EmailInfo,
   TeacherVerificationInfo,
+  TeacherVerificationStatus,
 } from "@/constants/types";
 import { getCurrentTime } from "./utils";
 import { offlineTicketDb } from "@/drizzle/offline/db";
@@ -912,9 +915,13 @@ export const fetchTeacherVerification = async (): Promise<{
       name: safeTrim(value[TEACHER_VERIFICATION_STUDENT_NAME_INDEX]),
       studentId: safeTrim(value[TEACHER_VERIFICATION_STUDENT_ID_INDEX]),
       homeroom: safeTrim(value[TEACHER_VERIFICATION_STUDENT_HOMEROOM_INDEX]),
-      verificationStatus: safeTrim(
-        value[TEACHER_VERIFICATION_STUDENT_VERIFIFICATION_STATUS_INDEX]
-      ),
+      acceptStatus: safeTrim(
+        value[TEACHER_VERIFICATION_STUDENT_ACCEPT_STATUS_INDEX]
+      ) as TeacherVerificationStatus,
+      rejectStatus: safeTrim(
+        value[TEACHER_VERIFICATION_STUDENT_REJECT_STATUS_INDEX]
+      ) as TeacherVerificationStatus,
+      teacherNotice: safeTrim(value[TEACHER_VERIFICATION_TEACHER_NOTICE_INDEX]),
     }));
 
     if (data) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Loader2, UserStar } from "lucide-react";
 import { formatVietnameseCurrency } from "@/lib/utils";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -18,57 +18,60 @@ import { useState } from "react";
 import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 
-interface SalesInfoCardProps {
-  totalOfflineOrders: number;
-  totalOnlineOrders: number;
-  totalRevenue: number;
-  offlineRevenue: number;
-  onlineRevenue: number;
-  isSalesInfoError: boolean;
+interface StaffOveralSummaryProps {
   isSalesInfoFetching: boolean;
+  staffInfo: {
+    revenue: number;
+    orderCount: number;
+  };
+  isSalesInfoError: boolean;
+  totalRevenue: number;
+  totalRevenueOffline: number;
 }
 
-const SalesInfoCard = ({
-  totalOfflineOrders,
-  totalOnlineOrders,
-  totalRevenue,
-  offlineRevenue,
-  onlineRevenue,
-  isSalesInfoError,
+const StaffOveralSummary = ({
   isSalesInfoFetching,
-}: SalesInfoCardProps) => {
+  isSalesInfoError,
+  staffInfo,
+  totalRevenue,
+  totalRevenueOffline,
+}: StaffOveralSummaryProps) => {
   const { open: isSidebarOpen, isMobile } = useSidebar();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const calculatePercentage = (part: number, whole: number): number => {
+    if (!Number.isFinite(part) || !Number.isFinite(whole) || whole <= 0) {
+      return 0;
+    }
+    return Math.round((part / whole) * 100);
+  };
 
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
       <Collapsible defaultOpen={false} className="group/collapsible">
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
-            tooltip="Tổng doanh thu"
+            tooltip="Doanh thu của bạn"
             onClick={() => {
               if (!isSidebarOpen) {
                 setIsDropdownOpen(true);
               }
             }}
           >
-            <ShoppingCart size={20} className="text-green-600" />
+            <UserStar size={20} className="text-yellow-500" />
             <div className="whitespace-nowrap flex items-center gap-2">
-              Tổng danh thu:{" "}
+              Doanh thu của bạn:
               {isSalesInfoError && !isSalesInfoFetching && (
                 <span className="text-red-600"> Lỗi </span>
               )}
-              <>
-                {isSalesInfoFetching && (
-                  <Loader2 className="animate-spin" size={16} />
-                )}
-
-                {!isSalesInfoFetching && !isSalesInfoError && (
-                  <span className="font-medium text-green-600">
-                    {formatVietnameseCurrency(totalRevenue)}
-                  </span>
-                )}
-              </>
+              {isSalesInfoFetching && (
+                <Loader2 className="animate-spin" size={16} />
+              )}
+              {!isSalesInfoError && !isSalesInfoFetching && (
+                <span className="font-medium text-green-600">
+                  {formatVietnameseCurrency(staffInfo.revenue)}
+                </span>
+              )}
             </div>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
             <DropdownMenuTrigger asChild>
@@ -82,33 +85,37 @@ const SalesInfoCard = ({
             <SidebarMenuSub>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
                 Tổng đơn hàng:{" "}
-                <span className="font-medium">
-                  {isSalesInfoFetching ? (
-                    <Skeleton className="w-25 h-4" />
-                  ) : (
-                    totalOfflineOrders + totalOnlineOrders
-                  )}
-                </span>
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  <span className="font-medium">{staffInfo.orderCount}</span>
+                )}
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                Đơn hàng offline:{" "}
-                <span className="font-medium">
-                  {isSalesInfoFetching ? (
-                    <Skeleton className="w-25 h-4" />
-                  ) : (
-                    totalOfflineOrders
-                  )}
-                </span>
+                % tổng doanh thu:
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  <span className="font-medium">
+                    {" "}
+                    {calculatePercentage(staffInfo.revenue, totalRevenue)}%
+                  </span>
+                )}
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                Đơn hàng online:{" "}
-                <span className="font-medium">
-                  {isSalesInfoFetching ? (
-                    <Skeleton className="w-25 h-4" />
-                  ) : (
-                    totalOnlineOrders
-                  )}
-                </span>
+                % tổng doanh thu offline:
+                {isSalesInfoFetching ? (
+                  <Skeleton className="w-25 h-4" />
+                ) : (
+                  <span className="font-medium">
+                    {" "}
+                    {calculatePercentage(
+                      staffInfo.revenue,
+                      totalRevenueOffline
+                    )}
+                    %
+                  </span>
+                )}
               </SidebarMenuSubItem>
             </SidebarMenuSub>
           )}
@@ -131,64 +138,43 @@ const SalesInfoCard = ({
         {(!isSalesInfoError || isSalesInfoFetching) && (
           <>
             <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Tổng danh thu:{" "}
+              Doanh thu của bạn:{" "}
               <span className="font-medium text-green-600">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
                 ) : (
-                  formatVietnameseCurrency(totalRevenue)
+                  formatVietnameseCurrency(staffInfo.revenue)
                 )}
               </span>
             </p>
             <Separator orientation="horizontal" />
             <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Doanh thu offline:{" "}
-              <span className="font-medium text-blue-600">
-                {isSalesInfoFetching ? (
-                  <Skeleton className="w-20 h-4" />
-                ) : (
-                  formatVietnameseCurrency(offlineRevenue)
-                )}
-              </span>
-            </p>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Doanh thu online:{" "}
-              <span className="font-medium text-orange-600">
-                {isSalesInfoFetching ? (
-                  <Skeleton className="w-20 h-4" />
-                ) : (
-                  formatVietnameseCurrency(onlineRevenue)
-                )}
-              </span>
-            </p>
-            <Separator orientation="horizontal" />
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Tổng đơn hàng:{" "}
+              Đơn hàng:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
                 ) : (
-                  totalOfflineOrders + totalOnlineOrders
+                  staffInfo.orderCount
                 )}
               </span>
             </p>
             <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Đơn hàng offline:{" "}
+              % tổng doanh thu:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
                 ) : (
-                  totalOfflineOrders
+                  calculatePercentage(staffInfo.revenue, totalRevenue)
                 )}
               </span>
             </p>
             <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Đơn hàng online:{" "}
+              % tổng doanh thu offline:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
                 ) : (
-                  totalOnlineOrders
+                  calculatePercentage(staffInfo.revenue, totalRevenueOffline)
                 )}
               </span>
             </p>
@@ -204,4 +190,4 @@ const SalesInfoCard = ({
   );
 };
 
-export default SalesInfoCard;
+export default StaffOveralSummary;

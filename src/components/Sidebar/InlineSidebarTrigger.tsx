@@ -7,16 +7,19 @@ type InlineSidebarTriggerProps = {
 };
 
 const InlineSidebarTrigger = ({ className }: InlineSidebarTriggerProps) => {
-  const { open: isSidebarOpen } = useSidebar();
+  const { open: isSidebarOpen, openMobile: isMobileSidebarOpen } = useSidebar();
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <SidebarTrigger className={className}>
           <PanelLeft />
+          <p className="block md:hidden">
+            {isMobileSidebarOpen ? "Ẩn sidebar" : "Hiển thị sidebar"}
+          </p>
         </SidebarTrigger>
       </TooltipTrigger>
-      <TooltipContent side="right">
+      <TooltipContent side="right" className="hidden md:block">
         {isSidebarOpen ? "Ẩn sidebar" : "Hiển thị sidebar"}
       </TooltipContent>
     </Tooltip>

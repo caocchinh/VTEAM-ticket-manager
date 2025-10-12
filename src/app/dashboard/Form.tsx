@@ -26,7 +26,7 @@ import {
 } from "@/server/actions";
 import SalesSummaryDialog from "@/components/Sidebar/SalesSummaryDialog";
 import UpdateDataDialog from "@/components/Sidebar/UpdateDataDialog";
-import SalesInfoCard from "@/components/Sidebar/SalesInfoCard";
+import SalesOveralSummary from "@/components/Sidebar/SalesOveralSummary";
 import { DEFAULT_TICKET_COLORS } from "@/constants/constants";
 import OnlineTicketManagement from "@/components/Sidebar/OnlineTicketManagement";
 import {
@@ -47,13 +47,14 @@ import SidebarUser from "@/components/Sidebar/SidebarUser";
 import SidebarEventInfo from "@/components/Sidebar/EventInfo";
 import { SpreadSheetQuickAccess } from "@/components/Sidebar/SpreadSheetQuickAccess";
 import RefreshSales from "@/components/Sidebar/RefreshSales";
-import StaffInfo from "@/components/Sidebar/StaffInfo";
+import StaffOveralSummary from "@/components/Sidebar/StaffOveralSummary";
 import SidebarToggle from "@/components/Sidebar/SidebarToggle";
 import InlineSidebarTrigger from "@/components/Sidebar/InlineSidebarTrigger";
 import InputForm from "@/components/InputForm";
 import OrderInfo from "@/components/OrderInfo";
 import CalculatorWrapper from "@/components/CalculatorWrapper";
 import { TicketsInfo } from "@/components/Sidebar/TicketsInfo";
+import StaffSumary from "@/components/Sidebar/StaffSumary";
 
 const Form = ({
   session,
@@ -593,7 +594,7 @@ const Form = ({
             <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SalesInfoCard
+                <SalesOveralSummary
                   isSalesInfoFetching={isSalesInfoFetching}
                   isSalesInfoError={isSalesInfoError}
                   totalRevenue={totalRevenue}
@@ -609,7 +610,7 @@ const Form = ({
                 />
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <StaffInfo
+                <StaffOveralSummary
                   isSalesInfoError={isSalesInfoError}
                   isSalesInfoFetching={isSalesInfoFetching}
                   staffInfo={currentStaffStats}
@@ -700,6 +701,9 @@ const Form = ({
                   }
                 />
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <StaffSumary />
+              </SidebarMenuItem>
             </div>
           </SidebarGroup>
         </SidebarContent>
@@ -716,71 +720,73 @@ const Form = ({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="flex relative flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
-        <InlineSidebarTrigger className="absolute top-1 left-1 w-[35px] cursor-pointer" />
-        <InputForm
-          selectedStudentIdInput={selectedStudentIdInput}
-          emailInput={emailInput}
-          isStudentListFetching={isStudentListFetching}
-          homeroomInput={homeroomInput}
-          isTicketInfoError={isTicketInfoError}
-          clearForm={clearForm}
-          currentOrder={currentOrder}
-          isTicketInfoFetching={isTicketInfoFetching}
-          setCurrentOrders={setCurrentOrders}
-          mounted={mounted}
-          getTicketColor={getTicketColor}
-          ticketType={ticketType}
-          noticeInput={noticeInput}
-          setNoticeInput={setNoticeInput}
-          setTicketType={setTicketType}
-          studentList={studentList}
-          lastValidTicketType={lastValidTicketType}
-          paymentMedium={paymentMedium}
-          setPaymentMedium={setPaymentMedium}
-          setLastValidTicketType={setLastValidTicketType}
-          ticketInfo={ticketInfo}
-          isStudentListError={isStudentListError}
-          errors={errors}
-          setErrors={setErrors}
-          studentNameInput={studentNameInput}
-          setStudentNameInput={setStudentNameInput}
-          setHomeroomInput={setHomeroomInput}
-          setEmailInput={setEmailInput}
-          setSelectedStudentIdInput={setSelectedStudentIdInput}
-          setEmailAutoCompleteValue={setEmailAutoCompleteValue}
-          setBestMatchStudentId={setBestMatchStudentId}
-          setHomeroomAutoCompleteValue={setHomeroomAutoCompleteValue}
-          setStudentNameAutoCompleteValue={setStudentNameAutoCompleteValue}
-          studentNameAutoCompleteValue={studentNameAutoCompleteValue}
-          homeroomAutoCompleteValue={homeroomAutoCompleteValue}
-          bestMatchStudentId={bestMatchStudentId}
-          emailAutoCompleteValue={emailAutoCompleteValue}
-        />
-        <OrderInfo
-          ticketColors={ticketColors}
-          currentOrder={currentOrder}
-          ticketInfo={ticketInfo}
-          orderSubtotal={orderSubtotal}
-          shouldSendEmail={shouldSendEmail}
-          clearForm={clearForm}
-          setTicketColors={setTicketColors}
-          setCurrentOrders={setCurrentOrders}
-          setNoticeInput={setNoticeInput}
-          setTicketType={setTicketType}
-          setPaymentMedium={setPaymentMedium}
-          setStudentNameInput={setStudentNameInput}
-          setHomeroomInput={setHomeroomInput}
-          setShouldSendEmail={setShouldSendEmail}
-          getTicketColor={getTicketColor}
-          setEmailInput={setEmailInput}
-          setSelectedStudentIdInput={setSelectedStudentIdInput}
-        />
+      <SidebarInset className="flex flex-col w-full relative">
+        <InlineSidebarTrigger className="m-2 md:m-0 flex border-1 md:border-0 items-center gap-2 self-start md:absolute top-1 left-1 min-w-[35px] cursor-pointer" />
+        <div className="flex flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
+          <InputForm
+            selectedStudentIdInput={selectedStudentIdInput}
+            emailInput={emailInput}
+            isStudentListFetching={isStudentListFetching}
+            homeroomInput={homeroomInput}
+            isTicketInfoError={isTicketInfoError}
+            clearForm={clearForm}
+            currentOrder={currentOrder}
+            isTicketInfoFetching={isTicketInfoFetching}
+            setCurrentOrders={setCurrentOrders}
+            mounted={mounted}
+            getTicketColor={getTicketColor}
+            ticketType={ticketType}
+            noticeInput={noticeInput}
+            setNoticeInput={setNoticeInput}
+            setTicketType={setTicketType}
+            studentList={studentList}
+            lastValidTicketType={lastValidTicketType}
+            paymentMedium={paymentMedium}
+            setPaymentMedium={setPaymentMedium}
+            setLastValidTicketType={setLastValidTicketType}
+            ticketInfo={ticketInfo}
+            isStudentListError={isStudentListError}
+            errors={errors}
+            setErrors={setErrors}
+            studentNameInput={studentNameInput}
+            setStudentNameInput={setStudentNameInput}
+            setHomeroomInput={setHomeroomInput}
+            setEmailInput={setEmailInput}
+            setSelectedStudentIdInput={setSelectedStudentIdInput}
+            setEmailAutoCompleteValue={setEmailAutoCompleteValue}
+            setBestMatchStudentId={setBestMatchStudentId}
+            setHomeroomAutoCompleteValue={setHomeroomAutoCompleteValue}
+            setStudentNameAutoCompleteValue={setStudentNameAutoCompleteValue}
+            studentNameAutoCompleteValue={studentNameAutoCompleteValue}
+            homeroomAutoCompleteValue={homeroomAutoCompleteValue}
+            bestMatchStudentId={bestMatchStudentId}
+            emailAutoCompleteValue={emailAutoCompleteValue}
+          />
+          <OrderInfo
+            ticketColors={ticketColors}
+            currentOrder={currentOrder}
+            ticketInfo={ticketInfo}
+            orderSubtotal={orderSubtotal}
+            shouldSendEmail={shouldSendEmail}
+            clearForm={clearForm}
+            setTicketColors={setTicketColors}
+            setCurrentOrders={setCurrentOrders}
+            setNoticeInput={setNoticeInput}
+            setTicketType={setTicketType}
+            setPaymentMedium={setPaymentMedium}
+            setStudentNameInput={setStudentNameInput}
+            setHomeroomInput={setHomeroomInput}
+            setShouldSendEmail={setShouldSendEmail}
+            getTicketColor={getTicketColor}
+            setEmailInput={setEmailInput}
+            setSelectedStudentIdInput={setSelectedStudentIdInput}
+          />
 
-        <CalculatorWrapper
-          orderSubtotal={orderSubtotal}
-          isSideBarTranisitioning={isSideBarTranisitioning}
-        />
+          <CalculatorWrapper
+            orderSubtotal={orderSubtotal}
+            isSideBarTranisitioning={isSideBarTranisitioning}
+          />
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

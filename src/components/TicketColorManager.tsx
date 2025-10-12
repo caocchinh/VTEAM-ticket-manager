@@ -80,7 +80,7 @@ const TicketColorManager = ({
           Màu vé
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Quản lý màu sắc hạng vé</DialogTitle>
           <DialogDescription>

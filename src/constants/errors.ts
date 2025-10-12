@@ -25,6 +25,7 @@ export const ERROR_CODES = {
   R2_CREDENTIALS_MISSING: "r2-credentials-missing",
   EVENT_INFO_FETCH_FAILED: "event-info-fetch-failed",
   TEACHER_VERIFICATION_FETCH_FAILED: "teacher-verification-fetch-failed",
+  INVALID_TICKET_TYPE: "invalid-ticket-type",
 } as const;
 
 // User-friendly error messages
@@ -67,6 +68,8 @@ export const ERROR_MESSAGES = {
     "Không thể lấy thông tin sự kiện. Vui lòng thử lại sau.",
   [ERROR_CODES.TEACHER_VERIFICATION_FETCH_FAILED]:
     "Không thể lấy thông tin GVCN xác nhận. Vui lòng thử lại sau.",
+  [ERROR_CODES.INVALID_TICKET_TYPE]:
+    "Loại vé không hợp lệ. Vui lòng chọn loại vé hợp lệ.",
 } as const;
 
 // HTTP status codes for API responses

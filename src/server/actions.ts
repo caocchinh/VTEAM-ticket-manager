@@ -1,10 +1,11 @@
 "use server";
 
-import { SheetOrderStatus, StudentInput } from "@/constants/types";
+import { SheetOrderStatus, StudentInput, TicketInfo } from "@/constants/types";
 import { verifySession } from "@/dal/verifySession";
 import {
   fetchEmailInfo,
   fetchOfflineEventInfo,
+  fetchOfflineTicketInfo,
   sendOfflineOrder,
   updateOnlineOrderStatus,
 } from "@/lib/SpreadSheet";
@@ -57,7 +58,7 @@ const getEmailInfo = async (): Promise<{
   }
 };
 
-const getEventInfo = async (): Promise<{
+const getOfflineEventInfo = async (): Promise<{
   error: boolean;
   data: EventInfo | undefined;
 }> => {
@@ -85,15 +86,50 @@ const getEventInfo = async (): Promise<{
   }
 };
 
-const getEmailAndEventInfo = async (): Promise<{
+const getOfflineTicketInfo = async (): Promise<{
+  error: boolean;
+  data: TicketInfo[] | undefined;
+}> => {
+  try {
+    const cachedTicketInfo = await Cache.get("offline-ticket-info");
+    if (cachedTicketInfo) {
+      return { error: false, data: JSON.parse(cachedTicketInfo as string) };
+    }
+
+    const ticketInfo = await fetchOfflineTicketInfo();
+    if (!ticketInfo.error && ticketInfo.data) {
+      await Cache.set(
+        "offline-ticket-info",
+        JSON.stringify(ticketInfo.data),
+        60 * 60 * 24 * 100
+      ); // Cache for 100 days
+    }
+    if (ticketInfo.error) {
+      return { error: true, data: undefined };
+    }
+    return ticketInfo;
+  } catch (error) {
+    console.error("Failed to fetch form info:", error);
+    return { error: true, data: undefined };
+  }
+};
+
+const getEmailAndEventInfoAndTicketInfo = async (): Promise<{
   emailError: boolean;
   eventError: boolean;
-  data: { emailInfo: EmailInfo | undefined; eventInfo: EventInfo | undefined };
+  ticketError: boolean;
+  data: {
+    emailInfo: EmailInfo | undefined;
+    eventInfo: EventInfo | undefined;
+    ticketInfo: TicketInfo[] | undefined;
+  };
 }> => {
-  const [emailInfoResult, eventInfoResult] = await Promise.allSettled([
-    getEmailInfo(),
-    getEventInfo(),
-  ]);
+  const [emailInfoResult, eventInfoResult, ticketInfoResult] =
+    await Promise.allSettled([
+      getEmailInfo(),
+      getOfflineEventInfo(),
+      getOfflineTicketInfo(),
+    ]);
 
   const emailInfo =
     emailInfoResult.status === "fulfilled"
@@ -105,10 +141,20 @@ const getEmailAndEventInfo = async (): Promise<{
       ? eventInfoResult.value
       : { error: true, data: undefined };
 
+  const ticketInfo =
+    ticketInfoResult.status === "fulfilled"
+      ? ticketInfoResult.value
+      : { error: true, data: undefined };
+
   return {
     emailError: emailInfo.error || !emailInfo.data,
     eventError: eventInfo.error || !eventInfo.data,
-    data: { emailInfo: emailInfo.data, eventInfo: eventInfo.data },
+    ticketError: ticketInfo.error || !ticketInfo.data,
+    data: {
+      emailInfo: emailInfo.data,
+      eventInfo: eventInfo.data,
+      ticketInfo: ticketInfo.data,
+    },
   };
 };
 
@@ -193,11 +239,25 @@ export const sendOrderAction = async ({
     const {
       emailError,
       eventError,
+      ticketError,
       data: emailAndEventInfoData,
-    } = await getEmailAndEventInfo();
+    } = await getEmailAndEventInfoAndTicketInfo();
 
-    if (eventError || emailError) {
+    if (eventError || emailError || ticketError) {
       return createActionError("INTERNAL_SERVER_ERROR");
+    }
+
+    // Validate ticket type and if concert is included matches the ticket type
+    for (const order of orders) {
+      if (
+        !emailAndEventInfoData.ticketInfo!.some(
+          (ticket) =>
+            ticket.ticketName === order.ticketType &&
+            ticket.includeConcert === order.concertIncluded
+        )
+      ) {
+        return createActionError("INVALID_TICKET_TYPE");
+      }
     }
 
     // Submit orders
@@ -255,6 +315,7 @@ export const sendOrderAction = async ({
               eventInfo: emailAndEventInfoData.eventInfo!,
               purchaseTime: getCurrentTime({ includeTime: true }),
               typeOfSale: "offline",
+              concertIncluded: order.concertIncluded,
             });
           })
         );
@@ -454,10 +515,11 @@ export const updateOnlineOrderStatusAction = async ({
     const {
       emailError,
       eventError,
+      ticketError,
       data: emailAndEventInfoData,
-    } = await getEmailAndEventInfo();
+    } = await getEmailAndEventInfoAndTicketInfo();
 
-    if (eventError || emailError) {
+    if (eventError || emailError || ticketError) {
       return createActionError("INTERNAL_SERVER_ERROR");
     }
 
@@ -515,6 +577,10 @@ export const updateOnlineOrderStatusAction = async ({
             eventInfo: emailAndEventInfoData.eventInfo!,
             purchaseTime: result.data.time,
             typeOfSale: "online",
+            concertIncluded:
+              emailAndEventInfoData.ticketInfo!.find(
+                (ticket) => ticket.ticketName === result.data!.buyerTicketType
+              )?.includeConcert ?? false,
           });
         } else if (verificationStatus === VERIFICATION_FAILED) {
           await sendFailedEmail({
@@ -614,6 +680,15 @@ export const updateOfflineDataAction = async (): Promise<ActionResponse> => {
           if (!response) {
             console.error(
               `[${operationId}] Cache delete failed for offline-event-info`
+            );
+            throw new Error("CACHE_DELETE_FAILED");
+          }
+        })(),
+        (async () => {
+          const response = await Cache.delete("offline-ticket-info");
+          if (!response) {
+            console.error(
+              `[${operationId}] Cache delete failed for offline-ticket-info`
             );
             throw new Error("CACHE_DELETE_FAILED");
           }

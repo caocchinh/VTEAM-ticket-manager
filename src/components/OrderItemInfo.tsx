@@ -31,7 +31,7 @@ export const OrderItemInfo = ({
         </p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Vé có concert:</p>
+        <p className="font-semibold">Vé gồm concert:</p>
         <p className="wrap-anywhere">{includeConcert ? "Có" : "Không"}</p>
       </div>
       <div className="flex flex-row gap-2">

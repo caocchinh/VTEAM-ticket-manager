@@ -594,7 +594,7 @@ const SalesSummary = ({
           <CardHeader>
             <CardTitle>
               {isStaffSummary
-                ? "Phân loại vé của bạn bán so với tổng VTEAM"
+                ? "Phân loại vé của bạn"
                 : "Phân loại vé tổng quan"}
             </CardTitle>
             <CardDescription>
@@ -609,7 +609,8 @@ const SalesSummary = ({
                   const revenue =
                     overallTicketBreakdown.ticketRevenueBreakdown[ticketType] ||
                     0;
-                  const percentage = (revenue / totalRevenue) * 100;
+                  const percentage =
+                    (revenue / totalSummary.totalRevenue) * 100;
                   return (
                     <div key={ticketType} className="space-y-1">
                       <div className="flex items-center justify-between text-sm flex-wrap gap-4">
@@ -644,9 +645,16 @@ const SalesSummary = ({
                       </div>
                       <div className="text-xs text-muted-foreground text-right">
                         {percentage.toFixed(1)}% tổng doanh thu{" "}
-                        {isOfflineSalesInfo(salesInfo[0])
-                          ? "offline"
-                          : "online"}
+                        {isStaffSummary ? (
+                          "của bạn"
+                        ) : (
+                          <>
+                            {" "}
+                            {isOfflineSalesInfo(salesInfo[0])
+                              ? "offline"
+                              : "online"}
+                          </>
+                        )}
                       </div>
                     </div>
                   );

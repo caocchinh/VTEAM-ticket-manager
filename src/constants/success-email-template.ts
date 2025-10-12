@@ -10,6 +10,7 @@ export default function SUCCESS_EMAIL_TEMPLATE({
   homeroom,
   bannerImage,
   eventName,
+  concertIncluded,
   ticketType,
   purchaseTime,
   eventType,
@@ -225,6 +226,9 @@ div.preheader
                                                         Tên sự kiện: <span style="font-weight: bold;">${eventName}</span></p>
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Hạng vé: <span style="font-weight: bold;">${ticketType}</span></p>
+
+                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
+                                                            Vé có concert: <span style="font-weight: bold;">${concertIncluded}</span></p>
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                         Tên người mua: <span style="font-weight: bold;">${studentName}</span></p>
 
@@ -241,7 +245,7 @@ div.preheader
                                                    ? `
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                        Để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web dưới đây để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé. Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên:<br/> <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}</a></p>
+                                                        Để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web dưới đây để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé (bạn chỉ có thể lấy số thứ tự khi vé của bạn bao gồm nhà ma). Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên:<br/> <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}</a></p>
 
                                                 </td> </tr>
                                                 `

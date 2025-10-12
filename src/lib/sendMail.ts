@@ -19,6 +19,7 @@ export async function sendSuccessEmail({
   eventInfo,
   studentId,
   purchaseTime,
+  concertIncluded,
   typeOfSale,
 }: {
   email: string;
@@ -26,6 +27,7 @@ export async function sendSuccessEmail({
   homeroom: string;
   ticketType: string;
   emailInfo: EmailInfo;
+  concertIncluded: boolean;
   eventInfo: EventInfo;
   studentId: string;
   purchaseTime: string;
@@ -52,6 +54,7 @@ export async function sendSuccessEmail({
       bannerImage: emailInfo.emailBannerImage,
       studentId,
       purchaseTime,
+      concertIncluded: concertIncluded ? "Có" : "Không",
     });
 
     const mailOptionsPrivate = {

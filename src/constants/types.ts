@@ -26,6 +26,7 @@ export interface StudentInput {
   homeroomInput: string;
   notice: string;
   ticketType: string;
+  concertIncluded: boolean;
   paymentMedium: "Tiền mặt" | "Chuyển khoản";
   email: string;
 }
@@ -134,6 +135,7 @@ export interface SuccessEmailPayload {
   email: string;
   studentId: string;
   eventDay: string;
+  concertIncluded: "Có" | "Không";
   eventYear: string;
   homeroom: string;
   bannerImage: string;

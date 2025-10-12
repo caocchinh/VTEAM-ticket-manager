@@ -972,7 +972,7 @@ const DailyOrders = ({
             </div>
             <ScrollArea className="h-[50vh] pr-5 w-full" type="always">
               <div>
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="multiple" className="w-full">
                   {filteredOrders.map((order, orderIndex) => {
                     const ticketPrice =
                       ticketInfo?.find(

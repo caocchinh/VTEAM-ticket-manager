@@ -413,7 +413,7 @@ export const updateOnlineDataAction = async (): Promise<ActionResponse> => {
           }
         })(),
         (async () => {
-          const response = await Cache.delete("online-student-list");
+          const response = await Cache.delete("student-list");
           if (!response) {
             console.error(
               `[${operationId}] Cache delete failed for student-list`

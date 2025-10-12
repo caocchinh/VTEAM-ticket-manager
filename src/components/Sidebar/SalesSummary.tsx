@@ -57,6 +57,7 @@ import {
 import { vi } from "date-fns/locale";
 import { Badge } from "../ui/badge";
 import { FAILED_EMAIL_STATUS, SENT_EMAIL_STATUS } from "@/constants/constants";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface SalesSummaryProps {
   salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[];
@@ -969,172 +970,180 @@ const DailyOrders = ({
                 className="pl-7"
               />
             </div>
-            <Accordion type="single" collapsible className="w-full">
-              {filteredOrders.map((order, orderIndex) => {
-                const ticketPrice =
-                  ticketInfo?.find(
-                    (info) => order.buyerTicketType === info.ticketName
-                  )?.price ?? "0";
-                const numericPrice = parseVietnameseCurrency(ticketPrice);
+            <ScrollArea className="h-[50vh] pr-5 w-full" type="always">
+              <div>
+                <Accordion type="single" collapsible className="w-full">
+                  {filteredOrders.map((order, orderIndex) => {
+                    const ticketPrice =
+                      ticketInfo?.find(
+                        (info) => order.buyerTicketType === info.ticketName
+                      )?.price ?? "0";
+                    const numericPrice = parseVietnameseCurrency(ticketPrice);
+                    const itemId = `order-${dateString}-${orderIndex}-${order.buyerId}`;
 
-                return (
-                  <AccordionItem
-                    key={`${order.buyerId}-${order.time}-${orderIndex}`}
-                    value={`order-${dateString}-${orderIndex}`}
-                  >
-                    <AccordionTrigger className="cursor-pointer">
-                      <div className="flex items-center justify-between w-full pr-4 flex-wrap gap-4">
-                        <div className="flex items-center gap-3">
-                          {orderIndex + 1}.
-                          <div className="text-left">
-                            <div className="font-medium">
-                              {order.buyerName} - {order.buyerId}
+                    return (
+                      <AccordionItem
+                        key={`${order.buyerId}-${order.time}-${orderIndex}`}
+                        value={itemId}
+                      >
+                        <AccordionTrigger className="cursor-pointer">
+                          <div className="flex items-center justify-between w-full pr-4 flex-wrap gap-4">
+                            <div className="flex items-center gap-3">
+                              {orderIndex + 1}.
+                              <div className="text-left">
+                                <div className="font-medium">
+                                  {order.buyerName} - {order.buyerId}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {order.time} •{" "}
+                                  <Badge
+                                    style={{
+                                      backgroundColor: getTicketColor(
+                                        order.buyerTicketType
+                                      ),
+                                    }}
+                                  >
+                                    {order.buyerTicketType}
+                                  </Badge>
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {order.time} •{" "}
+                            <div className="flex items-center gap-2">
                               <Badge
-                                style={{
-                                  backgroundColor: getTicketColor(
-                                    order.buyerTicketType
-                                  ),
-                                }}
+                                className={cn(
+                                  "text-xs",
+                                  (isOfflineSalesInfo(order)
+                                    ? order.paymentMedium
+                                    : order.verificationStatus) === "Tiền mặt"
+                                    ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
+                                    : "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
+                                )}
                               >
-                                {order.buyerTicketType}
+                                {isOfflineSalesInfo(order)
+                                  ? order.paymentMedium
+                                  : order.verificationStatus}
                               </Badge>
+                              <span className="font-semibold">
+                                {formatVietnameseCurrency(numericPrice)}
+                              </span>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            className={cn(
-                              "text-xs",
-                              (isOfflineSalesInfo(order)
-                                ? order.paymentMedium
-                                : order.verificationStatus) === "Tiền mặt"
-                                ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
-                                : "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
-                            )}
-                          >
-                            {isOfflineSalesInfo(order)
-                              ? order.paymentMedium
-                              : order.verificationStatus}
-                          </Badge>
-                          <span className="font-semibold">
-                            {formatVietnameseCurrency(numericPrice)}
-                          </span>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="border rounded-lg p-3 space-y-3 bg-muted/30 mt-2">
-                        {/* Customer Information */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-2">
-                              <User className="h-4 w-4 text-muted-foreground mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-xs text-muted-foreground">
-                                  Khách hàng
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="border rounded-lg p-3 space-y-3 bg-muted/30 mt-2">
+                            {/* Customer Information */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <div className="flex items-start gap-2">
+                                  <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                  <div className="flex-1">
+                                    <div className="text-xs text-muted-foreground">
+                                      Khách hàng
+                                    </div>
+                                    <div className="font-medium">
+                                      {order.buyerName}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="font-medium">
-                                  {order.buyerName}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-xs text-muted-foreground">
-                                  Lớp
-                                </div>
-                                <div className="font-medium">
-                                  {order.buyerClass}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-2">
-                              <Receipt className="h-4 w-4 text-muted-foreground mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-xs text-muted-foreground">
-                                  Mã học sinh
-                                </div>
-                                <div className="font-medium font-mono">
-                                  {order.buyerId}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-xs text-muted-foreground">
-                                  Email
-                                </div>
-                                <div className="font-medium text-sm break-all">
-                                  {order.buyerEmail}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Notice and Email Status */}
-                        <>
-                          <Separator />
-                          <div className="space-y-2">
-                            {isOfflineSalesInfo(order) && (
-                              <div className="flex items-start gap-2">
-                                <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                                <div className="flex-1">
-                                  <div className="text-xs text-muted-foreground">
-                                    Ghi chú:{" "}
-                                    {order.buyerNotice || "Không có ghi chú"}
+                                <div className="flex items-start gap-2">
+                                  <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                  <div className="flex-1">
+                                    <div className="text-xs text-muted-foreground">
+                                      Lớp
+                                    </div>
+                                    <div className="font-medium">
+                                      {order.buyerClass}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            )}
-                            {order.emailStatus && (
-                              <div className="flex items-center gap-2">
-                                <Mail className="h-4 w-4 text-muted-foreground" />
-                                <div className="text-xs">
-                                  <span className="text-muted-foreground">
-                                    Trạng thái gửi email xác nhận vé:{" "}
-                                  </span>
-                                  <span
-                                    className={cn(
-                                      "font-medium",
-                                      order.emailStatus === SENT_EMAIL_STATUS
-                                        ? "text-green-600 dark:text-green-400"
-                                        : order.emailStatus ===
-                                          FAILED_EMAIL_STATUS
-                                        ? "text-red-600 dark:text-red-400"
-                                        : "text-amber-600 dark:text-amber-400"
-                                    )}
-                                  >
-                                    {order.emailStatus}
-                                  </span>
+                              <div className="space-y-2">
+                                <div className="flex items-start gap-2">
+                                  <Receipt className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                  <div className="flex-1">
+                                    <div className="text-xs text-muted-foreground">
+                                      Mã học sinh
+                                    </div>
+                                    <div className="font-medium font-mono">
+                                      {order.buyerId}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                  <div className="flex-1">
+                                    <div className="text-xs text-muted-foreground">
+                                      Email
+                                    </div>
+                                    <div className="font-medium text-sm break-all">
+                                      {order.buyerEmail}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            )}
-                            {isOfflineSalesInfo(order) && order.staffName && (
-                              <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <div className="text-xs">
-                                  <span className="text-muted-foreground">
-                                    Staff điền form: {order.staffName}
-                                  </span>
-                                </div>
+                            </div>
+
+                            {/* Notice and Email Status */}
+                            <>
+                              <Separator />
+                              <div className="space-y-2">
+                                {isOfflineSalesInfo(order) && (
+                                  <div className="flex items-start gap-2">
+                                    <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                    <div className="flex-1">
+                                      <div className="text-xs text-muted-foreground">
+                                        Ghi chú:{" "}
+                                        {order.buyerNotice ||
+                                          "Không có ghi chú"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                {order.emailStatus && (
+                                  <div className="flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-muted-foreground" />
+                                    <div className="text-xs">
+                                      <span className="text-muted-foreground">
+                                        Trạng thái gửi email xác nhận vé:{" "}
+                                      </span>
+                                      <span
+                                        className={cn(
+                                          "font-medium",
+                                          order.emailStatus ===
+                                            SENT_EMAIL_STATUS
+                                            ? "text-green-600 dark:text-green-400"
+                                            : order.emailStatus ===
+                                              FAILED_EMAIL_STATUS
+                                            ? "text-red-600 dark:text-red-400"
+                                            : "text-amber-600 dark:text-amber-400"
+                                        )}
+                                      >
+                                        {order.emailStatus}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                                {isOfflineSalesInfo(order) &&
+                                  order.staffName && (
+                                    <div className="flex items-center gap-2">
+                                      <User className="h-4 w-4 text-muted-foreground" />
+                                      <div className="text-xs">
+                                        <span className="text-muted-foreground">
+                                          Staff điền form: {order.staffName}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
                               </div>
-                            )}
+                            </>
                           </div>
-                        </>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </div>
+            </ScrollArea>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

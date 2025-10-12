@@ -53,7 +53,7 @@ const StaffSumary = ({
         </SidebarMenuButton>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[95vh] !py-4 !max-w-[100vw] w-[90vw]">
+      <DialogContent className="h-[97dvh] gap-2 !py-2 !max-w-[100vw] w-[95vw]">
         <DialogTitle className="sr-only">Lịch sử bán vé của bạn</DialogTitle>
         <div className="flex items-center justify-center gap-2">
           <h3 className="text-center font-semibold text-xl uppercase">

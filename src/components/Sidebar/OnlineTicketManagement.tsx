@@ -675,7 +675,7 @@ const OnlineTicketManagement = ({
         </DialogTrigger>
 
         <DialogContent
-          className="h-[96dvh] flex flex-col justify-between overflow-hidden !py-2 !max-w-[100vw] w-[90vw]"
+          className="h-[97dvh] flex flex-col justify-between overflow-hidden !py-2 !max-w-[100vw] w-[95vw]"
           onKeyDown={(e) => {
             if (e.key === "e" && !isInputFocused) {
               e.preventDefault();

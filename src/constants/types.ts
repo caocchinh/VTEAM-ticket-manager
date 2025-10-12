@@ -135,7 +135,7 @@ export interface SuccessEmailPayload {
   email: string;
   studentId: string;
   eventDay: string;
-  concertIncluded: "Có" | "Không";
+  concertIncluded: "Có concert" | "Không có concert";
   eventYear: string;
   homeroom: string;
   bannerImage: string;

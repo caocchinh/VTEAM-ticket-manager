@@ -54,7 +54,7 @@ export async function sendSuccessEmail({
       bannerImage: emailInfo.emailBannerImage,
       studentId,
       purchaseTime,
-      concertIncluded: concertIncluded ? "Có" : "Không",
+      concertIncluded: concertIncluded ? "Có concert" : "Không có concert",
     });
 
     const mailOptionsPrivate = {

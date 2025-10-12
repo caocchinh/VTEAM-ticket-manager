@@ -16,14 +16,12 @@ import { ChartSpline, Loader2 } from "lucide-react";
 import { VERIFICATION_APPROVED } from "@/constants/constants";
 import { AllSalesInfo, AllTicketInfo, Staff } from "@/constants/types";
 import SalesSummary from "@/components/Sidebar/SalesSummary";
-import { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { SidebarMenuButton } from "../ui/sidebar";
 
 interface SalesSummaryDialogProps {
-  isOpen: boolean;
   totalOfflineRevenue: number;
   totalOnlineRevenue: number;
-  onOpenChange: Dispatch<SetStateAction<boolean>>;
   salesInfo: AllSalesInfo | undefined;
   ticketInfo: AllTicketInfo | undefined;
   staffInfo: Staff;
@@ -35,8 +33,6 @@ interface SalesSummaryDialogProps {
 }
 
 const SalesSummaryDialog = ({
-  isOpen,
-  onOpenChange,
   salesInfo,
   ticketInfo,
   staffInfo,
@@ -48,8 +44,10 @@ const SalesSummaryDialog = ({
   isSalesInfoFetching,
   onRefetchSales,
 }: SalesSummaryDialogProps) => {
+  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isSummaryDialogOpen} onOpenChange={setIsSummaryDialogOpen}>
       <DialogTrigger asChild>
         <SidebarMenuButton
           tooltip="Báo cáo doanh thu"
@@ -144,7 +142,7 @@ const SalesSummaryDialog = ({
           <Button
             variant="outline"
             className="w-full cursor-pointer"
-            onClick={() => onOpenChange(false)}
+            onClick={() => setIsSummaryDialogOpen(false)}
           >
             Đóng
           </Button>

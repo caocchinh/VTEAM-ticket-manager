@@ -13,6 +13,7 @@ export interface TicketInfo {
   price: string;
   includeConcert: boolean;
   classRange: number[];
+  maxQuantity: number;
 }
 
 export interface AllTicketInfo {
@@ -179,6 +180,7 @@ export interface InputFormProps {
   studentNameInput: string;
   ticketType: string;
   mounted: boolean;
+  soldOutTicketsType: TicketInfo[];
   isTicketInfoError: boolean;
   noticeInput: string;
   studentList: Student[] | undefined;
@@ -229,6 +231,7 @@ export interface OrderInfoProps {
   setTicketColors: Dispatch<SetStateAction<Record<string, string>>>;
   currentOrder: StudentInput[];
   setCurrentOrders: Dispatch<SetStateAction<StudentInput[]>>;
+  refetchSales: () => void;
   clearForm: ({ clearNotice }: { clearNotice: boolean }) => void;
   ticketInfo: AllTicketInfo | undefined;
   setNoticeInput: Dispatch<SetStateAction<string>>;
@@ -242,4 +245,7 @@ export interface OrderInfoProps {
   shouldSendEmail: boolean;
   setShouldSendEmail: Dispatch<SetStateAction<boolean>>;
   orderSubtotal: number;
+  soldOutTicketsType: TicketInfo[];
+  ticketsTypeAtOrUnderLimit: TicketInfo[];
+  ticketsSoldPerType: Record<string, number>;
 }

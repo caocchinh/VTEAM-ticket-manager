@@ -2,7 +2,10 @@
 
 "use client";
 import StatisticsDialog from "@/components/Sidebar/StatisticsDialog";
-import { VERIFICATION_APPROVED } from "@/constants/constants";
+import {
+  VERIFICATION_APPROVED,
+  VERIFICATION_PENDING,
+} from "@/constants/constants";
 import {
   AllSalesInfo,
   AllTicketInfo,
@@ -93,7 +96,6 @@ const Form = ({
   const [emailAutoCompleteValue, setEmailAutoCompleteValue] = useState("");
   const [bestMatchStudentId, setBestMatchStudentId] = useState("");
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [ticketColors, setTicketColors] = useState<Record<string, string>>({});
   const [isSideBarTranisitioning, setIsSidebarTransitioning] = useState(false);
   // State for validation errors
@@ -501,6 +503,85 @@ const Form = ({
     return { revenue: 0, orderCount: 0 };
   }, [salesInfo, ticketInfo, staffInfo]);
 
+  const ticketsSoldPerType = useMemo(() => {
+    if (salesInfo && ticketInfo) {
+      const ticketCount: Record<string, number> = {};
+
+      // Count all offline orders as valid
+      salesInfo.offline.forEach((sale) => {
+        const ticketType = sale.buyerTicketType;
+        ticketCount[ticketType] = (ticketCount[ticketType] || 0) + 1;
+      });
+
+      // Count online orders with status "pending" or "success" as valid
+      salesInfo.online.forEach((sale) => {
+        if (
+          sale.verificationStatus === VERIFICATION_PENDING ||
+          sale.verificationStatus === VERIFICATION_APPROVED
+        ) {
+          const ticketType = sale.buyerTicketType;
+          ticketCount[ticketType] = (ticketCount[ticketType] || 0) + 1;
+        }
+      });
+
+      // Count tickets in the current order
+      currentOrder.forEach((order) => {
+        const ticketType = order.ticketType;
+        ticketCount[ticketType] = (ticketCount[ticketType] || 0) + 1;
+      });
+
+      return ticketCount;
+    }
+    return {};
+  }, [salesInfo, ticketInfo, currentOrder]);
+
+  const soldOutTicketsType = useMemo(() => {
+    if (ticketInfo) {
+      const soldOutTickets =
+        [...ticketInfo.offline, ...ticketInfo.online]?.filter(
+          (value) =>
+            value.maxQuantity <= (ticketsSoldPerType[value.ticketName] || 0)
+        ) ?? [];
+
+      // Group by ticketName and select the most restrictive (lowest maxQuantity)
+      const uniqueTickets = new Map();
+      soldOutTickets.forEach((ticket) => {
+        const existing = uniqueTickets.get(ticket.ticketName);
+        if (!existing || ticket.maxQuantity < existing.maxQuantity) {
+          uniqueTickets.set(ticket.ticketName, ticket);
+        }
+      });
+
+      return Array.from(uniqueTickets.values());
+    } else {
+      return [];
+    }
+  }, [ticketInfo, ticketsSoldPerType]);
+
+  // Tickets that have reached or exceeded their limit (for display in current order)
+  const ticketsTypeAtOrUnderLimit = useMemo(() => {
+    if (ticketInfo) {
+      const atLimitTickets =
+        [...ticketInfo.offline, ...ticketInfo.online]?.filter(
+          (value) =>
+            value.maxQuantity < (ticketsSoldPerType[value.ticketName] || 0)
+        ) ?? [];
+
+      // Group by ticketName and select the most restrictive (lowest maxQuantity)
+      const uniqueTickets = new Map();
+      atLimitTickets.forEach((ticket) => {
+        const existing = uniqueTickets.get(ticket.ticketName);
+        if (!existing || ticket.maxQuantity < existing.maxQuantity) {
+          uniqueTickets.set(ticket.ticketName, ticket);
+        }
+      });
+
+      return Array.from(uniqueTickets.values());
+    } else {
+      return [];
+    }
+  }, [ticketInfo, ticketsSoldPerType]);
+
   const isAnyOngoingRequestPending =
     useIsMutating({
       mutationKey: ["submit_order", "update_online"],
@@ -675,8 +756,6 @@ const Form = ({
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SalesSummaryDialog
-                  isOpen={isSummaryDialogOpen}
-                  onOpenChange={setIsSummaryDialogOpen}
                   salesInfo={salesInfo}
                   ticketInfo={ticketInfo}
                   totalOfflineRevenue={offlineRevenue}
@@ -751,6 +830,7 @@ const Form = ({
             mounted={mounted}
             getTicketColor={getTicketColor}
             ticketType={ticketType}
+            soldOutTicketsType={soldOutTicketsType}
             noticeInput={noticeInput}
             setNoticeInput={setNoticeInput}
             setTicketType={setTicketType}
@@ -790,11 +870,15 @@ const Form = ({
             setTicketType={setTicketType}
             setPaymentMedium={setPaymentMedium}
             setStudentNameInput={setStudentNameInput}
+            refetchSales={mutateRefetchSales}
             setHomeroomInput={setHomeroomInput}
             setShouldSendEmail={setShouldSendEmail}
             getTicketColor={getTicketColor}
             setEmailInput={setEmailInput}
             setSelectedStudentIdInput={setSelectedStudentIdInput}
+            soldOutTicketsType={soldOutTicketsType}
+            ticketsTypeAtOrUnderLimit={ticketsTypeAtOrUnderLimit}
+            ticketsSoldPerType={ticketsSoldPerType}
           />
 
           <CalculatorWrapper

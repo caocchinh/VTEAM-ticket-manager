@@ -1,4 +1,5 @@
 import {
+  ALL_TICKETS_SOLD_OUT,
   INVALID_TICKET_DUE_TO_INVALID_CLASS,
   NOT_STUDENT_IN_SCHOOL,
 } from "@/constants/constants";
@@ -74,6 +75,7 @@ const InputForm = ({
   isStudentListError,
   studentNameInput,
   setStudentNameInput,
+  soldOutTicketsType,
   setHomeroomInput,
   setEmailInput,
   setSelectedStudentIdInput,
@@ -255,6 +257,15 @@ const InputForm = ({
     }
   }, [homeroomInput, ticketInfo]);
 
+  const ticketTypeAfterLimitCheck = useMemo(() => {
+    return availableTicketsType.filter(
+      (ticket) =>
+        !soldOutTicketsType.some(
+          (soldOutTicket) => soldOutTicket.ticketName === ticket.ticketName
+        )
+    );
+  }, [availableTicketsType, soldOutTicketsType]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       handleTabKeyPress(e as unknown as React.KeyboardEvent);
@@ -273,6 +284,9 @@ const InputForm = ({
       studentName: !safeTrim(studentNameInput),
       homeroom: errors.homeroom || !safeTrim(homeroomInput),
       email: !safeTrim(emailInput),
+      ticketType:
+        ticketType === INVALID_TICKET_DUE_TO_INVALID_CLASS ||
+        ticketType === ALL_TICKETS_SOLD_OUT,
     };
 
     setErrors(newErrors);
@@ -316,7 +330,10 @@ const InputForm = ({
   };
 
   useEffect(() => {
-    if (availableTicketsType.length > 0) {
+    if (
+      availableTicketsType.length > 0 &&
+      ticketTypeAfterLimitCheck.length > 0
+    ) {
       if (
         lastValidTicketType &&
         availableTicketsType.some(
@@ -337,6 +354,13 @@ const InputForm = ({
         setLastValidTicketType(newTicketType.ticketName);
       }
     } else {
+      if (
+        availableTicketsType.length > 0 &&
+        ticketTypeAfterLimitCheck.length === 0
+      ) {
+        setTicketType(ALL_TICKETS_SOLD_OUT);
+        return;
+      }
       if (homeroomInput) {
         setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
       } else {
@@ -344,7 +368,12 @@ const InputForm = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTicketsType, homeroomInput, lastValidTicketType]);
+  }, [
+    availableTicketsType,
+    homeroomInput,
+    lastValidTicketType,
+    ticketTypeAfterLimitCheck,
+  ]);
 
   // Update lastValidTicketType only when ticketType changes to a valid ticket
   useEffect(() => {
@@ -360,6 +389,34 @@ const InputForm = ({
   const handleConfirmClear = () => {
     clearForm({ clearNotice: true });
     setIsDeleteAllDialogOpen(false);
+  };
+
+  const selectValue = () => {
+    if (ticketTypeAfterLimitCheck.length > 0 && homeroomInput.length > 0) {
+      return ticketTypeAfterLimitCheck;
+    } else if (
+      availableTicketsType.length > 0 &&
+      ticketTypeAfterLimitCheck.length === 0
+    ) {
+      return [
+        {
+          ticketName: ALL_TICKETS_SOLD_OUT,
+          price: "",
+          includeConcert: false,
+          classRange: [],
+          maxQuantity: 0,
+        },
+      ];
+    }
+    return [
+      {
+        ticketName: INVALID_TICKET_DUE_TO_INVALID_CLASS,
+        price: "",
+        includeConcert: false,
+        classRange: [],
+        maxQuantity: 0,
+      },
+    ];
   };
 
   return (
@@ -663,7 +720,7 @@ const InputForm = ({
                 !!ticketInfo &&
                 homeroomInput &&
                 extractFirstNumber(homeroomInput) &&
-                availableTicketsType.length > 0
+                ticketTypeAfterLimitCheck.length > 0
                   ? ""
                   : "Vui lòng điền lớp"
               }
@@ -671,20 +728,7 @@ const InputForm = ({
               selectedValue={ticketType}
               side="bottom"
               label="Hạng vé"
-              data={
-                availableTicketsType &&
-                availableTicketsType.length &&
-                homeroomInput.length > 0
-                  ? availableTicketsType
-                  : [
-                      {
-                        ticketName: INVALID_TICKET_DUE_TO_INVALID_CLASS,
-                        price: "",
-                        includeConcert: false,
-                        classRange: [],
-                      },
-                    ]
-              }
+              data={selectValue()}
             />
           </div>
         </div>
@@ -815,7 +859,14 @@ const InputForm = ({
             />
           </div>
         </div>
-        <Button onClick={handleSubmit} className="w-full cursor-pointer">
+        <Button
+          onClick={handleSubmit}
+          className="w-full cursor-pointer"
+          disabled={
+            ticketType === INVALID_TICKET_DUE_TO_INVALID_CLASS ||
+            ticketType === ALL_TICKETS_SOLD_OUT
+          }
+        >
           Thêm vào order
           <ShoppingCart />
         </Button>

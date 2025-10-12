@@ -61,7 +61,7 @@ const OrderInfo = ({
   shouldSendEmail,
   clearForm,
   setTicketColors,
-
+  refetchSales,
   setCurrentOrders,
   setNoticeInput,
   setTicketType,
@@ -72,6 +72,9 @@ const OrderInfo = ({
   getTicketColor,
   setEmailInput,
   setSelectedStudentIdInput,
+  soldOutTicketsType,
+  ticketsTypeAtOrUnderLimit,
+  ticketsSoldPerType,
 }: OrderInfoProps) => {
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
   const [
@@ -133,6 +136,8 @@ const OrderInfo = ({
       queryClient.invalidateQueries({ queryKey: ["sales_info"] });
     },
     onError: (error: Error) => {
+      setIsConfirmingOrderAlertDialogOpen(false);
+      refetchSales();
       errorToast({
         message: `Chốt deal thất bại, vui lòng thử lại! ${error.message}`,
       });
@@ -177,6 +182,28 @@ const OrderInfo = ({
     setDeletingIndex(null);
   };
 
+  // Check if any ticket in current order is sold out
+  const hasSoldOutTicketInOrder = useMemo(() => {
+    if (!ticketsTypeAtOrUnderLimit || ticketsTypeAtOrUnderLimit.length === 0)
+      return false;
+
+    const soldOutTicketNames = ticketsTypeAtOrUnderLimit.map(
+      (ticket) => ticket.ticketName
+    );
+    return currentOrder.some((order) =>
+      soldOutTicketNames.includes(order.ticketType)
+    );
+  }, [ticketsTypeAtOrUnderLimit, currentOrder]);
+
+  // Helper function to check if a specific ticket is sold out
+  const isTicketSoldOut = (ticketType: string) => {
+    if (!ticketsTypeAtOrUnderLimit || ticketsTypeAtOrUnderLimit.length === 0)
+      return false;
+    return ticketsTypeAtOrUnderLimit.some(
+      (ticket) => ticket.ticketName === ticketType
+    );
+  };
+
   return (
     <div
       className={cn(
@@ -195,11 +222,40 @@ const OrderInfo = ({
           />
         )}
       </div>
+
       <div className="flex flex-col gap-2 -mt-2 w-full border rounded-md shadow-sm p-4">
         <ScrollArea className="h-[403px] pr-4" type="always">
-          {currentOrder.length === 0 && (
-            <h3 className="text-center">Hiện tại chưa có đơn nào!</h3>
+          {soldOutTicketsType && soldOutTicketsType.length > 0 && (
+            <div className="w-full p-3 mb-4 bg-red-50 dark:bg-red-950/20 border border-red-300 dark:border-red-800 rounded-md flex justify-between gap-2 items-center">
+              <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
+                ⚠️ Loại vé đã hết:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {soldOutTicketsType.map((ticket, index) => {
+                  const soldCount = ticketsSoldPerType[ticket.ticketName] || 0;
+                  const excess = soldCount - ticket.maxQuantity;
+                  return (
+                    <span
+                      title={excess > 0 ? `Thừa ${excess} vé` : ""}
+                      key={index}
+                      className="inline-flex cursor-default items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs font-medium rounded-full border border-red-300 dark:border-red-700"
+                    >
+                      {ticket.ticketName}
+                      {excess > 0 && (
+                        <span className="font-bold text-red-900 dark:text-red-200">
+                          (+{excess})
+                        </span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
           )}
+          {currentOrder.length === 0 && (
+            <h3 className="text-center mt-1">Hiện tại chưa có đơn nào!</h3>
+          )}
+
           {currentOrder.length > 0 && (
             <Accordion type="multiple" className="w-full">
               {currentOrder.map((order, index) => (
@@ -342,6 +398,7 @@ const OrderInfo = ({
                       index={index}
                       order={order}
                       ticketColor={getTicketColor(order.ticketType)}
+                      isSoldOut={isTicketSoldOut(order.ticketType)}
                     />
                   </div>
                   <Separator className="my-3" />
@@ -402,7 +459,12 @@ const OrderInfo = ({
         <AlertDialogTrigger asChild>
           <Button
             className="w-full cursor-pointer"
-            disabled={currentOrder.length === 0}
+            disabled={currentOrder.length === 0 || hasSoldOutTicketInOrder}
+            title={
+              hasSoldOutTicketInOrder
+                ? "Không thể chốt deal vì có vé đã hết trong đơn hàng"
+                : undefined
+            }
           >
             Chốt deal <WandSparkles />
           </Button>
@@ -438,6 +500,7 @@ const OrderInfo = ({
                     index={index}
                     order={order}
                     ticketColor={getTicketColor(order.ticketType)}
+                    isSoldOut={isTicketSoldOut(order.ticketType)}
                   />
                   <div className="my-4"></div>
                 </Fragment>
@@ -533,11 +596,13 @@ const OrderInfoAccordionItem = ({
   index,
   price,
   ticketColor,
+  isSoldOut,
 }: {
   order: StudentInput;
   index: number;
   price: string;
   ticketColor?: string;
+  isSoldOut?: boolean;
 }) => {
   return (
     <AccordionItem
@@ -553,22 +618,39 @@ const OrderInfoAccordionItem = ({
               title={`Màu cho ${order.ticketType}`}
             />
           )}
-          <span>
+          <span
+            className={cn(
+              isSoldOut && "text-red-600 dark:text-red-400 font-semibold"
+            )}
+          >
             {index + 1}
             {": "}
             {order.nameInput} - {order.studentIdInput}
+            {isSoldOut && " ⚠️"}
           </span>
         </div>
       </AccordionTrigger>
       <AccordionContent className="p-0">
         <div
-          className="flex w-full flex-col gap-4 p-2 text-balance border rounded-sm overflow-hidden"
+          className={cn(
+            "flex w-full flex-col gap-4 p-2 text-balance border rounded-sm overflow-hidden",
+            isSoldOut && "border-red-500 dark:border-red-700"
+          )}
           style={{
-            borderColor: ticketColor || "#0084ff",
-            backgroundColor: ticketColor ? `${ticketColor}08` : undefined,
+            borderColor: isSoldOut ? undefined : ticketColor || "#0084ff",
+            backgroundColor: isSoldOut
+              ? "#fee2e2"
+              : ticketColor
+              ? `${ticketColor}08`
+              : undefined,
           }}
         >
           <OrderItemInfo order={order} price={price} />
+          {isSoldOut && (
+            <p className="text-xs font-semibold text-red-600 dark:text-red-400 -mt-2">
+              ⚠️ Loại vé này đã hết! Vui lòng xóa đơn hàng này
+            </p>
+          )}
         </div>
       </AccordionContent>
     </AccordionItem>

@@ -5,7 +5,9 @@ import { verifySession } from "@/dal/verifySession";
 import {
   fetchEmailInfo,
   fetchOfflineEventInfo,
+  fetchOfflineSales,
   fetchOfflineTicketInfo,
+  fetchOnlineSales,
   sendOfflineOrder,
   updateOnlineOrderStatus,
 } from "@/lib/SpreadSheet";
@@ -259,6 +261,90 @@ export const sendOrderAction = async ({
         return createActionError("INVALID_TICKET_TYPE");
       }
     }
+
+    // Check if tickets are availabel
+    const [onlineSalesInfo, offlineSalesInfo] = await Promise.allSettled([
+      fetchOnlineSales(),
+      fetchOfflineSales(),
+    ]);
+
+    if (
+      onlineSalesInfo.status === "rejected" ||
+      offlineSalesInfo.status === "rejected"
+    ) {
+      return createActionError("INTERNAL_SERVER_ERROR");
+    }
+
+    const onlineSales = onlineSalesInfo.value;
+    const offlineSales = offlineSalesInfo.value;
+
+    if (
+      onlineSales.error ||
+      offlineSales.error ||
+      !onlineSales.data ||
+      !offlineSales.data
+    ) {
+      return createActionError("INTERNAL_SERVER_ERROR");
+    }
+
+    // Check ticket availability
+    console.log(`[${operationId}] Checking ticket availability...`);
+    const ticketCount: Record<string, number> = {};
+
+    // Count all offline orders as valid
+    offlineSales.data.forEach((sale) => {
+      const ticketType = sale.buyerTicketType;
+      ticketCount[ticketType] = (ticketCount[ticketType] || 0) + 1;
+    });
+
+    // Count online orders with status "pending" or "success" as valid
+    onlineSales.data.forEach((sale) => {
+      if (
+        sale.verificationStatus === VERIFICATION_PENDING ||
+        sale.verificationStatus === VERIFICATION_APPROVED
+      ) {
+        const ticketType = sale.buyerTicketType;
+        ticketCount[ticketType] = (ticketCount[ticketType] || 0) + 1;
+      }
+    });
+
+    // Count tickets in the current order being submitted
+    orders.forEach((order) => {
+      const ticketType = order.ticketType;
+      ticketCount[ticketType] = (ticketCount[ticketType] || 0) + 1;
+    });
+
+    // Check if any ticket type exceeds maxQuantity
+    const soldOutTickets: string[] = [];
+    for (const order of orders) {
+      const ticketType = order.ticketType;
+      const ticketInfoItem = emailAndEventInfoData.ticketInfo!.find(
+        (ticket) =>
+          ticket.ticketName === ticketType &&
+          ticket.includeConcert === order.concertIncluded
+      );
+
+      if (ticketInfoItem) {
+        const soldCount = ticketCount[ticketType] || 0;
+        if (soldCount > ticketInfoItem.maxQuantity) {
+          if (!soldOutTickets.includes(ticketType)) {
+            soldOutTickets.push(ticketType);
+          }
+        }
+      }
+    }
+
+    if (soldOutTickets.length > 0) {
+      console.log(
+        `[${operationId}] Tickets sold out: ${soldOutTickets.join(", ")}`
+      );
+      return createActionError(
+        "TICKETS_SOLD_OUT",
+        `Các loại vé sau đã hết: ${soldOutTickets.join(", ")}`
+      );
+    }
+
+    console.log(`[${operationId}] Ticket availability check passed`);
 
     // Submit orders
     console.log(`[${operationId}] Submitting orders to spreadsheet...`);

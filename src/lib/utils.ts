@@ -68,7 +68,7 @@ export const errorToast = ({
 }) => {
   const toastId = toast.error(message, {
     description: description,
-    duration: 2300,
+    duration: 5555,
     style: {
       backgroundColor: "#e7000b",
       color: "white",

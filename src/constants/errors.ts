@@ -26,6 +26,7 @@ export const ERROR_CODES = {
   EVENT_INFO_FETCH_FAILED: "event-info-fetch-failed",
   TEACHER_VERIFICATION_FETCH_FAILED: "teacher-verification-fetch-failed",
   INVALID_TICKET_TYPE: "invalid-ticket-type",
+  TICKETS_SOLD_OUT: "tickets-sold-out",
 } as const;
 
 // User-friendly error messages
@@ -70,6 +71,8 @@ export const ERROR_MESSAGES = {
     "Không thể lấy thông tin GVCN xác nhận. Vui lòng thử lại sau.",
   [ERROR_CODES.INVALID_TICKET_TYPE]:
     "Loại vé không hợp lệ. Vui lòng chọn loại vé hợp lệ.",
+  [ERROR_CODES.TICKETS_SOLD_OUT]:
+    "Một hoặc nhiều loại vé đã hết. Vui lòng chọn loại vé khác.",
 } as const;
 
 // HTTP status codes for API responses

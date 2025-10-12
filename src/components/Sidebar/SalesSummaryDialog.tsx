@@ -29,6 +29,7 @@ interface SalesSummaryDialogProps {
   isRefetchingSales: boolean;
   isSalesInfoFetching: boolean;
   onRefetchSales: () => void;
+  getTicketColor: (ticketType: string) => string;
 }
 
 const SalesSummaryDialog = ({
@@ -38,6 +39,7 @@ const SalesSummaryDialog = ({
   ticketInfo,
   staffInfo,
   isSalesInfoError,
+  getTicketColor,
   isRefetchingSales,
   isSalesInfoFetching,
   onRefetchSales,
@@ -98,6 +100,7 @@ const SalesSummaryDialog = ({
                   salesInfo={salesInfo.offline}
                   ticketInfo={ticketInfo.offline}
                   staffName={staffInfo.name}
+                  getTicketColor={getTicketColor}
                 />
               ) : (
                 <div className="flex items-center justify-center text-center">
@@ -121,6 +124,7 @@ const SalesSummaryDialog = ({
                   )}
                   ticketInfo={ticketInfo.online}
                   staffName={staffInfo.name}
+                  getTicketColor={getTicketColor}
                 />
               ) : (
                 <div className="flex items-center justify-center text-center">

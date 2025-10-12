@@ -25,7 +25,11 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
+import {
+  cn,
+  formatVietnameseCurrency,
+  parseVietnameseCurrency,
+} from "@/lib/utils";
 import { fuzzySearch } from "../lib/utils";
 import { TicketInfo } from "@/constants/types";
 import { Badge } from "./ui/badge";
@@ -104,10 +108,12 @@ const EnhancedSelect = ({
                 !prerequisite && (
                   <div className="flex items-center gap-1">
                     <Badge className="bg-green-700">
-                      {
-                        data.find((item) => item.ticketName === selectedValue)
-                          ?.price
-                      }
+                      {formatVietnameseCurrency(
+                        parseVietnameseCurrency(
+                          data.find((item) => item.ticketName === selectedValue)
+                            ?.price ?? 0
+                        )
+                      )}
                     </Badge>
                     {data.find((item) => item.ticketName === selectedValue)
                       ?.includeConcert ? (
@@ -255,7 +261,9 @@ const EnhancedSelectItem = ({
       />
       {item.ticketName}
       <span className="flex ml-1 items-center gap-1">
-        <Badge className="bg-green-700">{item.price}</Badge>
+        <Badge className="bg-green-700">
+          {formatVietnameseCurrency(parseVietnameseCurrency(item.price))}
+        </Badge>
         {item.includeConcert ? (
           <Badge variant="outline" className="bg-[#0084ff] text-white">
             Có concert

@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
 
 interface TicketsInfoProps {
   ticketInfo: AllTicketInfo | undefined;
@@ -60,7 +61,7 @@ export function TicketsInfo({
       <DropdownMenuContent
         className="min-w-(--radix-dropdown-menu-trigger-width) sm:min-w-[300px] w-max rounded-lg cursor-default"
         side={isMobile ? "bottom" : "right"}
-        sideOffset={20}
+        sideOffset={35}
         align="center"
       >
         <div className="flex items-center justify-between w-full">
@@ -98,7 +99,11 @@ export function TicketsInfo({
                     </span>
                   </span>
                   <div className="font-medium flex items-center gap-1">
-                    <Badge className="bg-green-700">{ticket.price}</Badge>
+                    <Badge className="bg-green-700">
+                      {formatVietnameseCurrency(
+                        parseVietnameseCurrency(ticket.price)
+                      )}
+                    </Badge>
                     {ticket.includeConcert ? (
                       <Badge
                         variant="outline"
@@ -136,7 +141,11 @@ export function TicketsInfo({
                     </span>
                   </span>
                   <div className="font-medium flex items-center gap-1">
-                    <Badge className="bg-green-700">{ticket.price}</Badge>
+                    <Badge className="bg-green-700">
+                      {formatVietnameseCurrency(
+                        parseVietnameseCurrency(ticket.price)
+                      )}
+                    </Badge>
                     {ticket.includeConcert ? (
                       <Badge
                         variant="outline"

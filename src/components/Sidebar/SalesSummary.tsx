@@ -1,3 +1,4 @@
+import React, { ReactNode } from "react";
 import {
   OfflineSalesInfo,
   OnlineSalesInfo,
@@ -10,11 +11,7 @@ const isOfflineSalesInfo = (
 ): sale is OfflineSalesInfo => {
   return "staffName" in sale && "paymentMedium" in sale;
 };
-import {
-  cn,
-  formatVietnameseCurrency,
-  parseVietnameseCurrency,
-} from "@/lib/utils";
+import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +45,13 @@ interface SalesSummaryProps {
   salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[];
   ticketInfo: TicketInfo[];
   staffName?: string;
+  hideFilters?: boolean;
+  renderDailyExtraContent?: (
+    date: string,
+    dailySales: (OfflineSalesInfo | OnlineSalesInfo)[]
+  ) => ReactNode;
+  showTotalRevenue?: boolean;
+  getTicketColor: (ticketType: string) => string;
 }
 
 interface DailySummary {
@@ -72,6 +76,10 @@ const SalesSummary = ({
   salesInfo,
   ticketInfo,
   staffName,
+  hideFilters = false,
+  getTicketColor,
+  showTotalRevenue = true,
+  renderDailyExtraContent,
 }: SalesSummaryProps) => {
   // Get date range for all data
   const allDataRange = useMemo(() => {
@@ -143,7 +151,9 @@ const SalesSummary = ({
   }, [startDate, endDate, allDataRange]);
 
   const filteredSales = useMemo(() => {
-    if (!salesInfo || !startDate || !endDate) return [];
+    if (!salesInfo) return [];
+    if (hideFilters) return salesInfo;
+    if (!startDate || !endDate) return [];
 
     const start = startOfDay(new Date(startDate));
     const end = endOfDay(new Date(endDate));
@@ -161,7 +171,31 @@ const SalesSummary = ({
         return false;
       }
     });
-  }, [salesInfo, startDate, endDate]);
+  }, [salesInfo, startDate, endDate, hideFilters]);
+
+  // Group sales by date for the render callback
+  const salesByDate = useMemo(() => {
+    if (!filteredSales.length) return {};
+
+    const grouped: Record<string, (OfflineSalesInfo | OnlineSalesInfo)[]> = {};
+
+    filteredSales.forEach((sale) => {
+      try {
+        const saleDate = parse(sale.time, "dd/MM/yyyy HH:mm:ss", new Date());
+        if (isNaN(saleDate.getTime())) return;
+        const dateKey = format(saleDate, "yyyy-MM-dd");
+
+        if (!grouped[dateKey]) {
+          grouped[dateKey] = [];
+        }
+        grouped[dateKey].push(sale);
+      } catch {
+        return;
+      }
+    });
+
+    return grouped;
+  }, [filteredSales]);
 
   const summaryData = useMemo(() => {
     if (!filteredSales.length || !ticketInfo) return null;
@@ -313,6 +347,31 @@ const SalesSummary = ({
         : 0;
   }
 
+  // Calculate overall ticket breakdown
+  const overallTicketBreakdown = useMemo(() => {
+    if (!summaryData || !totalSummary) return null;
+
+    const ticketBreakdown: Record<string, number> = {};
+    const ticketRevenueBreakdown: Record<string, number> = {};
+
+    summaryData.forEach((day) => {
+      Object.entries(day.ticketBreakdown).forEach(([ticket, count]) => {
+        ticketBreakdown[ticket] = (ticketBreakdown[ticket] || 0) + count;
+      });
+      Object.entries(day.ticketRevenueBreakdown).forEach(
+        ([ticket, revenue]) => {
+          ticketRevenueBreakdown[ticket] =
+            (ticketRevenueBreakdown[ticket] || 0) + revenue;
+        }
+      );
+    });
+
+    return {
+      ticketBreakdown,
+      ticketRevenueBreakdown,
+    };
+  }, [summaryData, totalSummary]);
+
   const currentStaffSummary = useMemo(() => {
     if (!summaryData || !staffName) return null;
 
@@ -354,96 +413,95 @@ const SalesSummary = ({
   return (
     <div className="space-y-4">
       {/* Date Range Controls */}
-      <Card className="flex flex-row flex-wrap items-center justify-center sm:justify-start">
-        <CardHeader className="min-w-[245px]">
-          <CardTitle className="flex items-center gap-2 justify-center sm:justify-start">
-            <Calendar size={20} />
-            Chọn khoảng thời gian
-          </CardTitle>
-        </CardHeader>
-        <Separator
-          orientation="vertical"
-          className="!h-[55px] w-1 mx-3 block"
-          id="day_picker_separ"
-        />
-        <CardContent>
-          <div className="flex flex-wrap items-end gap-4 justify-center sm:justify-start">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="start-date">Từ ngày</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-40"
-              />
+      {!hideFilters && (
+        <Card className="flex flex-row flex-wrap items-center justify-center sm:justify-start">
+          <CardHeader className="min-w-[245px]">
+            <CardTitle className="flex items-center gap-2 justify-center sm:justify-start">
+              <Calendar size={20} />
+              Chọn khoảng thời gian
+            </CardTitle>
+          </CardHeader>
+          <Separator
+            orientation="vertical"
+            className="!h-[55px] w-1 mx-3 block"
+            id="day_picker_separ"
+          />
+          <CardContent>
+            <div className="flex flex-wrap items-end gap-4 justify-center sm:justify-start">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="start-date">Từ ngày</Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="end-date">Đến ngày</Label>
+                <Input
+                  id="end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={isAllData ? "default" : "outline"}
+                  onClick={setAllData}
+                  size="sm"
+                  disabled={!allDataRange}
+                  className={isAllData ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
+                >
+                  Tất cả
+                </Button>
+                <Button
+                  variant={isToday ? "default" : "outline"}
+                  onClick={setToday}
+                  size="sm"
+                  className={isToday ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
+                >
+                  Hôm nay
+                </Button>
+                <Button
+                  variant={isThisWeek ? "default" : "outline"}
+                  onClick={setThisWeek}
+                  size="sm"
+                  className={
+                    isThisWeek ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""
+                  }
+                >
+                  Tuần này
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="end-date">Đến ngày</Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-40"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={isAllData ? "default" : "outline"}
-                onClick={setAllData}
-                size="sm"
-                disabled={!allDataRange}
-                className={isAllData ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
-              >
-                Tất cả
-              </Button>
-              <Button
-                variant={isToday ? "default" : "outline"}
-                onClick={setToday}
-                size="sm"
-                className={isToday ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
-              >
-                Hôm nay
-              </Button>
-              <Button
-                variant={isThisWeek ? "default" : "outline"}
-                onClick={setThisWeek}
-                size="sm"
-                className={isThisWeek ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
-              >
-                Tuần này
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Overall Summary */}
       {totalSummary && (
-        <div
-          className={cn(
-            "grid grid-cols-1 md:grid-cols-2 gap-4",
-            salesInfo.some((sale) => isOfflineSalesInfo(sale))
-              ? "lg:grid-cols-4"
-              : "lg:grid-cols-3"
+        <div className="flex flex-row gap-4 flex-wrap items-stretch h-full">
+          {showTotalRevenue && (
+            <Card className="min-w-[220px] flex-1">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Tổng doanh thu
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatVietnameseCurrency(totalSummary.totalRevenue)}
+                </div>
+              </CardContent>
+            </Card>
           )}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Tổng doanh thu
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {formatVietnameseCurrency(totalSummary.totalRevenue)}
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
+          <Card className="min-w-[220px] flex-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Tổng đơn hàng
@@ -464,7 +522,7 @@ const SalesSummary = ({
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="min-w-[220px] flex-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Giá trị TB/đơn
@@ -480,7 +538,7 @@ const SalesSummary = ({
 
           {currentStaffSummary &&
             salesInfo.some((sale) => isOfflineSalesInfo(sale)) && (
-              <Card>
+              <Card className="min-w-[220px] flex-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Doanh thu của bạn
@@ -512,6 +570,68 @@ const SalesSummary = ({
         </div>
       )}
 
+      {/* Overall Ticket Breakdown */}
+      {overallTicketBreakdown && totalSummary && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Phân loại vé tổng quan</CardTitle>
+            <CardDescription>
+              Chi tiết số lượng và doanh thu theo từng loại vé
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {Object.entries(overallTicketBreakdown.ticketBreakdown)
+                .sort((a, b) => b[1] - a[1])
+                .map(([ticketType, count]) => {
+                  const revenue =
+                    overallTicketBreakdown.ticketRevenueBreakdown[ticketType] ||
+                    0;
+                  const percentage =
+                    (revenue / totalSummary.totalRevenue) * 100;
+                  return (
+                    <div key={ticketType} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">
+                          {ticketType} ({" "}
+                          {formatVietnameseCurrency(
+                            parseVietnameseCurrency(
+                              ticketInfo.find(
+                                (ticket) => ticket.ticketName === ticketType
+                              )?.price ?? 0
+                            )
+                          )}
+                          ) -{" "}
+                          {ticketInfo.find(
+                            (ticket) => ticket.ticketName === ticketType
+                          )?.includeConcert
+                            ? "Có concert"
+                            : "Không concert"}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {count} vé • Tổng {formatVietnameseCurrency(revenue)}
+                        </span>
+                      </div>
+                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <div
+                          className="h-full transition-all"
+                          style={{
+                            width: `${percentage}%`,
+                            backgroundColor: getTicketColor(ticketType),
+                          }}
+                        />
+                      </div>
+                      <div className="text-xs text-muted-foreground text-right">
+                        {percentage.toFixed(1)}% tổng doanh thu
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Sales Trend Chart */}
       {filteredSales &&
         filteredSales.length > 1 &&
@@ -529,10 +649,12 @@ const SalesSummary = ({
         <Card>
           <CardHeader>
             <CardTitle>Chi tiết theo ngày</CardTitle>
-            <CardDescription>
-              Từ {format(new Date(startDate), "dd/MM/yyyy", { locale: vi })} đến{" "}
-              {format(new Date(endDate), "dd/MM/yyyy", { locale: vi })}
-            </CardDescription>
+            {!hideFilters && startDate && endDate && (
+              <CardDescription>
+                Từ {format(new Date(startDate), "dd/MM/yyyy", { locale: vi })}{" "}
+                đến {format(new Date(endDate), "dd/MM/yyyy", { locale: vi })}
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -726,6 +848,17 @@ const SalesSummary = ({
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
+
+                  {/* Render extra content if provided */}
+                  {renderDailyExtraContent && (
+                    <>
+                      <Separator />
+                      {renderDailyExtraContent(
+                        day.date,
+                        salesByDate[day.date] || []
+                      )}
+                    </>
+                  )}
 
                   {index < summaryData.length - 1 && (
                     <Separator className="mt-4" />

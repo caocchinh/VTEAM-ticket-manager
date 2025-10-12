@@ -679,6 +679,7 @@ const Form = ({
                   onOpenChange={setIsSummaryDialogOpen}
                   salesInfo={salesInfo}
                   ticketInfo={ticketInfo}
+                  getTicketColor={getTicketColor}
                   staffInfo={staffInfo}
                   isSalesInfoError={isSalesInfoError}
                   isRefetchingSales={isRefetchingSales}
@@ -702,7 +703,18 @@ const Form = ({
                 />
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <StaffSumary />
+                <StaffSumary
+                  offlineSalesInfo={salesInfo?.offline.filter(
+                    (sale) => sale.staffName === staffInfo.name
+                  )}
+                  getTicketColor={getTicketColor}
+                  staffName={staffInfo.name}
+                  isSalesInfoError={isSalesInfoError}
+                  isSalesInfoFetching={isSalesInfoFetching}
+                  onRefetchSales={mutateRefetchSales}
+                  isRefetchingSales={isRefetchingSales}
+                  ticketInfo={ticketInfo?.offline}
+                />
               </SidebarMenuItem>
             </div>
           </SidebarGroup>

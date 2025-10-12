@@ -244,11 +244,6 @@ const OrderInfo = ({
                                 </p>
                               </div>
                               <OrderItemInfo
-                                includeConcert={
-                                  getTicketInfo(
-                                    currentOrder[editingIndex]?.ticketType
-                                  )?.includeConcert ?? false
-                                }
                                 order={currentOrder[editingIndex]}
                                 price={
                                   getTicketInfo(
@@ -314,11 +309,6 @@ const OrderInfo = ({
                                 </p>
                               </div>
                               <OrderItemInfo
-                                includeConcert={
-                                  getTicketInfo(
-                                    currentOrder[deletingIndex]?.ticketType
-                                  )?.includeConcert ?? false
-                                }
                                 order={currentOrder[deletingIndex]}
                                 price={
                                   getTicketInfo(
@@ -348,9 +338,6 @@ const OrderInfo = ({
                       </Dialog>
                     </div>
                     <OrderInfoAccordionItem
-                      includeConcert={
-                        getTicketInfo(order.ticketType)?.includeConcert ?? false
-                      }
                       price={getTicketInfo(order.ticketType)?.price ?? ""}
                       index={index}
                       order={order}
@@ -450,9 +437,6 @@ const OrderInfo = ({
                     price={getTicketInfo(order.ticketType)?.price ?? ""}
                     index={index}
                     order={order}
-                    includeConcert={
-                      getTicketInfo(order.ticketType)?.includeConcert ?? false
-                    }
                     ticketColor={getTicketColor(order.ticketType)}
                   />
                   <div className="my-4"></div>
@@ -547,11 +531,9 @@ const OrderInfo = ({
 const OrderInfoAccordionItem = ({
   order,
   index,
-  includeConcert,
   price,
   ticketColor,
 }: {
-  includeConcert: boolean;
   order: StudentInput;
   index: number;
   price: string;
@@ -586,11 +568,7 @@ const OrderInfoAccordionItem = ({
             backgroundColor: ticketColor ? `${ticketColor}08` : undefined,
           }}
         >
-          <OrderItemInfo
-            order={order}
-            price={price}
-            includeConcert={includeConcert}
-          />
+          <OrderItemInfo order={order} price={price} />
         </div>
       </AccordionContent>
     </AccordionItem>

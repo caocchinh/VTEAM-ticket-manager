@@ -334,13 +334,6 @@ const TeacherVerificationStatus = ({
                       info.ticketName
                   )?.price ?? ""
                 }
-                includeConcert={
-                  ticketInfo?.offline?.find(
-                    (info) =>
-                      currentOrder[deletingIndex]?.ticketType ===
-                      info.ticketName
-                  )?.includeConcert ?? false
-                }
               />
             </div>
           )}

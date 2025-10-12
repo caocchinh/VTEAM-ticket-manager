@@ -304,6 +304,10 @@ const InputForm = ({
           paymentMedium: paymentMedium,
           ticketType,
           email: emailInput,
+          concertIncluded:
+            ticketInfo?.offline.find(
+              (ticket) => ticket.ticketName === ticketType
+            )?.includeConcert ?? false,
         },
       ]);
       clearForm({ clearNotice: true });

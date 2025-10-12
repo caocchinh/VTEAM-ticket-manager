@@ -1,4 +1,3 @@
-import React, { ReactNode } from "react";
 import {
   OfflineSalesInfo,
   OnlineSalesInfo,
@@ -11,7 +10,11 @@ const isOfflineSalesInfo = (
 ): sale is OfflineSalesInfo => {
   return "staffName" in sale && "paymentMedium" in sale;
 };
-import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
+import {
+  cn,
+  formatVietnameseCurrency,
+  parseVietnameseCurrency,
+} from "@/lib/utils";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +33,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Calendar, TrendingUp, Users, DollarSign, Clock } from "lucide-react";
+import {
+  Calendar,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Clock,
+  Receipt,
+  User,
+  FileText,
+  Mail,
+  ChartNoAxesCombined,
+  Search,
+} from "lucide-react";
 import SalesTrendChart from "@/components/Sidebar/Charts/SalesTrendChart";
 import {
   format,
@@ -40,16 +55,14 @@ import {
   endOfDay,
 } from "date-fns";
 import { vi } from "date-fns/locale";
+import { Badge } from "../ui/badge";
+import { FAILED_EMAIL_STATUS, SENT_EMAIL_STATUS } from "@/constants/constants";
 
 interface SalesSummaryProps {
   salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[];
   ticketInfo: TicketInfo[];
   staffName?: string;
   hideFilters?: boolean;
-  renderDailyExtraContent?: (
-    date: string,
-    dailySales: (OfflineSalesInfo | OnlineSalesInfo)[]
-  ) => ReactNode;
   showTotalRevenue?: boolean;
   getTicketColor: (ticketType: string) => string;
 }
@@ -79,7 +92,6 @@ const SalesSummary = ({
   hideFilters = false,
   getTicketColor,
   showTotalRevenue = true,
-  renderDailyExtraContent,
 }: SalesSummaryProps) => {
   // Get date range for all data
   const allDataRange = useMemo(() => {
@@ -641,6 +653,7 @@ const SalesSummary = ({
             salesInfo={filteredSales}
             ticketInfo={ticketInfo}
             staffName={staffName}
+            showTotalRevenue={showTotalRevenue}
           />
         )}
 
@@ -733,7 +746,10 @@ const SalesSummary = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value={`details-${day.date}`}>
                       <AccordionTrigger className="text-sm cursor-pointer">
-                        Chi tiết theo loại vé và hình thức thanh toán
+                        <div className="flex items-center gap-2">
+                          <ChartNoAxesCombined className="h-4 w-4" />
+                          Chi tiết theo loại vé và hình thức thanh toán
+                        </div>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-4">
@@ -849,19 +865,18 @@ const SalesSummary = ({
                     </AccordionItem>
                   </Accordion>
 
-                  {/* Render extra content if provided */}
-                  {renderDailyExtraContent && (
-                    <>
-                      <Separator />
-                      {renderDailyExtraContent(
-                        day.date,
-                        salesByDate[day.date] || []
-                      )}
-                    </>
-                  )}
+                  <>
+                    <Separator />
+                    <DailyOrders
+                      dateString={day.date}
+                      ticketInfo={ticketInfo}
+                      getTicketColor={getTicketColor}
+                      dailySales={salesByDate[day.date] || []}
+                    />
+                  </>
 
                   {index < summaryData.length - 1 && (
-                    <Separator className="mt-4" />
+                    <Separator className="mt-4 bg-[#0084ff]" />
                   )}
                 </div>
               ))}
@@ -884,3 +899,245 @@ const SalesSummary = ({
 };
 
 export default SalesSummary;
+
+const DailyOrders = ({
+  dateString,
+  ticketInfo,
+  getTicketColor,
+  dailySales,
+}: {
+  dateString: string;
+  ticketInfo: TicketInfo[];
+  getTicketColor: (ticketType: string) => string;
+  dailySales: (OfflineSalesInfo | OnlineSalesInfo)[];
+}) => {
+  // Fuzzy search function - checks if search characters appear in order in target
+  const fuzzyMatch = (search: string, target: string): boolean => {
+    const searchLower = search.toLowerCase();
+    const targetLower = target.toLowerCase();
+    let searchIndex = 0;
+
+    for (
+      let i = 0;
+      i < targetLower.length && searchIndex < searchLower.length;
+      i++
+    ) {
+      if (targetLower[i] === searchLower[searchIndex]) {
+        searchIndex++;
+      }
+    }
+
+    return searchIndex === searchLower.length;
+  };
+
+  // Sort orders by time (most recent first)
+  const sortedOrders = [...dailySales].sort((a, b) => {
+    const dateA = parse(a.time, "dd/MM/yyyy HH:mm:ss", new Date());
+    const dateB = parse(b.time, "dd/MM/yyyy HH:mm:ss", new Date());
+    return dateB.getTime() - dateA.getTime();
+  });
+  const [searchInput, setSearchInput] = useState("");
+  const filteredOrders = useMemo(() => {
+    if (!searchInput) return sortedOrders;
+    return sortedOrders.filter(
+      (order) =>
+        fuzzyMatch(searchInput, order.buyerName) ||
+        fuzzyMatch(searchInput, order.buyerId)
+    );
+  }, [searchInput, sortedOrders]);
+
+  return (
+    <div className="flex flex-col gap-2 mt-0">
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="order">
+          <AccordionTrigger className="cursor-pointer">
+            <div className="flex items-center gap-2">
+              <Receipt className="h-4 w-4" />
+              Chi tiết từng đơn hàng ({sortedOrders.length} đơn)
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="p-1">
+            <div className="relative">
+              <Search
+                className="absolute top-1/2 left-2 -translate-y-1/2"
+                size={15}
+              />
+              <Input
+                placeholder="Tìm kiếm theo tên/mã số HS khách hàng"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="pl-7"
+              />
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              {filteredOrders.map((order, orderIndex) => {
+                const ticketPrice =
+                  ticketInfo?.find(
+                    (info) => order.buyerTicketType === info.ticketName
+                  )?.price ?? "0";
+                const numericPrice = parseVietnameseCurrency(ticketPrice);
+
+                return (
+                  <AccordionItem
+                    key={`${order.buyerId}-${order.time}-${orderIndex}`}
+                    value={`order-${dateString}-${orderIndex}`}
+                  >
+                    <AccordionTrigger className="cursor-pointer">
+                      <div className="flex items-center justify-between w-full pr-4 flex-wrap gap-4">
+                        <div className="flex items-center gap-3">
+                          {orderIndex + 1}.
+                          <div className="text-left">
+                            <div className="font-medium">
+                              {order.buyerName} - {order.buyerId}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {order.time} •{" "}
+                              <Badge
+                                style={{
+                                  backgroundColor: getTicketColor(
+                                    order.buyerTicketType
+                                  ),
+                                }}
+                              >
+                                {order.buyerTicketType}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            className={cn(
+                              "text-xs",
+                              (isOfflineSalesInfo(order)
+                                ? order.paymentMedium
+                                : order.verificationStatus) === "Tiền mặt"
+                                ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
+                                : "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
+                            )}
+                          >
+                            {isOfflineSalesInfo(order)
+                              ? order.paymentMedium
+                              : order.verificationStatus}
+                          </Badge>
+                          <span className="font-semibold">
+                            {formatVietnameseCurrency(numericPrice)}
+                          </span>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="border rounded-lg p-3 space-y-3 bg-muted/30 mt-2">
+                        {/* Customer Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-2">
+                              <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-xs text-muted-foreground">
+                                  Khách hàng
+                                </div>
+                                <div className="font-medium">
+                                  {order.buyerName}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-xs text-muted-foreground">
+                                  Lớp
+                                </div>
+                                <div className="font-medium">
+                                  {order.buyerClass}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-2">
+                              <Receipt className="h-4 w-4 text-muted-foreground mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-xs text-muted-foreground">
+                                  Mã học sinh
+                                </div>
+                                <div className="font-medium font-mono">
+                                  {order.buyerId}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-xs text-muted-foreground">
+                                  Email
+                                </div>
+                                <div className="font-medium text-sm break-all">
+                                  {order.buyerEmail}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Notice and Email Status */}
+                        <>
+                          <Separator />
+                          <div className="space-y-2">
+                            {isOfflineSalesInfo(order) && (
+                              <div className="flex items-start gap-2">
+                                <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                                <div className="flex-1">
+                                  <div className="text-xs text-muted-foreground">
+                                    Ghi chú:{" "}
+                                    {order.buyerNotice || "Không có ghi chú"}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {order.emailStatus && (
+                              <div className="flex items-center gap-2">
+                                <Mail className="h-4 w-4 text-muted-foreground" />
+                                <div className="text-xs">
+                                  <span className="text-muted-foreground">
+                                    Trạng thái gửi email xác nhận vé:{" "}
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      "font-medium",
+                                      order.emailStatus === SENT_EMAIL_STATUS
+                                        ? "text-green-600 dark:text-green-400"
+                                        : order.emailStatus ===
+                                          FAILED_EMAIL_STATUS
+                                        ? "text-red-600 dark:text-red-400"
+                                        : "text-amber-600 dark:text-amber-400"
+                                    )}
+                                  >
+                                    {order.emailStatus}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                            {isOfflineSalesInfo(order) && order.staffName && (
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <div className="text-xs">
+                                  <span className="text-muted-foreground">
+                                    Staff điền form: {order.staffName}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+};

@@ -35,6 +35,7 @@ import { vi } from "date-fns/locale";
 interface SalesTrendChartProps {
   salesInfo: (OfflineSalesInfo | OnlineSalesInfo)[];
   ticketInfo: TicketInfo[];
+  showTotalRevenue?: boolean;
   staffName?: string;
 }
 
@@ -47,32 +48,34 @@ interface ChartDataPoint {
   staffOrders: number;
 }
 
-const chartConfig = {
-  totalRevenue: {
-    label: "Tổng doanh thu",
-    color: "var(--chart-1)",
-  },
-  totalOrders: {
-    label: "Tổng đơn hàng",
-    color: "var(--chart-2)",
-  },
-  staffRevenue: {
-    label: "Doanh thu của bạn",
-    color: "var(--chart-3)",
-  },
-  staffOrders: {
-    label: "Đơn hàng của bạn",
-    color: "var(--chart-4)",
-  },
-} satisfies ChartConfig;
-
 const SalesTrendChart = ({
   salesInfo,
   ticketInfo,
+  showTotalRevenue,
   staffName,
 }: SalesTrendChartProps) => {
-  const [activeChart, setActiveChart] =
-    React.useState<keyof typeof chartConfig>("totalRevenue");
+  const chartConfig = {
+    totalRevenue: {
+      label: "Tổng doanh thu",
+      color: "var(--chart-1)",
+    },
+    totalOrders: {
+      label: "Tổng đơn hàng",
+      color: "var(--chart-2)",
+    },
+    staffRevenue: {
+      label: "Doanh thu của bạn",
+      color: "var(--chart-3)",
+    },
+    staffOrders: {
+      label: "Đơn hàng của bạn",
+      color: "var(--chart-4)",
+    },
+  } satisfies ChartConfig;
+
+  const [activeChart, setActiveChart] = React.useState<
+    keyof typeof chartConfig
+  >(showTotalRevenue ? "totalRevenue" : "totalOrders");
 
   const chartData = useMemo(() => {
     if (!salesInfo || !ticketInfo) return [];
@@ -181,6 +184,9 @@ const SalesTrendChart = ({
         <div className="flex w-[65%]">
           {(Object.keys(chartConfig) as Array<keyof typeof chartConfig>).map(
             (key) => {
+              // Only show totalRevenue if showTotalRevenue is true
+              if (key === "totalRevenue" && !showTotalRevenue) return null;
+
               // Only show staff data if staffName is provided and there are offline sales
               if (
                 key.includes("staff") &&

@@ -130,7 +130,7 @@ const SalesOveralSummary = ({
       >
         {(!isSalesInfoError || isSalesInfoFetching) && (
           <>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Tổng danh thu:{" "}
               <span className="font-medium text-green-600">
                 {isSalesInfoFetching ? (
@@ -139,9 +139,9 @@ const SalesOveralSummary = ({
                   formatVietnameseCurrency(totalRevenue)
                 )}
               </span>
-            </p>
+            </div>
             <Separator orientation="horizontal" />
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Doanh thu offline:{" "}
               <span className="font-medium text-blue-600">
                 {isSalesInfoFetching ? (
@@ -150,8 +150,8 @@ const SalesOveralSummary = ({
                   formatVietnameseCurrency(offlineRevenue)
                 )}
               </span>
-            </p>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            </div>
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Doanh thu online:{" "}
               <span className="font-medium text-orange-600">
                 {isSalesInfoFetching ? (
@@ -160,9 +160,9 @@ const SalesOveralSummary = ({
                   formatVietnameseCurrency(onlineRevenue)
                 )}
               </span>
-            </p>
+            </div>
             <Separator orientation="horizontal" />
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Tổng đơn hàng:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
@@ -171,8 +171,8 @@ const SalesOveralSummary = ({
                   totalOfflineOrders + totalOnlineOrders
                 )}
               </span>
-            </p>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            </div>
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Đơn hàng offline:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
@@ -181,8 +181,8 @@ const SalesOveralSummary = ({
                   totalOfflineOrders
                 )}
               </span>
-            </p>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            </div>
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Đơn hàng online:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
@@ -191,7 +191,7 @@ const SalesOveralSummary = ({
                   totalOnlineOrders
                 )}
               </span>
-            </p>
+            </div>
           </>
         )}
         {isSalesInfoError && !isSalesInfoFetching && (

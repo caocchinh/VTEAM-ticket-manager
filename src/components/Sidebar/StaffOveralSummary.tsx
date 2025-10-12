@@ -137,7 +137,7 @@ const StaffOveralSummary = ({
       >
         {(!isSalesInfoError || isSalesInfoFetching) && (
           <>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Doanh thu của bạn:{" "}
               <span className="font-medium text-green-600">
                 {isSalesInfoFetching ? (
@@ -146,9 +146,9 @@ const StaffOveralSummary = ({
                   formatVietnameseCurrency(staffInfo.revenue)
                 )}
               </span>
-            </p>
+            </div>
             <Separator orientation="horizontal" />
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               Đơn hàng:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
@@ -157,8 +157,8 @@ const StaffOveralSummary = ({
                   staffInfo.orderCount
                 )}
               </span>
-            </p>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            </div>
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               % tổng doanh thu:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
@@ -167,8 +167,8 @@ const StaffOveralSummary = ({
                   calculatePercentage(staffInfo.revenue, totalRevenue)
                 )}
               </span>
-            </p>
-            <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
+            </div>
+            <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
               % tổng doanh thu offline:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
@@ -177,7 +177,7 @@ const StaffOveralSummary = ({
                   calculatePercentage(staffInfo.revenue, totalRevenueOffline)
                 )}
               </span>
-            </p>
+            </div>
           </>
         )}
         {isSalesInfoError && !isSalesInfoFetching && (

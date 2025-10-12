@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -44,6 +44,11 @@ const TicketColorManager = ({
   onResetColors,
 }: TicketColorManagerProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Memoized lookup map for ticket info by ticket type
+  const ticketInfoMap = useMemo(() => {
+    return new Map(ticketInfo.map((info) => [info.ticketName, info]));
+  }, [ticketInfo]);
 
   const getDefaultColor = (ticketType: string, index: number) => {
     // Use the same logic as the main component for consistency
@@ -90,10 +95,10 @@ const TicketColorManager = ({
                   <div className="flex-1">
                     <p className="font-medium text-sm">{ticketType}</p>
                     <p className="text-xs text-muted-foreground">
-                      {
-                        ticketInfo.find((t) => t.ticketName === ticketType)
-                          ?.price
-                      }
+                      {ticketInfoMap.get(ticketType)?.price} -{" "}
+                      {ticketInfoMap.get(ticketType)?.includeConcert
+                        ? "Có concert"
+                        : "Không concert"}
                     </p>
                   </div>
                   <ColorPicker

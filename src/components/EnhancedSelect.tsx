@@ -28,6 +28,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { fuzzySearch } from "../lib/utils";
 import { TicketInfo } from "@/constants/types";
+import { Badge } from "./ui/badge";
+import { INVALID_TICKET_DUE_TO_INVALID_CLASS } from "@/constants/constants";
 
 const EnhancedSelect = ({
   label,
@@ -96,12 +98,31 @@ const EnhancedSelect = ({
               }, 0);
             }}
           >
-            {selectedValue
-              ? selectedValue +
-                " - " +
-                data.find((item) => item.ticketName === selectedValue)?.price
-              : prerequisite}
-
+            <div className="flex items-center gap-2">
+              {selectedValue || prerequisite}
+              {selectedValue !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
+                !prerequisite && (
+                  <div className="flex items-center gap-1">
+                    <Badge className="bg-green-700">
+                      {
+                        data.find((item) => item.ticketName === selectedValue)
+                          ?.price
+                      }
+                    </Badge>
+                    {data.find((item) => item.ticketName === selectedValue)
+                      ?.includeConcert ? (
+                      <Badge
+                        variant="outline"
+                        className="bg-[#0084ff] text-white"
+                      >
+                        Có concert
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">Không concert</Badge>
+                    )}
+                  </div>
+                )}
+            </div>
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -232,8 +253,17 @@ const EnhancedSelectItem = ({
         checked={selectedValue === item.ticketName}
         className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] rounded-full"
       />
-      {item.ticketName} - {item.includeConcert ? "Có concert" : "Không concert"}{" "}
-      - {item.price}
+      {item.ticketName}
+      <span className="flex ml-1 items-center gap-1">
+        <Badge className="bg-green-700">{item.price}</Badge>
+        {item.includeConcert ? (
+          <Badge variant="outline" className="bg-[#0084ff] text-white">
+            Có concert
+          </Badge>
+        ) : (
+          <Badge variant="destructive">Không concert</Badge>
+        )}
+      </span>
     </CommandItem>
   );
 };

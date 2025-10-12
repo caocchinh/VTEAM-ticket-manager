@@ -109,6 +109,7 @@ const ChangeCalculator = ({
               placeholder="Ví dụ: 350 (= 350,000 ₫)"
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
+              inputMode="numeric"
               className="flex-1 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
             />
             <span className="text-sm text-gray-500 min-w-fit">× 1,000 ₫</span>

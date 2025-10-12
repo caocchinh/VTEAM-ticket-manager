@@ -11,6 +11,7 @@ export interface Student {
 export interface TicketInfo {
   ticketName: string;
   price: string;
+  includeConcert: boolean;
   classRange: number[];
 }
 

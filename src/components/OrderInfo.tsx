@@ -1,5 +1,5 @@
 import { OrderInfoProps, StudentInput } from "@/constants/types";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -61,6 +61,7 @@ const OrderInfo = ({
   shouldSendEmail,
   clearForm,
   setTicketColors,
+
   setCurrentOrders,
   setNoticeInput,
   setTicketType,
@@ -83,6 +84,17 @@ const OrderInfo = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const { open: isSidebarOpen } = useSidebar();
+
+  // Memoized lookup map for ticket info by ticket type
+  const ticketInfoMap = useMemo(() => {
+    if (!ticketInfo?.offline) return new Map();
+    return new Map(ticketInfo.offline.map((info) => [info.ticketName, info]));
+  }, [ticketInfo]);
+
+  // O(1) lookup function using the memoized map
+  const getTicketInfo = (ticketType: string) => {
+    return ticketInfoMap.get(ticketType);
+  };
 
   const handleTicketColorChange = (ticketType: string, color: string) => {
     const newColors = { ...ticketColors, [ticketType]: color };
@@ -232,12 +244,15 @@ const OrderInfo = ({
                                 </p>
                               </div>
                               <OrderItemInfo
+                                includeConcert={
+                                  getTicketInfo(
+                                    currentOrder[editingIndex]?.ticketType
+                                  )?.includeConcert ?? false
+                                }
                                 order={currentOrder[editingIndex]}
                                 price={
-                                  ticketInfo?.offline.find(
-                                    (info) =>
-                                      currentOrder[editingIndex!]
-                                        ?.ticketType === info.ticketName
+                                  getTicketInfo(
+                                    currentOrder[editingIndex]?.ticketType
                                   )?.price ?? ""
                                 }
                               />
@@ -299,12 +314,15 @@ const OrderInfo = ({
                                 </p>
                               </div>
                               <OrderItemInfo
+                                includeConcert={
+                                  getTicketInfo(
+                                    currentOrder[deletingIndex]?.ticketType
+                                  )?.includeConcert ?? false
+                                }
                                 order={currentOrder[deletingIndex]}
                                 price={
-                                  ticketInfo?.offline.find(
-                                    (info) =>
-                                      currentOrder[deletingIndex]
-                                        ?.ticketType === info.ticketName
+                                  getTicketInfo(
+                                    currentOrder[deletingIndex]?.ticketType
                                   )?.price ?? ""
                                 }
                               />
@@ -330,11 +348,10 @@ const OrderInfo = ({
                       </Dialog>
                     </div>
                     <OrderInfoAccordionItem
-                      price={
-                        ticketInfo?.offline.find(
-                          (info) => order.ticketType === info.ticketName
-                        )?.price ?? ""
+                      includeConcert={
+                        getTicketInfo(order.ticketType)?.includeConcert ?? false
                       }
+                      price={getTicketInfo(order.ticketType)?.price ?? ""}
                       index={index}
                       order={order}
                       ticketColor={getTicketColor(order.ticketType)}
@@ -430,13 +447,12 @@ const OrderInfo = ({
               {currentOrder.map((order, index) => (
                 <Fragment key={index}>
                   <OrderInfoAccordionItem
-                    price={
-                      ticketInfo?.offline.find(
-                        (info) => order.ticketType === info.ticketName
-                      )?.price ?? ""
-                    }
+                    price={getTicketInfo(order.ticketType)?.price ?? ""}
                     index={index}
                     order={order}
+                    includeConcert={
+                      getTicketInfo(order.ticketType)?.includeConcert ?? false
+                    }
                     ticketColor={getTicketColor(order.ticketType)}
                   />
                   <div className="my-4"></div>
@@ -529,9 +545,11 @@ const OrderInfo = ({
 const OrderInfoAccordionItem = ({
   order,
   index,
+  includeConcert,
   price,
   ticketColor,
 }: {
+  includeConcert: boolean;
   order: StudentInput;
   index: number;
   price: string;
@@ -566,7 +584,11 @@ const OrderInfoAccordionItem = ({
             backgroundColor: ticketColor ? `${ticketColor}08` : undefined,
           }}
         >
-          <OrderItemInfo order={order} price={price} />
+          <OrderItemInfo
+            order={order}
+            price={price}
+            includeConcert={includeConcert}
+          />
         </div>
       </AccordionContent>
     </AccordionItem>

@@ -248,7 +248,7 @@ const InputForm = ({
           ?.filter((value) =>
             value.classRange.includes(extractFirstNumber(homeroomInput) ?? 0)
           )
-          .map((value) => value.ticketName) ?? []
+          .map((value) => value) ?? []
       );
     } else {
       return [];
@@ -315,16 +315,18 @@ const InputForm = ({
     if (availableTicketsType.length > 0) {
       if (
         lastValidTicketType &&
-        availableTicketsType.includes(lastValidTicketType)
+        availableTicketsType.some(
+          (ticket) => ticket.ticketName === lastValidTicketType
+        )
       ) {
         setTicketType(lastValidTicketType);
       } else {
-        if (availableTicketsType.includes(ticketType)) {
+        if (availableTicketsType.some((ticket) => ticket.ticketName === ticketType)) {
           return;
         }
         const newTicketType = availableTicketsType[0];
-        setTicketType(newTicketType);
-        setLastValidTicketType(newTicketType);
+        setTicketType(newTicketType.ticketName);
+        setLastValidTicketType(newTicketType.ticketName);
       }
     } else {
       if (homeroomInput) {
@@ -341,7 +343,7 @@ const InputForm = ({
     if (
       ticketType &&
       ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
-      availableTicketsType.includes(ticketType)
+      availableTicketsType.some((ticket) => ticket.ticketName === ticketType)
     ) {
       setLastValidTicketType(ticketType);
     }
@@ -666,7 +668,14 @@ const InputForm = ({
                 availableTicketsType.length &&
                 homeroomInput.length > 0
                   ? availableTicketsType
-                  : [INVALID_TICKET_DUE_TO_INVALID_CLASS]
+                  : [
+                      {
+                        ticketName: INVALID_TICKET_DUE_TO_INVALID_CLASS,
+                        price: "",
+                        includeConcert: false,
+                        classRange: [],
+                      },
+                    ]
               }
             />
           </div>

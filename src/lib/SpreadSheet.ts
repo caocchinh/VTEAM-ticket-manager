@@ -78,6 +78,8 @@ import {
   TEACHER_VERIFICATION_TEACHER_NOTICE_INDEX,
   TEACHER_VERIFICATION_STUDENT_ACCEPT_STATUS_INDEX,
   TEACHER_VERIFICATION_STUDENT_REJECT_STATUS_INDEX,
+  OFFLINE_SALES_TICKET_INFO_INCLUDE_CONCERT_INDEX,
+  ONLINE_SALES_TICKET_INFO_INCLUDE_CONCERT_INDEX,
 } from "@/constants/constants";
 import {
   EventInfo,
@@ -192,6 +194,9 @@ export const fetchOfflineTicketInfo = async (): Promise<{
             (_value: string) => parseInt(_value)
           )
         : [],
+      includeConcert: value[OFFLINE_SALES_TICKET_INFO_INCLUDE_CONCERT_INDEX]
+        ? value[OFFLINE_SALES_TICKET_INFO_INCLUDE_CONCERT_INDEX] === "Có"
+        : false,
     }));
 
     if (data) {
@@ -1406,6 +1411,9 @@ export const fetchOnlineTicketInfo = async (): Promise<{
             (_value: string) => parseInt(_value)
           )
         : [],
+      includeConcert: value[ONLINE_SALES_TICKET_INFO_INCLUDE_CONCERT_INDEX]
+        ? value[ONLINE_SALES_TICKET_INFO_INCLUDE_CONCERT_INDEX] === "Có"
+        : false,
     }));
 
     if (data) {

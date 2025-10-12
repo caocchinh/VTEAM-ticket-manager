@@ -4,9 +4,11 @@ import { formatVietnameseCurrency, parseVietnameseCurrency } from "@/lib/utils";
 export const OrderItemInfo = ({
   order,
   price,
+  includeConcert,
 }: {
   order: StudentInput;
   price: string;
+  includeConcert: boolean;
 }) => {
   return (
     <>
@@ -29,11 +31,15 @@ export const OrderItemInfo = ({
         </p>
       </div>
       <div className="flex flex-row gap-2">
+        <p className="font-semibold">Vé có concert:</p>
+        <p className="wrap-anywhere">{includeConcert ? "Có" : "Không"}</p>
+      </div>
+      <div className="flex flex-row gap-2">
         <p className="font-semibold">Hình thức:</p>
         <p className="wrap-anywhere">{order.paymentMedium}</p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Lưu ý:</p>
+        <p className="font-semibold">Lưu ý của bạn:</p>
         <p className="whitespace-pre-wrap wrap-anywhere">
           {order.notice || "Không có lưu ý"}
         </p>

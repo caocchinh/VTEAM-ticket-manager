@@ -27,6 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { fuzzySearch } from "../lib/utils";
+import { TicketInfo } from "@/constants/types";
 
 const EnhancedSelect = ({
   label,
@@ -42,7 +43,7 @@ const EnhancedSelect = ({
   label: string;
   prerequisite: string;
   side?: "left" | "right" | "bottom" | "top";
-  data: string[];
+  data: TicketInfo[];
   popoverContentClassName?: string;
   selectedValue: string;
   triggerClassName?: string;
@@ -95,12 +96,11 @@ const EnhancedSelect = ({
               }, 0);
             }}
           >
-            {(() => {
-              if (selectedValue) {
-                return data?.find((item) => item === selectedValue);
-              }
-              return prerequisite;
-            })()}
+            {selectedValue
+              ? selectedValue +
+                " - " +
+                data.find((item) => item.ticketName === selectedValue)?.price
+              : prerequisite}
 
             <ChevronsUpDown className="opacity-50" />
           </Button>
@@ -151,13 +151,13 @@ const EnhancedSelect = ({
             </div>
             <ScrollArea viewPortClassName="max-h-[195px]" type="always">
               <CommandList className="dark:bg-accent">
-                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandEmpty>Không tìm thấy kết quả.</CommandEmpty>
                 <CommandGroup>
                   {data
-                    ?.filter((item) => fuzzySearch(inputValue, item))
+                    ?.filter((item) => fuzzySearch(inputValue, item.ticketName))
                     .map((item) => (
                       <EnhancedSelectItem
-                        key={item}
+                        key={item.ticketName}
                         item={item}
                         search={inputValue}
                         isOpen={isOpen}
@@ -191,7 +191,7 @@ const EnhancedSelectItem = ({
   inputValue,
   selectedValue,
 }: {
-  item: string;
+  item: TicketInfo;
   search: string;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
@@ -205,7 +205,7 @@ const EnhancedSelectItem = ({
   return (
     <CommandItem
       className={cn("cursor-pointer", !isOpen && "pointer-events-none")}
-      key={item}
+      key={item.ticketName}
       onSelect={(currentValue) => {
         setIsBlockingInput(true);
         setTimeout(() => {
@@ -226,13 +226,14 @@ const EnhancedSelectItem = ({
           setIsBlockingInput(true);
         }
       }}
-      value={item}
+      value={item.ticketName}
     >
       <Checkbox
-        checked={selectedValue === item}
+        checked={selectedValue === item.ticketName}
         className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] rounded-full"
       />
-      {item}
+      {item.ticketName} - {item.includeConcert ? "Có concert" : "Không concert"}{" "}
+      - {item.price}
     </CommandItem>
   );
 };

@@ -24,12 +24,14 @@ interface StaffSumaryProps {
   staffName: string;
   getTicketColor: (ticketType: string) => string;
   ticketInfo: TicketInfo[] | undefined;
+  totalOfflineRevenue: number;
 }
 
 const StaffSumary = ({
   offlineSalesInfo,
   isSalesInfoError,
   isSalesInfoFetching,
+  totalOfflineRevenue,
   getTicketColor,
   onRefetchSales,
   isRefetchingSales,
@@ -82,6 +84,8 @@ const StaffSumary = ({
               showTotalRevenue={false}
               getTicketColor={getTicketColor}
               hideFilters={true}
+              isStaffSummary={true}
+              totalRevenue={totalOfflineRevenue}
             />
           ) : (
             <div className="flex items-center justify-center h-32">

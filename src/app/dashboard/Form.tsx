@@ -679,6 +679,8 @@ const Form = ({
                   onOpenChange={setIsSummaryDialogOpen}
                   salesInfo={salesInfo}
                   ticketInfo={ticketInfo}
+                  totalOfflineRevenue={offlineRevenue}
+                  totalOnlineRevenue={onlineRevenue}
                   getTicketColor={getTicketColor}
                   staffInfo={staffInfo}
                   isSalesInfoError={isSalesInfoError}
@@ -709,6 +711,7 @@ const Form = ({
                   )}
                   getTicketColor={getTicketColor}
                   staffName={staffInfo.name}
+                  totalOfflineRevenue={offlineRevenue}
                   isSalesInfoError={isSalesInfoError}
                   isSalesInfoFetching={isSalesInfoFetching}
                   onRefetchSales={mutateRefetchSales}

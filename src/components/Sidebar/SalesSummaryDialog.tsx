@@ -21,6 +21,8 @@ import { SidebarMenuButton } from "../ui/sidebar";
 
 interface SalesSummaryDialogProps {
   isOpen: boolean;
+  totalOfflineRevenue: number;
+  totalOnlineRevenue: number;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
   salesInfo: AllSalesInfo | undefined;
   ticketInfo: AllTicketInfo | undefined;
@@ -39,6 +41,8 @@ const SalesSummaryDialog = ({
   ticketInfo,
   staffInfo,
   isSalesInfoError,
+  totalOfflineRevenue,
+  totalOnlineRevenue,
   getTicketColor,
   isRefetchingSales,
   isSalesInfoFetching,
@@ -99,6 +103,7 @@ const SalesSummaryDialog = ({
                 <SalesSummary
                   salesInfo={salesInfo.offline}
                   ticketInfo={ticketInfo.offline}
+                  totalRevenue={totalOfflineRevenue}
                   staffName={staffInfo.name}
                   getTicketColor={getTicketColor}
                 />
@@ -123,6 +128,7 @@ const SalesSummaryDialog = ({
                       order.verificationStatus === VERIFICATION_APPROVED
                   )}
                   ticketInfo={ticketInfo.online}
+                  totalRevenue={totalOnlineRevenue}
                   staffName={staffInfo.name}
                   getTicketColor={getTicketColor}
                 />

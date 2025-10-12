@@ -62,7 +62,9 @@ import { ScrollArea } from "../ui/scroll-area";
 interface SalesSummaryProps {
   salesInfo: OfflineSalesInfo[] | OnlineSalesInfo[];
   ticketInfo: TicketInfo[];
+  totalRevenue: number;
   staffName?: string;
+  isStaffSummary?: boolean;
   hideFilters?: boolean;
   showTotalRevenue?: boolean;
   getTicketColor: (ticketType: string) => string;
@@ -89,9 +91,11 @@ interface DailySummary {
 const SalesSummary = ({
   salesInfo,
   ticketInfo,
+  totalRevenue,
   staffName,
   hideFilters = false,
   getTicketColor,
+  isStaffSummary = false,
   showTotalRevenue = true,
 }: SalesSummaryProps) => {
   // Get date range for all data
@@ -517,7 +521,7 @@ const SalesSummary = ({
           <Card className="min-w-[220px] flex-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Tổng đơn hàng
+                Tổng đơn hàng {isStaffSummary && "của bạn"}
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -569,11 +573,12 @@ const SalesSummary = ({
                         {" "}
                         •{" "}
                         {Math.round(
-                          (currentStaffSummary.revenue /
-                            totalSummary.totalRevenue) *
-                            100
+                          (currentStaffSummary.revenue / totalRevenue) * 100
                         )}
-                        % tổng
+                        % tổng danh thu{" "}
+                        {isOfflineSalesInfo(salesInfo[0])
+                          ? "offline"
+                          : "online"}
                       </span>
                     )}
                   </p>
@@ -587,24 +592,27 @@ const SalesSummary = ({
       {overallTicketBreakdown && totalSummary && (
         <Card>
           <CardHeader>
-            <CardTitle>Phân loại vé tổng quan</CardTitle>
+            <CardTitle>
+              {isStaffSummary
+                ? "Phân loại vé của bạn bán so với tổng VTEAM"
+                : "Phân loại vé tổng quan"}
+            </CardTitle>
             <CardDescription>
               Chi tiết số lượng và doanh thu theo từng loại vé
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="flex flex-col w-full gap-6">
               {Object.entries(overallTicketBreakdown.ticketBreakdown)
                 .sort((a, b) => b[1] - a[1])
                 .map(([ticketType, count]) => {
                   const revenue =
                     overallTicketBreakdown.ticketRevenueBreakdown[ticketType] ||
                     0;
-                  const percentage =
-                    (revenue / totalSummary.totalRevenue) * 100;
+                  const percentage = (revenue / totalRevenue) * 100;
                   return (
                     <div key={ticketType} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-sm flex-wrap gap-4">
                         <span className="font-medium">
                           {ticketType} ({" "}
                           {formatVietnameseCurrency(
@@ -635,7 +643,10 @@ const SalesSummary = ({
                         />
                       </div>
                       <div className="text-xs text-muted-foreground text-right">
-                        {percentage.toFixed(1)}% tổng doanh thu
+                        {percentage.toFixed(1)}% tổng doanh thu{" "}
+                        {isOfflineSalesInfo(salesInfo[0])
+                          ? "offline"
+                          : "online"}
                       </div>
                     </div>
                   );

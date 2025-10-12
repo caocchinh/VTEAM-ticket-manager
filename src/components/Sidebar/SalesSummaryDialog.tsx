@@ -51,18 +51,18 @@ const SalesSummaryDialog = ({
           disabled={!salesInfo || isSalesInfoError}
         >
           <ChartSpline />
-          <span className="whitespace-nowrap"> Báo cáo doanh thu</span>
+          <span className="whitespace-nowrap"> Báo cáo tổng doanh thu</span>
         </SidebarMenuButton>
       </DialogTrigger>
 
       <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
-        <DialogTitle className="sr-only">Báo cáo doanh thu</DialogTitle>
+        <DialogTitle className="sr-only">Báo cáo tổng doanh thu</DialogTitle>
         <DialogDescription className="sr-only">
-          Báo cáo doanh thu bán vé
+          Báo cáo tổng doanh thu bán vé
         </DialogDescription>
         <div className="flex items-center justify-center gap-2">
           <h3 className="text-center font-semibold text-xl uppercase">
-            Báo cáo doanh thu
+            Báo cáo tổng doanh thu
           </h3>
           <Separator orientation="vertical" />
           <Button

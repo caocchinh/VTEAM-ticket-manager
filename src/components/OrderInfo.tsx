@@ -520,12 +520,14 @@ const OrderInfo = ({
           <DialogFooter>
             <Button
               variant="outline"
+              className="cursor-pointer"
               onClick={() => setIsDeleteAllDialogOpen(false)}
             >
               Hủy
             </Button>
             <Button
               variant="destructive"
+              className="cursor-pointer"
               onClick={() => {
                 setCurrentOrders([]);
                 localStorage.removeItem("currentOrderList"); // Clear saved order list when deleting all

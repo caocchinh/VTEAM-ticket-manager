@@ -321,7 +321,11 @@ const InputForm = ({
       ) {
         setTicketType(lastValidTicketType);
       } else {
-        if (availableTicketsType.some((ticket) => ticket.ticketName === ticketType)) {
+        if (
+          availableTicketsType.some(
+            (ticket) => ticket.ticketName === ticketType
+          )
+        ) {
           return;
         }
         const newTicketType = availableTicketsType[0];
@@ -817,7 +821,7 @@ const InputForm = ({
         >
           <DialogTrigger asChild>
             <Button variant="outline" className="w-full cursor-pointer -mt-2">
-              Xóa tất cả
+              Xóa tất cả thông tin đang nhập
               <Trash2 />
             </Button>
           </DialogTrigger>
@@ -825,18 +829,23 @@ const InputForm = ({
             <DialogHeader>
               <DialogTitle>Xác nhận xóa</DialogTitle>
               <DialogDescription>
-                Bạn có chắc chắn muốn xóa tất cả thông tin đã nhập? Hành động
+                Bạn có chắc chắn muốn xóa tất cả thông tin đang nhập? Hành động
                 này không thể hoàn tác.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button
                 variant="outline"
+                className="cursor-pointer"
                 onClick={() => setIsDeleteAllDialogOpen(false)}
               >
                 Hủy
               </Button>
-              <Button variant="destructive" onClick={handleConfirmClear}>
+              <Button
+                variant="destructive"
+                className="cursor-pointer"
+                onClick={handleConfirmClear}
+              >
                 Xóa tất cả
               </Button>
             </DialogFooter>

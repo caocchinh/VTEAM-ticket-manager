@@ -56,12 +56,12 @@ export default function StatisticsDialog({
           disabled={!salesInfo || isSalesInfoError}
         >
           <ChartPie />
-          <span className="whitespace-nowrap">Thống kê</span>
+          <span className="whitespace-nowrap">Thống kê tổng</span>
         </SidebarMenuButton>
       </DialogTrigger>
 
       <DialogContent className="max-h-[95vh] !py-2 !max-w-[100vw] w-[90vw]">
-        <DialogTitle className="sr-only">Thống kê</DialogTitle>
+        <DialogTitle className="sr-only">Thống kê tổng</DialogTitle>
         <div className="flex items-center justify-center gap-2">
           <h3 className="text-center font-semibold text-xl uppercase">
             Tổng{" "}

@@ -17,6 +17,7 @@ import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
 import Beams from "@/components/Beams";
 import EmbededBrowserWarning from "@/components/EmbededBrowserWarning";
 import RedirectMessage from "@/components/RedirectMessage";
+import { retryAuth } from "@/dal/retry";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -57,9 +58,14 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
         // For unauthorized users, sign out and show login page
         try {
-          await auth.api.signOut({
-            headers: await headers(),
-          });
+          await retryAuth(async () => {
+            const response = await auth.api.signOut({
+              headers: await headers(),
+            });
+            if (!response.success) {
+              throw new Error("Failed to sign out user");
+            }
+          }, "Sign out");
         } catch (signOutError) {
           console.error("Failed to sign out user:", signOutError);
         }

@@ -7,6 +7,7 @@ import { ERROR_CODES, getErrorMessage } from "@/constants/errors";
 import Form from "./Form";
 import { ErrorCard } from "@/components/ErrorCard";
 import RedirectMessage from "@/components/RedirectMessage";
+import { retryAuth } from "@/dal/retry";
 
 export default async function Dashboard() {
   let session;
@@ -46,9 +47,14 @@ export default async function Dashboard() {
 
     // For unauthorized users, sign out and redirect
     try {
-      await auth.api.signOut({
-        headers: await headers(),
-      });
+      await retryAuth(async () => {
+        const response = await auth.api.signOut({
+          headers: await headers(),
+        });
+        if (!response.success) {
+          throw new Error("Failed to sign out user");
+        }
+      }, "Sign out");
     } catch (signOutError) {
       console.error("Failed to sign out user:", signOutError);
     }

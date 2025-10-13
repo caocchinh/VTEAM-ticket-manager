@@ -40,7 +40,7 @@ const UpdateDataDialog = ({
       await Promise.all([
         deleteCache("ticket_info"),
         deleteCache("student_list"),
-        deleteCache("event_info"),
+        deleteCache("offline_event_info"),
       ]);
     } catch (error) {
       console.log(error);

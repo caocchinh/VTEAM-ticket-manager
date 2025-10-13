@@ -293,6 +293,7 @@ export const NOT_STAFF_ERROR = "not-staff";
 export const NOT_LOGGED_IN_ERROR = "not-logged-in";
 export const INVALID_TICKET_DUE_TO_INVALID_CLASS = "Lớp không hợp lệ!";
 export const ALL_TICKETS_SOLD_OUT = "Đã hết vé!";
+export const SALES_INFO_FETCHING = "Đang tải...";
 export const NOT_STUDENT_IN_SCHOOL =
   "Không phải học sinh trong trường, vui lòng tự điền";
 

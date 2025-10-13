@@ -62,15 +62,13 @@ export default async function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      <Form
-        staffInfo={{
-          name: staffAuth.staffInfo!.name,
-          email: staffAuth.staffInfo!.email,
-        }}
-        isOnlineCoordinator={staffAuth.isOnlineCoordinator}
-        session={session}
-      />
-    </div>
+    <Form
+      staffInfo={{
+        name: staffAuth.staffInfo!.name,
+        email: staffAuth.staffInfo!.email,
+      }}
+      isOnlineCoordinator={staffAuth.isOnlineCoordinator}
+      session={session}
+    />
   );
 }

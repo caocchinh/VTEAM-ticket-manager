@@ -2,6 +2,7 @@ import {
   ALL_TICKETS_SOLD_OUT,
   INVALID_TICKET_DUE_TO_INVALID_CLASS,
   NOT_STUDENT_IN_SCHOOL,
+  SALES_INFO_FETCHING,
 } from "@/constants/constants";
 import { InputFormProps, Student } from "@/constants/types";
 import {
@@ -56,6 +57,7 @@ const InputForm = ({
   ticketType,
   noticeInput,
   setNoticeInput,
+  isSalesInfoFetching,
   setStudentNameAutoCompleteValue,
   setBestMatchStudentId,
   setEmailAutoCompleteValue,
@@ -76,6 +78,7 @@ const InputForm = ({
   studentNameInput,
   setStudentNameInput,
   soldOutTicketsType,
+  ticketsSoldPerType,
   setHomeroomInput,
   setEmailInput,
   setSelectedStudentIdInput,
@@ -266,6 +269,24 @@ const InputForm = ({
     );
   }, [availableTicketsType, soldOutTicketsType]);
 
+  const remainingTickets = useMemo(() => {
+    if (ticketInfo) {
+      // Calculate remaining quantity for each ticket type
+      const remainingQuantities: Record<string, number> = {};
+      ticketTypeAfterLimitCheck.forEach((ticket) => {
+        const soldCount = ticketsSoldPerType[ticket.ticketName] || 0;
+        remainingQuantities[ticket.ticketName] = Math.max(
+          0,
+          ticket.maxQuantity - soldCount
+        );
+      });
+
+      return remainingQuantities;
+    } else {
+      return {};
+    }
+  }, [ticketInfo, ticketTypeAfterLimitCheck, ticketsSoldPerType]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       handleTabKeyPress(e as unknown as React.KeyboardEvent);
@@ -330,41 +351,46 @@ const InputForm = ({
   };
 
   useEffect(() => {
-    if (
-      availableTicketsType.length > 0 &&
-      ticketTypeAfterLimitCheck.length > 0
-    ) {
-      if (
-        lastValidTicketType &&
-        availableTicketsType.some(
-          (ticket) => ticket.ticketName === lastValidTicketType
-        )
-      ) {
-        setTicketType(lastValidTicketType);
-      } else {
-        if (
-          availableTicketsType.some(
-            (ticket) => ticket.ticketName === ticketType
-          )
-        ) {
-          return;
-        }
-        const newTicketType = availableTicketsType[0];
-        setTicketType(newTicketType.ticketName);
-        setLastValidTicketType(newTicketType.ticketName);
-      }
+    if (isSalesInfoFetching) {
+      setTicketType(SALES_INFO_FETCHING);
+      return;
     } else {
       if (
         availableTicketsType.length > 0 &&
-        ticketTypeAfterLimitCheck.length === 0
+        ticketTypeAfterLimitCheck.length > 0
       ) {
-        setTicketType(ALL_TICKETS_SOLD_OUT);
-        return;
-      }
-      if (homeroomInput) {
-        setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
+        if (
+          lastValidTicketType &&
+          ticketTypeAfterLimitCheck.some(
+            (ticket) => ticket.ticketName === lastValidTicketType
+          )
+        ) {
+          setTicketType(lastValidTicketType);
+        } else {
+          if (
+            ticketTypeAfterLimitCheck.some(
+              (ticket) => ticket.ticketName === ticketType
+            )
+          ) {
+            return;
+          }
+          const newTicketType = ticketTypeAfterLimitCheck[0];
+          setTicketType(newTicketType.ticketName);
+          setLastValidTicketType(newTicketType.ticketName);
+        }
       } else {
-        setTicketType("");
+        if (
+          availableTicketsType.length > 0 &&
+          ticketTypeAfterLimitCheck.length === 0
+        ) {
+          setTicketType(ALL_TICKETS_SOLD_OUT);
+          return;
+        }
+        if (homeroomInput) {
+          setTicketType(INVALID_TICKET_DUE_TO_INVALID_CLASS);
+        } else {
+          setTicketType("");
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -373,6 +399,7 @@ const InputForm = ({
     homeroomInput,
     lastValidTicketType,
     ticketTypeAfterLimitCheck,
+    isSalesInfoFetching,
   ]);
 
   // Update lastValidTicketType only when ticketType changes to a valid ticket
@@ -380,11 +407,13 @@ const InputForm = ({
     if (
       ticketType &&
       ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
-      availableTicketsType.some((ticket) => ticket.ticketName === ticketType)
+      ticketTypeAfterLimitCheck.some(
+        (ticket) => ticket.ticketName === ticketType
+      )
     ) {
       setLastValidTicketType(ticketType);
     }
-  }, [ticketType, availableTicketsType, setLastValidTicketType]);
+  }, [ticketType, setLastValidTicketType, ticketTypeAfterLimitCheck]);
 
   const handleConfirmClear = () => {
     clearForm({ clearNotice: true });
@@ -392,6 +421,17 @@ const InputForm = ({
   };
 
   const selectValue = () => {
+    if (isSalesInfoFetching) {
+      return [
+        {
+          ticketName: SALES_INFO_FETCHING,
+          price: "",
+          includeConcert: false,
+          classRange: [],
+          maxQuantity: 0,
+        },
+      ];
+    }
     if (ticketTypeAfterLimitCheck.length > 0 && homeroomInput.length > 0) {
       return ticketTypeAfterLimitCheck;
     } else if (
@@ -702,7 +742,13 @@ const InputForm = ({
                 htmlFor="ticket-type"
                 className={errors.studentId ? "text-red-500" : ""}
               >
-                Hạng vé
+                Hạng vé{" "}
+                {ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
+                ticketType !== ALL_TICKETS_SOLD_OUT &&
+                !isSalesInfoFetching &&
+                availableTicketsType.length > 0 ? (
+                  <>(còn {remainingTickets[ticketType]})</>
+                ) : null}
               </Label>
               {ticketType &&
                 ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS && (
@@ -719,6 +765,7 @@ const InputForm = ({
               prerequisite={
                 !!ticketInfo &&
                 homeroomInput &&
+                !isSalesInfoFetching &&
                 extractFirstNumber(homeroomInput) &&
                 ticketTypeAfterLimitCheck.length > 0
                   ? ""
@@ -864,11 +911,21 @@ const InputForm = ({
           className="w-full cursor-pointer"
           disabled={
             ticketType === INVALID_TICKET_DUE_TO_INVALID_CLASS ||
-            ticketType === ALL_TICKETS_SOLD_OUT
+            ticketType === ALL_TICKETS_SOLD_OUT ||
+            ticketType === SALES_INFO_FETCHING
           }
         >
-          Thêm vào order
-          <ShoppingCart />
+          {isSalesInfoFetching ? (
+            <>
+              Vui lòng đợi dữ liệu được làm mới
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            </>
+          ) : (
+            <>
+              Thêm vào order
+              <ShoppingCart />
+            </>
+          )}
         </Button>
         <Dialog
           open={isDeleteAllDialogOpen}

@@ -1,5 +1,5 @@
 import { OrderInfoProps, StudentInput } from "@/constants/types";
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -61,6 +61,7 @@ const OrderInfo = ({
   shouldSendEmail,
   clearForm,
   setTicketColors,
+  isSalesInfoFetching,
   refetchSales,
   setCurrentOrders,
   setNoticeInput,
@@ -73,7 +74,6 @@ const OrderInfo = ({
   setEmailInput,
   setSelectedStudentIdInput,
   soldOutTicketsType,
-  ticketsTypeAtOrUnderLimit,
   ticketsSoldPerType,
 }: OrderInfoProps) => {
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
@@ -182,6 +182,19 @@ const OrderInfo = ({
     setDeletingIndex(null);
   };
 
+  const ticketsTypeAtOrUnderLimit = useMemo(() => {
+    if (ticketInfo) {
+      return (
+        ticketInfo.offline?.filter(
+          (value) =>
+            value.maxQuantity < (ticketsSoldPerType[value.ticketName] || 0)
+        ) ?? []
+      );
+    } else {
+      return [];
+    }
+  }, [ticketInfo, ticketsSoldPerType]);
+
   // Check if any ticket in current order is sold out
   const hasSoldOutTicketInOrder = useMemo(() => {
     if (!ticketsTypeAtOrUnderLimit || ticketsTypeAtOrUnderLimit.length === 0)
@@ -203,6 +216,10 @@ const OrderInfo = ({
       (ticket) => ticket.ticketName === ticketType
     );
   };
+
+  useEffect(() => {
+    setIsConfirmingOrderAlertDialogOpen(false);
+  }, [isSalesInfoFetching]);
 
   return (
     <div
@@ -227,10 +244,13 @@ const OrderInfo = ({
         <ScrollArea className="h-[403px] pr-4" type="always">
           {soldOutTicketsType && soldOutTicketsType.length > 0 && (
             <div className="w-full p-3 mb-4 bg-red-50 dark:bg-red-950/20 border border-red-300 dark:border-red-800 rounded-md flex justify-between gap-2 items-center">
-              <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
-                ⚠️ Loại vé đã hết:
-              </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="text-sm font-semibold flex-wrap whitespace-nowrap text-red-700 dark:text-red-400 mb-1 flex items-center gap-1">
+                {isSalesInfoFetching ? (
+                  <Loader2 className="animate-spin" size={15} />
+                ) : (
+                  "⚠️"
+                )}
+                <span className="mr-2"> Loại vé đang hết:</span>{" "}
                 {soldOutTicketsType.map((ticket, index) => {
                   const soldCount = ticketsSoldPerType[ticket.ticketName] || 0;
                   const excess = soldCount - ticket.maxQuantity;
@@ -459,14 +479,31 @@ const OrderInfo = ({
         <AlertDialogTrigger asChild>
           <Button
             className="w-full cursor-pointer"
-            disabled={currentOrder.length === 0 || hasSoldOutTicketInOrder}
+            disabled={
+              currentOrder.length === 0 ||
+              hasSoldOutTicketInOrder ||
+              isSalesInfoFetching
+            }
             title={
               hasSoldOutTicketInOrder
                 ? "Không thể chốt deal vì có vé đã hết trong đơn hàng"
                 : undefined
             }
           >
-            Chốt deal <WandSparkles />
+            {isSalesInfoFetching && (
+              <>
+                Vui lòng đợi dữ liệu được làm mới
+                <Loader2 className="animate-spin" />
+              </>
+            )}
+            {!isSalesInfoFetching && !hasSoldOutTicketInOrder && (
+              <>
+                Chốt deal <WandSparkles />
+              </>
+            )}
+            {hasSoldOutTicketInOrder && (
+              <>Không thể chốt deal vì có vé đã hết trong đơn hàng</>
+            )}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="py-3">
@@ -528,15 +565,23 @@ const OrderInfo = ({
               Hủy
             </Button>
             <Button
-              disabled={isOrderMutating}
+              disabled={isOrderMutating || isSalesInfoFetching}
               className="w-full md:order-1 order-0 md:w-1/2 border cursor-pointer"
               onClick={() => {
                 mutateOrder();
               }}
             >
               Chốt
-              {!isOrderMutating && <Zap />}
-              {isOrderMutating && <Loader2 className="animate-spin" />}
+              {!isOrderMutating && !isSalesInfoFetching && <Zap />}
+              {isOrderMutating && !isSalesInfoFetching && (
+                <Loader2 className="animate-spin" />
+              )}
+              {isSalesInfoFetching && (
+                <>
+                  Vui lòng đợi dữ liệu được làm mới
+                  <Loader2 className="animate-spin" />
+                </>
+              )}
             </Button>
           </div>
         </AlertDialogContent>

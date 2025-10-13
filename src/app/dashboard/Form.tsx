@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
@@ -503,7 +504,7 @@ const Form = ({
     return { revenue: 0, orderCount: 0 };
   }, [salesInfo, ticketInfo, staffInfo]);
 
-  const ticketsSoldPerType = useMemo(() => {
+  const ticketsSoldPerTypeExcludingCurrentOrder = useMemo(() => {
     if (salesInfo && ticketInfo) {
       const ticketCount: Record<string, number> = {};
 
@@ -524,6 +525,15 @@ const Form = ({
         }
       });
 
+      return ticketCount;
+    }
+    return {};
+  }, [salesInfo, ticketInfo]);
+
+  const ticketsSoldPerTypeIncludingCurrentOrder = useMemo(() => {
+    if (salesInfo && ticketInfo) {
+      const ticketCount: Record<string, number> = {};
+      Object.assign(ticketCount, ticketsSoldPerTypeExcludingCurrentOrder);
       // Count tickets in the current order
       currentOrder.forEach((order) => {
         const ticketType = order.ticketType;
@@ -533,54 +543,26 @@ const Form = ({
       return ticketCount;
     }
     return {};
-  }, [salesInfo, ticketInfo, currentOrder]);
+  }, [
+    salesInfo,
+    ticketInfo,
+    ticketsSoldPerTypeExcludingCurrentOrder,
+    currentOrder,
+  ]);
 
   const soldOutTicketsType = useMemo(() => {
     if (ticketInfo) {
-      const soldOutTickets =
-        [...ticketInfo.offline, ...ticketInfo.online]?.filter(
+      return (
+        ticketInfo.offline?.filter(
           (value) =>
-            value.maxQuantity <= (ticketsSoldPerType[value.ticketName] || 0)
-        ) ?? [];
-
-      // Group by ticketName and select the most restrictive (lowest maxQuantity)
-      const uniqueTickets = new Map();
-      soldOutTickets.forEach((ticket) => {
-        const existing = uniqueTickets.get(ticket.ticketName);
-        if (!existing || ticket.maxQuantity < existing.maxQuantity) {
-          uniqueTickets.set(ticket.ticketName, ticket);
-        }
-      });
-
-      return Array.from(uniqueTickets.values());
+            value.maxQuantity <=
+            (ticketsSoldPerTypeIncludingCurrentOrder[value.ticketName] || 0)
+        ) ?? []
+      );
     } else {
       return [];
     }
-  }, [ticketInfo, ticketsSoldPerType]);
-
-  // Tickets that have reached or exceeded their limit (for display in current order)
-  const ticketsTypeAtOrUnderLimit = useMemo(() => {
-    if (ticketInfo) {
-      const atLimitTickets =
-        [...ticketInfo.offline, ...ticketInfo.online]?.filter(
-          (value) =>
-            value.maxQuantity < (ticketsSoldPerType[value.ticketName] || 0)
-        ) ?? [];
-
-      // Group by ticketName and select the most restrictive (lowest maxQuantity)
-      const uniqueTickets = new Map();
-      atLimitTickets.forEach((ticket) => {
-        const existing = uniqueTickets.get(ticket.ticketName);
-        if (!existing || ticket.maxQuantity < existing.maxQuantity) {
-          uniqueTickets.set(ticket.ticketName, ticket);
-        }
-      });
-
-      return Array.from(uniqueTickets.values());
-    } else {
-      return [];
-    }
-  }, [ticketInfo, ticketsSoldPerType]);
+  }, [ticketInfo, ticketsSoldPerTypeIncludingCurrentOrder]);
 
   const isAnyOngoingRequestPending =
     useIsMutating({
@@ -640,6 +622,29 @@ const Form = ({
         });
       },
     });
+
+  const isAllTicketsSoldOut = useMemo(() => {
+    if (ticketInfo) {
+      return (
+        ticketInfo.offline?.every(
+          (value) =>
+            value.maxQuantity <=
+            (ticketsSoldPerTypeExcludingCurrentOrder[value.ticketName] || 0)
+        ) ?? false
+      );
+    } else {
+      return false;
+    }
+  }, [ticketInfo, ticketsSoldPerTypeExcludingCurrentOrder]);
+
+  useEffect(() => {
+    if (isAllTicketsSoldOut) {
+      clearForm({ clearNotice: true });
+      setCurrentOrders([]);
+      localStorage.removeItem("currentFormData");
+      localStorage.removeItem("currentOrderList");
+    }
+  }, [isAllTicketsSoldOut]);
 
   return (
     <SidebarProvider
@@ -816,76 +821,91 @@ const Form = ({
 
       <SidebarInset className="flex flex-col w-full relative">
         <InlineSidebarTrigger className="m-2 md:m-0 flex border-1 md:border-0 items-center gap-2 self-start md:absolute top-1 left-1 min-w-[35px] cursor-pointer" />
-        <div className="flex flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
-          <InputForm
-            selectedStudentIdInput={selectedStudentIdInput}
-            emailInput={emailInput}
-            isStudentListFetching={isStudentListFetching}
-            homeroomInput={homeroomInput}
-            isTicketInfoError={isTicketInfoError}
-            clearForm={clearForm}
-            currentOrder={currentOrder}
-            isTicketInfoFetching={isTicketInfoFetching}
-            setCurrentOrders={setCurrentOrders}
-            mounted={mounted}
-            getTicketColor={getTicketColor}
-            ticketType={ticketType}
-            soldOutTicketsType={soldOutTicketsType}
-            noticeInput={noticeInput}
-            setNoticeInput={setNoticeInput}
-            setTicketType={setTicketType}
-            studentList={studentList}
-            lastValidTicketType={lastValidTicketType}
-            paymentMedium={paymentMedium}
-            setPaymentMedium={setPaymentMedium}
-            setLastValidTicketType={setLastValidTicketType}
-            ticketInfo={ticketInfo}
-            isStudentListError={isStudentListError}
-            errors={errors}
-            setErrors={setErrors}
-            studentNameInput={studentNameInput}
-            setStudentNameInput={setStudentNameInput}
-            setHomeroomInput={setHomeroomInput}
-            setEmailInput={setEmailInput}
-            setSelectedStudentIdInput={setSelectedStudentIdInput}
-            setEmailAutoCompleteValue={setEmailAutoCompleteValue}
-            setBestMatchStudentId={setBestMatchStudentId}
-            setHomeroomAutoCompleteValue={setHomeroomAutoCompleteValue}
-            setStudentNameAutoCompleteValue={setStudentNameAutoCompleteValue}
-            studentNameAutoCompleteValue={studentNameAutoCompleteValue}
-            homeroomAutoCompleteValue={homeroomAutoCompleteValue}
-            bestMatchStudentId={bestMatchStudentId}
-            emailAutoCompleteValue={emailAutoCompleteValue}
-          />
-          <OrderInfo
-            ticketColors={ticketColors}
-            currentOrder={currentOrder}
-            ticketInfo={ticketInfo}
-            orderSubtotal={orderSubtotal}
-            shouldSendEmail={shouldSendEmail}
-            clearForm={clearForm}
-            setTicketColors={setTicketColors}
-            setCurrentOrders={setCurrentOrders}
-            setNoticeInput={setNoticeInput}
-            setTicketType={setTicketType}
-            setPaymentMedium={setPaymentMedium}
-            setStudentNameInput={setStudentNameInput}
-            refetchSales={mutateRefetchSales}
-            setHomeroomInput={setHomeroomInput}
-            setShouldSendEmail={setShouldSendEmail}
-            getTicketColor={getTicketColor}
-            setEmailInput={setEmailInput}
-            setSelectedStudentIdInput={setSelectedStudentIdInput}
-            soldOutTicketsType={soldOutTicketsType}
-            ticketsTypeAtOrUnderLimit={ticketsTypeAtOrUnderLimit}
-            ticketsSoldPerType={ticketsSoldPerType}
-          />
+        {!isAllTicketsSoldOut ? (
+          <div className="flex flex-row items-start justify-center gap-5 p-4 flex-wrap w-full">
+            <InputForm
+              selectedStudentIdInput={selectedStudentIdInput}
+              emailInput={emailInput}
+              isStudentListFetching={isStudentListFetching}
+              homeroomInput={homeroomInput}
+              isTicketInfoError={isTicketInfoError}
+              clearForm={clearForm}
+              currentOrder={currentOrder}
+              isSalesInfoFetching={isSalesInfoFetching}
+              isTicketInfoFetching={isTicketInfoFetching}
+              setCurrentOrders={setCurrentOrders}
+              mounted={mounted}
+              getTicketColor={getTicketColor}
+              ticketType={ticketType}
+              soldOutTicketsType={soldOutTicketsType}
+              noticeInput={noticeInput}
+              setNoticeInput={setNoticeInput}
+              setTicketType={setTicketType}
+              studentList={studentList}
+              lastValidTicketType={lastValidTicketType}
+              paymentMedium={paymentMedium}
+              setPaymentMedium={setPaymentMedium}
+              setLastValidTicketType={setLastValidTicketType}
+              ticketInfo={ticketInfo}
+              isStudentListError={isStudentListError}
+              errors={errors}
+              setErrors={setErrors}
+              studentNameInput={studentNameInput}
+              setStudentNameInput={setStudentNameInput}
+              setHomeroomInput={setHomeroomInput}
+              setEmailInput={setEmailInput}
+              setSelectedStudentIdInput={setSelectedStudentIdInput}
+              setEmailAutoCompleteValue={setEmailAutoCompleteValue}
+              setBestMatchStudentId={setBestMatchStudentId}
+              setHomeroomAutoCompleteValue={setHomeroomAutoCompleteValue}
+              setStudentNameAutoCompleteValue={setStudentNameAutoCompleteValue}
+              studentNameAutoCompleteValue={studentNameAutoCompleteValue}
+              homeroomAutoCompleteValue={homeroomAutoCompleteValue}
+              bestMatchStudentId={bestMatchStudentId}
+              emailAutoCompleteValue={emailAutoCompleteValue}
+              ticketsSoldPerType={ticketsSoldPerTypeIncludingCurrentOrder}
+            />
+            <OrderInfo
+              ticketColors={ticketColors}
+              currentOrder={currentOrder}
+              ticketInfo={ticketInfo}
+              orderSubtotal={orderSubtotal}
+              shouldSendEmail={shouldSendEmail}
+              isSalesInfoFetching={isSalesInfoFetching}
+              clearForm={clearForm}
+              setTicketColors={setTicketColors}
+              setCurrentOrders={setCurrentOrders}
+              setNoticeInput={setNoticeInput}
+              setTicketType={setTicketType}
+              setPaymentMedium={setPaymentMedium}
+              setStudentNameInput={setStudentNameInput}
+              refetchSales={mutateRefetchSales}
+              setHomeroomInput={setHomeroomInput}
+              setShouldSendEmail={setShouldSendEmail}
+              getTicketColor={getTicketColor}
+              setEmailInput={setEmailInput}
+              setSelectedStudentIdInput={setSelectedStudentIdInput}
+              soldOutTicketsType={soldOutTicketsType}
+              ticketsSoldPerType={ticketsSoldPerTypeIncludingCurrentOrder}
+            />
 
-          <CalculatorWrapper
-            orderSubtotal={orderSubtotal}
-            isSideBarTranisitioning={isSideBarTranisitioning}
-          />
-        </div>
+            <CalculatorWrapper
+              orderSubtotal={orderSubtotal}
+              isSideBarTranisitioning={isSideBarTranisitioning}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full flex-col gap-4">
+            <h1 className="text-3xl uppercase text-center">
+              Đã bán hết vé 🤑💰
+            </h1>
+            <img
+              src="assets/elon-musk-elon-dance.gif"
+              alt="rich"
+              className="!max-w-[400px] !max-h-[400px] w-full h-full rounded-sm"
+            />
+          </div>
+        )}
       </SidebarInset>
     </SidebarProvider>
   );

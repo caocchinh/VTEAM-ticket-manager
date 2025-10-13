@@ -178,9 +178,11 @@ export interface InputFormProps {
   emailInput: string;
   homeroomInput: string;
   studentNameInput: string;
+  isSalesInfoFetching: boolean;
   ticketType: string;
   mounted: boolean;
   soldOutTicketsType: TicketInfo[];
+  ticketsSoldPerType: Record<string, number>;
   isTicketInfoError: boolean;
   noticeInput: string;
   studentList: Student[] | undefined;
@@ -230,6 +232,7 @@ export interface OrderInfoProps {
   ticketColors: Record<string, string>;
   setTicketColors: Dispatch<SetStateAction<Record<string, string>>>;
   currentOrder: StudentInput[];
+  isSalesInfoFetching: boolean;
   setCurrentOrders: Dispatch<SetStateAction<StudentInput[]>>;
   refetchSales: () => void;
   clearForm: ({ clearNotice }: { clearNotice: boolean }) => void;
@@ -246,6 +249,5 @@ export interface OrderInfoProps {
   setShouldSendEmail: Dispatch<SetStateAction<boolean>>;
   orderSubtotal: number;
   soldOutTicketsType: TicketInfo[];
-  ticketsTypeAtOrUnderLimit: TicketInfo[];
   ticketsSoldPerType: Record<string, number>;
 }

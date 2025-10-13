@@ -102,7 +102,7 @@ const EnhancedSelect = ({
               }, 0);
             }}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ">
               {selectedValue || prerequisite}
               {selectedValue !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
                 !prerequisite && (

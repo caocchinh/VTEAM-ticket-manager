@@ -676,108 +676,106 @@ const InputForm = ({
             </Tooltip>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
-          <div className="w-full flex flex-col items-start gap-2">
-            <Label
-              htmlFor="homeroom"
-              className={errors.homeroom ? "text-red-500" : ""}
-            >
-              Lớp
-            </Label>
-            <div className="relative w-full">
-              <Input
-                id="homeroom"
-                onFocus={() => {
-                  setWhichInputIsBeingFocused("homeroom");
-                }}
-                value={homeroomInput}
-                onChange={(e) => {
-                  setHomeroomInput(e.target.value.toUpperCase());
-                }}
-                placeholder={
-                  homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
-                }
-                className={cn(
-                  errors.homeroom
-                    ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
-                    : homeroomAutoCompleteValue &&
-                      homeroomAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
-                      homeroomInput === ""
-                    ? "placeholder:text-[#0084ff]  placeholder:opacity-50  "
-                    : "",
-                  "pl-10"
-                )}
-              />
-              <X
-                className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
-                size={17}
-                onClick={() => {
-                  setHomeroomInput("");
-                }}
-              />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    disabled={
-                      homeroomAutoCompleteValue === "" ||
-                      homeroomAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
-                      homeroomAutoCompleteValue === homeroomInput
-                    }
-                    onClick={() => {
-                      setHomeroomInput(homeroomAutoCompleteValue);
-                    }}
-                    tabIndex={-1}
-                    className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
-                  >
-                    <Sparkle size={8} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Autocomplete lớp</TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-          <div className="w-full flex flex-col items-start gap-3">
-            <div className="flex items-center gap-2">
-              <Label
-                htmlFor="ticket-type"
-                className={errors.studentId ? "text-red-500" : ""}
-              >
-                Hạng vé{" "}
-                {ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
-                ticketType !== ALL_TICKETS_SOLD_OUT &&
-                !isSalesInfoFetching &&
-                availableTicketsType.length > 0 ? (
-                  <>(còn {remainingTickets[ticketType]})</>
-                ) : null}
-              </Label>
-              {ticketType &&
-                ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS && (
-                  <div
-                    className="w-3 h-3 rounded-full border border-gray-300"
-                    style={{
-                      backgroundColor: getTicketColor(ticketType),
-                    }}
-                    title={`Màu cho ${ticketType}`}
-                  />
-                )}
-            </div>
-            <EnhancedSelect
-              prerequisite={
-                !!ticketInfo &&
-                homeroomInput &&
-                !isSalesInfoFetching &&
-                extractFirstNumber(homeroomInput) &&
-                ticketTypeAfterLimitCheck.length > 0
-                  ? ""
-                  : "Vui lòng điền lớp"
+        <div className="w-full flex flex-col items-start gap-2 min-w-[100px]">
+          <Label
+            htmlFor="homeroom"
+            className={errors.homeroom ? "text-red-500" : ""}
+          >
+            Lớp
+          </Label>
+          <div className="relative w-full">
+            <Input
+              id="homeroom"
+              onFocus={() => {
+                setWhichInputIsBeingFocused("homeroom");
+              }}
+              value={homeroomInput}
+              onChange={(e) => {
+                setHomeroomInput(e.target.value.toUpperCase());
+              }}
+              placeholder={
+                homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
               }
-              setSelectedValue={setTicketType}
-              selectedValue={ticketType}
-              side="bottom"
-              label="Hạng vé"
-              data={selectValue()}
+              className={cn(
+                errors.homeroom
+                  ? "border-red-500 focus:border-red-500 placeholder:text-red-400"
+                  : homeroomAutoCompleteValue &&
+                    homeroomAutoCompleteValue !== NOT_STUDENT_IN_SCHOOL &&
+                    homeroomInput === ""
+                  ? "placeholder:text-[#0084ff]  placeholder:opacity-50  "
+                  : "",
+                "pl-10"
+              )}
             />
+            <X
+              className="absolute right-1 top-1/2 cursor-pointer -translate-y-1/2 text-red-400"
+              size={17}
+              onClick={() => {
+                setHomeroomInput("");
+              }}
+            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={
+                    homeroomAutoCompleteValue === "" ||
+                    homeroomAutoCompleteValue === NOT_STUDENT_IN_SCHOOL ||
+                    homeroomAutoCompleteValue === homeroomInput
+                  }
+                  onClick={() => {
+                    setHomeroomInput(homeroomAutoCompleteValue);
+                  }}
+                  tabIndex={-1}
+                  className="bg-[#0084ff] absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-[#0084ff] cursor-pointer w-6 h-6"
+                >
+                  <Sparkle size={8} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Autocomplete lớp</TooltipContent>
+            </Tooltip>
           </div>
+        </div>
+        <div className="w-full flex flex-col items-start gap-3">
+          <div className="flex items-center gap-2">
+            <Label
+              htmlFor="ticket-type"
+              className={errors.studentId ? "text-red-500" : ""}
+            >
+              Hạng vé{" "}
+              {ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
+              ticketType !== ALL_TICKETS_SOLD_OUT &&
+              !isSalesInfoFetching &&
+              availableTicketsType.length > 0 ? (
+                <>(còn {remainingTickets[ticketType]})</>
+              ) : null}
+            </Label>
+            {ticketType &&
+              ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS && (
+                <div
+                  className="w-3 h-3 rounded-full border border-gray-300"
+                  style={{
+                    backgroundColor: getTicketColor(ticketType),
+                  }}
+                  title={`Màu cho ${ticketType}`}
+                />
+              )}
+          </div>
+          <EnhancedSelect
+            prerequisite={
+              !!ticketInfo &&
+              homeroomInput &&
+              !isSalesInfoFetching &&
+              extractFirstNumber(homeroomInput) &&
+              ticketTypeAfterLimitCheck.length > 0
+                ? ""
+                : "Vui lòng điền lớp"
+            }
+            setSelectedValue={setTicketType}
+            selectedValue={ticketType}
+            side="bottom"
+            label="Hạng vé"
+            data={selectValue()}
+          />
         </div>
 
         <div className="flex flex-col w-full items-center gap-2 justify-center">

@@ -1,10 +1,9 @@
 "use client";
 
 import { Loader2, TicketIcon } from "lucide-react";
-
 import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
-import { useState } from "react";
-import { AllTicketInfo } from "@/constants/types";
+import { useState, useMemo } from "react";
+import { AllTicketInfo, TicketInfo } from "@/constants/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +30,61 @@ export function TicketsInfo({
 }: TicketsInfoProps) {
   const { open: isSidebarOpen, isMobile } = useSidebar();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const mutualTicketTypes = useMemo(() => {
+    if (ticketInfo && ticketInfo.offline && ticketInfo.online) {
+      const mutual: TicketInfo[] = [];
+
+      ticketInfo.offline.forEach((offlineTicket) => {
+        const matchingOnlineTicket = ticketInfo.online?.find(
+          (onlineTicket) =>
+            onlineTicket.ticketName === offlineTicket.ticketName &&
+            onlineTicket.price === offlineTicket.price
+        );
+
+        if (matchingOnlineTicket) {
+          mutual.push({
+            ...offlineTicket,
+            maxQuantity: Math.min(
+              offlineTicket.maxQuantity,
+              matchingOnlineTicket.maxQuantity
+            ),
+          });
+        }
+      });
+
+      return mutual;
+    }
+    return [];
+  }, [ticketInfo]);
+
+  const distinctOfflineTickets = useMemo(() => {
+    if (ticketInfo && ticketInfo.offline) {
+      return ticketInfo.offline.filter(
+        (offlineTicket) =>
+          !mutualTicketTypes.some(
+            (mutualTicket) =>
+              mutualTicket.ticketName === offlineTicket.ticketName &&
+              mutualTicket.price === offlineTicket.price
+          )
+      );
+    }
+    return [];
+  }, [ticketInfo, mutualTicketTypes]);
+
+  const distinctOnlineTickets = useMemo(() => {
+    if (ticketInfo && ticketInfo.online) {
+      return ticketInfo.online.filter(
+        (onlineTicket) =>
+          !mutualTicketTypes.some(
+            (mutualTicket) =>
+              mutualTicket.ticketName === onlineTicket.ticketName &&
+              mutualTicket.price === onlineTicket.price
+          )
+      );
+    }
+    return [];
+  }, [ticketInfo, mutualTicketTypes]);
 
   return (
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
@@ -73,16 +127,65 @@ export function TicketsInfo({
         </div>
         <Separator orientation="horizontal" />
 
-        {/* Offline Tickets Section in Dropdown */}
+        {/* Mutual Tickets Section */}
         {!isTicketInfoFetching &&
           !isTicketInfoError &&
-          ticketInfo?.offline &&
-          ticketInfo.offline.length > 0 && (
+          mutualTicketTypes.length > 0 && (
             <>
               <p className="p-2 rounded-md text-sm font-medium text-muted-foreground">
-                Vé Offline
+                Vé chung (Offline & Online)
               </p>
-              {ticketInfo.offline.map((ticket, index) => (
+              {mutualTicketTypes.map((ticket, index) => (
+                <div
+                  key={`dropdown-mutual-${index}`}
+                  className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center justify-between gap-2"
+                >
+                  <span className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor: getTicketColor(ticket.ticketName),
+                      }}
+                    />
+                    <span className="text-sm font-medium">
+                      {ticket.ticketName}
+                    </span>
+                  </span>
+                  <div className="font-medium flex items-center gap-1">
+                    <Badge className="bg-green-700">
+                      {formatVietnameseCurrency(
+                        parseVietnameseCurrency(ticket.price)
+                      )}
+                    </Badge>
+                    <Badge className="text-xs bg-yellow-500">
+                      Max: {ticket.maxQuantity}
+                    </Badge>
+                    {ticket.includeConcert ? (
+                      <Badge
+                        variant="outline"
+                        className="bg-[#0084ff] text-white"
+                      >
+                        Có concert
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">Không concert</Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <Separator orientation="horizontal" />
+            </>
+          )}
+
+        {/* Distinct Offline Tickets Section */}
+        {!isTicketInfoFetching &&
+          !isTicketInfoError &&
+          distinctOfflineTickets.length > 0 && (
+            <>
+              <p className="p-2 rounded-md text-sm font-medium text-muted-foreground">
+                Vé Offline riêng
+              </p>
+              {distinctOfflineTickets.map((ticket, index) => (
                 <div
                   key={`dropdown-offline-${index}`}
                   className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center justify-between gap-2"
@@ -104,6 +207,9 @@ export function TicketsInfo({
                         parseVietnameseCurrency(ticket.price)
                       )}
                     </Badge>
+                    <Badge className="text-xs bg-yellow-500">
+                      Max: {ticket.maxQuantity}
+                    </Badge>
                     {ticket.includeConcert ? (
                       <Badge
                         variant="outline"
@@ -121,21 +227,26 @@ export function TicketsInfo({
             </>
           )}
 
-        {/* Online Tickets Section in Dropdown */}
+        {/* Distinct Online Tickets Section */}
         {!isTicketInfoFetching &&
           !isTicketInfoError &&
-          ticketInfo?.online &&
-          ticketInfo.online.length > 0 && (
+          distinctOnlineTickets.length > 0 && (
             <>
               <p className="p-2 rounded-md text-sm font-medium text-muted-foreground">
-                Vé Online
+                Vé Online riêng
               </p>
-              {ticketInfo.online.map((ticket, index) => (
+              {distinctOnlineTickets.map((ticket, index) => (
                 <div
                   key={`dropdown-online-${index}`}
                   className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center justify-between gap-2"
                 >
                   <span className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor: getTicketColor(ticket.ticketName),
+                      }}
+                    />
                     <span className="text-sm font-medium">
                       {ticket.ticketName}
                     </span>
@@ -145,6 +256,9 @@ export function TicketsInfo({
                       {formatVietnameseCurrency(
                         parseVietnameseCurrency(ticket.price)
                       )}
+                    </Badge>
+                    <Badge className="text-xs bg-yellow-500">
+                      Max: {ticket.maxQuantity}
                     </Badge>
                     {ticket.includeConcert ? (
                       <Badge

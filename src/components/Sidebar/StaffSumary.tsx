@@ -76,7 +76,7 @@ const StaffSumary = ({
         </div>
 
         <ScrollArea className="h-[calc(95vh-150px)] pr-4">
-          {offlineSalesInfo && ticketInfo ? (
+          {offlineSalesInfo && offlineSalesInfo.length > 0 && ticketInfo ? (
             <SalesSummary
               salesInfo={offlineSalesInfo}
               ticketInfo={ticketInfo}

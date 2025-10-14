@@ -238,12 +238,23 @@ export const sendOrderAction = async ({
       `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
     );
 
+    // Fetch email/event/ticket info and sales data in parallel
+    console.log(
+      `[${operationId}] Fetching email/event/ticket info and sales data in parallel...`
+    );
+    const [emailAndEventInfoResult, onlineSales, offlineSales] =
+      await Promise.all([
+        getEmailAndEventInfoAndTicketInfo(),
+        fetchOnlineSales(),
+        fetchOfflineSales(),
+      ]);
+
     const {
       emailError,
       eventError,
       ticketError,
       data: emailAndEventInfoData,
-    } = await getEmailAndEventInfoAndTicketInfo();
+    } = emailAndEventInfoResult;
 
     if (eventError || emailError || ticketError) {
       return createActionError("INTERNAL_SERVER_ERROR");
@@ -262,22 +273,7 @@ export const sendOrderAction = async ({
       }
     }
 
-    // Check if tickets are availabel
-    const [onlineSalesInfo, offlineSalesInfo] = await Promise.allSettled([
-      fetchOnlineSales(),
-      fetchOfflineSales(),
-    ]);
-
-    if (
-      onlineSalesInfo.status === "rejected" ||
-      offlineSalesInfo.status === "rejected"
-    ) {
-      return createActionError("INTERNAL_SERVER_ERROR");
-    }
-
-    const onlineSales = onlineSalesInfo.value;
-    const offlineSales = offlineSalesInfo.value;
-
+    // Check sales data validity
     if (
       onlineSales.error ||
       offlineSales.error ||

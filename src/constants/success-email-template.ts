@@ -117,6 +117,15 @@ export default function SUCCESS_EMAIL_TEMPLATE({
      .partners-wrapper { font-size: 0; text-align: center; }
      .partners-wrapper .column1, .partners-wrapper .column2 { display: inline-block; width: auto; text-align: center; vertical-align: top; }
      .twoc .column1, .twoc .column2, .twoc .column3, .twoh .column1, .twoh .column2, .twoh .column3, .twoi .column1, .twoi .column2, .twoi .column3, .twol .column1, .twol .column2, .twol .column3, .tweec .column1, .tweec .column2, .tweec .column3, .threec .column1, .threec .column2, .threec .column3, .threel .column1, .threel .column2, .threel .column3 { width: 100%; } }
+
+   /* Dark mode compatibility */
+   @media (prefers-color-scheme: dark) {
+     table[bgcolor="#000000"], table[style*="background: #000000"] { background: #000000 !important; background-color: #000000 !important; }
+   }
+
+   /* Force black backgrounds for email clients that override colors in dark mode */
+   table.black-bg { background: #000000 !important; background-color: #000000 !important; }
+   table.dark-bg { background: #000000 !important; background-color: #000000 !important; }
   </style>
   
 
@@ -156,11 +165,11 @@ div.preheader
  
     <tr>
      <td align="center" style="padding: 20px 20px 0px;">
-      <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
-       
+      <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important; background-color: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+
         <tr>
          <td>
-          <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+          <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important; background-color: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
            
             <tr>
              <td>
@@ -177,11 +186,11 @@ div.preheader
  
   <tr>
    <td align="center" style="padding: 20px 20px 0px;">
-    <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
-     
+    <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important; background-color: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+
       <tr>
        <td>
-        <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+        <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important; background-color: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
          
           <tr>
            <td>
@@ -272,7 +281,7 @@ div.preheader
         <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><span style="font-size: medium;">  </span>
             
             
-<table align="center" bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="94%">
+<table align="center" bgcolor="#000000" style="background: #000000 !important; background-color: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="94%">
     <tr>
         <td align="center" style="padding: 10px 0px 10px;">
         </td>

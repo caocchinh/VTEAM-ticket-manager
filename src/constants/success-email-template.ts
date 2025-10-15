@@ -19,6 +19,8 @@ export default function SUCCESS_EMAIL_TEMPLATE({
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
  <head>
   <!--  -->
+  <meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,27 +47,15 @@ export default function SUCCESS_EMAIL_TEMPLATE({
   <style>
    @import url("https://fonts.googleapis.com/css?family=Roboto+Slab:400,700");
    @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
-   :root {
-     --black-color: #000000;
-     --black-bg: rgb(0, 0, 0);
-   }
    a, a:link { color: #000000; text-decoration: none; }
-
+   
    h1, h2 { font-family: 'Roboto Slab', Rockwell, Arial, sans-serif; }
-
+   
    p { font-family: 'Roboto', Arial, sans-serif; }
-
+   
    li { text-align: -webkit-match-parent; display: list-item; }
-
+   
    .email-body { background-color: #eaeaea; }
-
-   /* Force black backgrounds - highest specificity */
-   html table[bgcolor="#000000"],
-   html table[style*="background: #000000"],
-   html table[style*="background-color: #000000"] {
-     background: var(--black-bg) !important;
-     background-color: var(--black-bg) !important;
-   }
    
    .viz { display: none; }
    
@@ -129,27 +119,6 @@ export default function SUCCESS_EMAIL_TEMPLATE({
      .partners-wrapper { font-size: 0; text-align: center; }
      .partners-wrapper .column1, .partners-wrapper .column2 { display: inline-block; width: auto; text-align: center; vertical-align: top; }
      .twoc .column1, .twoc .column2, .twoc .column3, .twoh .column1, .twoh .column2, .twoh .column3, .twoi .column1, .twoi .column2, .twoi .column3, .twol .column1, .twol .column2, .twol .column3, .tweec .column1, .tweec .column2, .tweec .column3, .threec .column1, .threec .column2, .threec .column3, .threel .column1, .threel .column2, .threel .column3 { width: 100%; } }
-
-   /* Dark mode compatibility - ultra aggressive */
-   @media (prefers-color-scheme: dark) {
-     html table[bgcolor="#000000"],
-     html table[style*="background: #000000"],
-     html table[style*="background-color: #000000"] {
-       background: var(--black-bg) !important;
-       background-color: var(--black-bg) !important;
-     }
-   }
-
-   /* Force black backgrounds for email clients that override colors in dark mode */
-   table.black-bg, table.dark-bg {
-     background: var(--black-bg) !important;
-     background-color: var(--black-bg) !important;
-   }
-
-   /* Additional layer of protection */
-   table[bgcolor="#000000"] { background: var(--black-bg) !important; }
-   *[style*="background: #000000"] { background: var(--black-bg) !important; }
-   *[style*="background-color: #000000"] { background-color: var(--black-bg) !important; }
   </style>
   
 
@@ -189,11 +158,11 @@ div.preheader
  
     <tr>
      <td align="center" style="padding: 20px 20px 0px;">
-      <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: var(--black-bg) !important; background-color: var(--black-bg) !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
-
+      <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+       
         <tr>
          <td>
-          <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: var(--black-bg) !important; background-color: var(--black-bg) !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+          <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
            
             <tr>
              <td>
@@ -210,11 +179,11 @@ div.preheader
  
   <tr>
    <td align="center" style="padding: 20px 20px 0px;">
-    <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: var(--black-bg) !important; background-color: var(--black-bg) !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
-
+    <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+     
       <tr>
        <td>
-        <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: var(--black-bg) !important; background-color: var(--black-bg) !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+        <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
          
           <tr>
            <td>
@@ -305,7 +274,7 @@ div.preheader
         <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><span style="font-size: medium;">  </span>
             
             
-<table align="center" bgcolor="#000000" style="background: var(--black-bg) !important; background-color: var(--black-bg) !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="94%">
+<table align="center" bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="94%">
     <tr>
         <td align="center" style="padding: 10px 0px 10px;">
         </td>

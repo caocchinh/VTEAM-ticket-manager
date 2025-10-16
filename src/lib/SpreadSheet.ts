@@ -1121,52 +1121,66 @@ export const updateOnlineOrderStatus = async ({
 };
 
 export const updateOfflineOrderEmailStatus = async ({
-  studentEmail,
-  emailStatus,
+  payloads,
 }: {
-  studentEmail: string;
-  emailStatus: string;
-}): Promise<{
-  error: boolean;
-  errorMessage: string | undefined;
-}> => {
+  payloads: {
+    studentEmail: string;
+    emailStatus: string;
+  }[];
+}): Promise<void> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   const offlineSales = await fetchOfflineSales();
   if (offlineSales.error || !offlineSales.data) {
-    return { error: true, errorMessage: "Failed to fetch online sales" };
+    console.error(
+      "[SPREADSHEET] Failed to fetch offline sales while updating email status"
+    );
+    return;
   }
   const offlineSalesData = offlineSales.data;
-  const orderIndexInSheet = offlineSalesData?.findIndex(
-    (order) =>
-      order.buyerEmail === studentEmail &&
-      order.emailStatus !== SENT_EMAIL_STATUS &&
-      order.emailStatus !== FAILED_EMAIL_STATUS
-  );
   if (!offlineSalesData) {
-    return { error: true, errorMessage: "Failed to fetch online sales" };
-  }
-  if (orderIndexInSheet === -1) {
-    return { error: true, errorMessage: "Order not found" };
-  }
-  const order = offlineSalesData?.[orderIndexInSheet] as OfflineSalesInfo;
-  if (
-    !order.buyerId ||
-    !order.buyerName ||
-    !order.buyerClass ||
-    !order.buyerEmail ||
-    !order.buyerTicketType
-  ) {
-    return { error: true, errorMessage: "Order data is invalid" };
+    console.error(
+      "[SPREADSHEET] Failed to fetch offline sales while updating email status"
+    );
+    return;
   }
 
-  const rowIndexInSheet = orderIndexInSheet + 2;
-  const dataToUpdate = [
-    {
+  const dataToUpdate: { range: string; values: string[][] }[] = [];
+
+  for (const payload of payloads) {
+    const { studentEmail, emailStatus } = payload;
+    const orderIndexInSheet = offlineSalesData?.findIndex(
+      (order) =>
+        order.buyerEmail === studentEmail &&
+        order.emailStatus !== SENT_EMAIL_STATUS &&
+        order.emailStatus !== FAILED_EMAIL_STATUS
+    );
+
+    if (orderIndexInSheet === -1) {
+      console.error(
+        "[SPREADSHEET] Order not found while updating email status"
+      );
+      continue;
+    }
+    const rowIndexInSheet = orderIndexInSheet + 2;
+    const order = offlineSalesData?.[orderIndexInSheet] as OfflineSalesInfo;
+    if (
+      !order.buyerId ||
+      !order.buyerName ||
+      !order.buyerClass ||
+      !order.buyerEmail ||
+      !order.buyerTicketType
+    ) {
+      console.error(
+        "[SPREADSHEET] Order data is invalid while updating email status"
+      );
+      continue;
+    }
+    dataToUpdate.push({
       range: `${OFFLINE_SALES_ORDER_SHEET_NAME}!${OFFLINE_SALES_ORDER_EMAIL_STATUS_COLUMN}${rowIndexInSheet}`,
-      values: [[emailStatus as string]],
-    },
-  ];
+      values: [[emailStatus]],
+    });
+  }
 
   try {
     await retryExternalApi(async () => {
@@ -1185,17 +1199,14 @@ export const updateOfflineOrderEmailStatus = async ({
       return response;
     }, "updateOfflineOrderEmailStatus");
 
-    return { error: false, errorMessage: undefined };
+    console.log(
+      "[SPREADSHEET] Successfully updated offline order email status"
+    );
   } catch (error) {
     console.error(
       "[SPREADSHEET] Failed to update offline order email status after all retries:",
       error
     );
-    return {
-      error: true,
-      errorMessage:
-        "Failed to update offline order email status after all retries",
-    };
   }
 };
 
@@ -1205,15 +1216,15 @@ export const updateOnlineOrderEmailStatus = async ({
 }: {
   studentEmail: string;
   emailStatus: string;
-}): Promise<{
-  error: boolean;
-  errorMessage: string | undefined;
-}> => {
+}): Promise<void> => {
   const sheets = google.sheets({ version: "v4", auth });
 
   const onlineSales = await fetchOnlineSales();
   if (onlineSales.error || !onlineSales.data) {
-    return { error: true, errorMessage: "Failed to fetch online sales" };
+    console.error(
+      "[SPREADSHEET] Failed to fetch online sales while updating email status"
+    );
+    return;
   }
   const onlineSalesData = onlineSales.data;
   const orderIndexInSheet = onlineSalesData?.findIndex(
@@ -1223,10 +1234,14 @@ export const updateOnlineOrderEmailStatus = async ({
       order.emailStatus !== FAILED_EMAIL_STATUS
   );
   if (!onlineSalesData) {
-    return { error: true, errorMessage: "Failed to fetch online sales" };
+    console.error(
+      "[SPREADSHEET] Failed to fetch online sales while updating email status"
+    );
+    return;
   }
   if (orderIndexInSheet === -1) {
-    return { error: true, errorMessage: "Order not found" };
+    console.error("[SPREADSHEET] Order not found while updating email status");
+    return;
   }
   const order = onlineSalesData?.[orderIndexInSheet] as OnlineSalesInfo;
   if (
@@ -1236,7 +1251,10 @@ export const updateOnlineOrderEmailStatus = async ({
     !order.buyerEmail ||
     !order.buyerTicketType
   ) {
-    return { error: true, errorMessage: "Order data is invalid" };
+    console.error(
+      "[SPREADSHEET] Order data is invalid while updating email status"
+    );
+    return;
   }
 
   const rowIndexInSheet = orderIndexInSheet + 2;
@@ -1264,17 +1282,12 @@ export const updateOnlineOrderEmailStatus = async ({
       return response;
     }, "updateOnlineOrderEmailStatus");
 
-    return { error: false, errorMessage: undefined };
+    console.log("[SPREADSHEET] Successfully updated online order email status");
   } catch (error) {
     console.error(
       "[SPREADSHEET] Failed to update online order email status after all retries:",
       error
     );
-    return {
-      error: true,
-      errorMessage:
-        "Failed to update online order email status after all retries",
-    };
   }
 };
 

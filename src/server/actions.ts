@@ -9,6 +9,8 @@ import {
   fetchOfflineTicketInfo,
   fetchOnlineSales,
   sendOfflineOrder,
+  updateOfflineOrderEmailStatus,
+  updateOnlineOrderEmailStatus,
   updateOnlineOrderStatus,
 } from "@/lib/SpreadSheet";
 import { checkStaffAuthorization } from "@/dal/staff-auth";
@@ -238,6 +240,8 @@ export const sendOrderAction = async ({
       `[${operationId}] Staff authorization successful for: ${staffAuth.staffInfo?.name}`
     );
 
+    console.log("Order details:", orders);
+
     // Fetch email/event/ticket info and sales data in parallel
     console.log(
       `[${operationId}] Fetching email/event/ticket info and sales data in parallel...`
@@ -385,9 +389,9 @@ export const sendOrderAction = async ({
       }
 
       if (shouldSendEmail) {
-        await Promise.allSettled(
+        const emailResults = await Promise.all(
           orders.map(async (order) => {
-            await sendSuccessEmail({
+            return await sendSuccessEmail({
               email: order.email,
               studentName: order.nameInput,
               studentId: order.studentIdInput,
@@ -396,12 +400,19 @@ export const sendOrderAction = async ({
               emailInfo: emailAndEventInfoData.emailInfo!,
               eventInfo: emailAndEventInfoData.eventInfo!,
               purchaseTime: getCurrentTime({ includeTime: true }),
-              typeOfSale: "offline",
               concertIncluded: order.concertIncluded,
             });
           })
         );
+
+        await updateOfflineOrderEmailStatus({
+          payloads: emailResults.map((result) => ({
+            studentEmail: result.email,
+            emailStatus: result.emailStatus,
+          })),
+        });
       }
+
       const duration = Date.now() - startTime;
       console.log(
         `[${operationId}] Orders submitted successfully in ${duration}ms`
@@ -649,7 +660,7 @@ export const updateOnlineOrderStatusAction = async ({
               throw dbError;
             }
           }
-          await sendSuccessEmail({
+          const emailResult = await sendSuccessEmail({
             email: result.data!.buyerEmail,
             studentName: result.data.buyerName,
             studentId: result.data.buyerId,
@@ -658,11 +669,14 @@ export const updateOnlineOrderStatusAction = async ({
             emailInfo: emailAndEventInfoData.emailInfo!,
             eventInfo: emailAndEventInfoData.eventInfo!,
             purchaseTime: result.data.time,
-            typeOfSale: "online",
             concertIncluded:
               emailAndEventInfoData.ticketInfo!.find(
                 (ticket) => ticket.ticketName === result.data!.buyerTicketType
               )?.includeConcert ?? false,
+          });
+          await updateOnlineOrderEmailStatus({
+            studentEmail: emailResult.email,
+            emailStatus: emailResult.emailStatus,
           });
         } else if (verificationStatus === VERIFICATION_FAILED) {
           await sendFailedEmail({

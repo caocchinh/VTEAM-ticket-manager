@@ -1,9 +1,6 @@
 import "server-only";
 import SUCCESS_EMAIL_TEMPLATE from "@/constants/success-email-template";
-import {
-  updateOfflineOrderEmailStatus,
-  updateOnlineOrderEmailStatus,
-} from "./SpreadSheet";
+import { updateOnlineOrderEmailStatus } from "./SpreadSheet";
 import nodemailer from "nodemailer";
 import { retryEmail } from "@/dal/retry";
 import { EmailInfo, EventInfo } from "@/constants/types";
@@ -20,7 +17,6 @@ export async function sendSuccessEmail({
   studentId,
   purchaseTime,
   concertIncluded,
-  typeOfSale,
 }: {
   email: string;
   studentName: string;
@@ -31,7 +27,6 @@ export async function sendSuccessEmail({
   eventInfo: EventInfo;
   studentId: string;
   purchaseTime: string;
-  typeOfSale: "online" | "offline";
 }) {
   try {
     const transporter = nodemailer.createTransport({
@@ -86,45 +81,14 @@ export async function sendSuccessEmail({
           `Email sent successfully to ${email}, messageId: ${result.messageId}`
         );
       }, `sending success email to ${email}`);
-      if (typeOfSale === "offline") {
-        await updateOfflineOrderEmailStatus({
-          studentEmail: email,
-          emailStatus: SENT_EMAIL_STATUS,
-        });
-        console.log(
-          `Updated offline order email status to ${SENT_EMAIL_STATUS} for ${email}`
-        );
-      } else if (typeOfSale === "online") {
-        await updateOnlineOrderEmailStatus({
-          studentEmail: email,
-          emailStatus: SENT_EMAIL_STATUS,
-        });
-        console.log(
-          `Updated online order email status to ${SENT_EMAIL_STATUS} for ${email}`
-        );
-      }
+      return { emailStatus: SENT_EMAIL_STATUS, email: email };
     } catch (error) {
       console.error(`Failed to send email to ${email}:`, error);
-      if (typeOfSale === "offline") {
-        await updateOfflineOrderEmailStatus({
-          studentEmail: email,
-          emailStatus: FAILED_EMAIL_STATUS,
-        });
-        console.log(
-          `Updated offline order email status to ${FAILED_EMAIL_STATUS} for ${email}`
-        );
-      } else if (typeOfSale === "online") {
-        await updateOnlineOrderEmailStatus({
-          studentEmail: email,
-          emailStatus: FAILED_EMAIL_STATUS,
-        });
-        console.log(
-          `Updated online order email status to ${FAILED_EMAIL_STATUS} for ${email}`
-        );
-      }
+      return { emailStatus: FAILED_EMAIL_STATUS, email: email };
     }
   } catch (error) {
     console.error(`Failed to send email to ${email}:`, error);
+    return { emailStatus: FAILED_EMAIL_STATUS, email: email };
   }
 }
 

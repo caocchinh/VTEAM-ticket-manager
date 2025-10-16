@@ -114,8 +114,6 @@ const InputForm = ({
     }
   }, [emailInput, setErrors]);
 
-  // Fuzzy search function to find the best matching student
-
   useEffect(() => {
     const trimmed = safeTrim(homeroomInput);
     const numericPartofClassName = extractFirstNumber(trimmed) ?? 0;
@@ -144,10 +142,10 @@ const InputForm = ({
       }
 
       const bestMatch = findBestStudentMatch(safeTrim(value), students);
-      if (bestMatch && bestMatch.studentId.includes("VS")) {
+      if (bestMatch && bestMatch.studentId.toUpperCase().includes("VS")) {
         setStudentNameAutoCompleteValue(bestMatch.name);
         setHomeroomAutoCompleteValue(bestMatch.homeroom);
-        setBestMatchStudentId(bestMatch.studentId);
+        setBestMatchStudentId(bestMatch.studentId.toUpperCase());
         setEmailAutoCompleteValue(bestMatch.email);
       } else {
         setStudentNameAutoCompleteValue(NOT_STUDENT_IN_SCHOOL);

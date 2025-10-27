@@ -135,7 +135,7 @@ export default function FAILED_EMAIL_TEMPLATE({
 div.preheader 
 { display: none !important; } 
 </style>
-<div class="preheader" style="font-size: 1px; display: none !important;">Vui lòng kiểm tra lại thông tin của bạn.</div>
+<div class="preheader" style="font-size: 1px; display: none !important;">Xin vui lòng kiểm tra lại thông tin của bạn.</div>
   <div style="display: none; max-height: 0px; overflow: hidden;">
    
   

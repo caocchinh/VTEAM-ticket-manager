@@ -20,7 +20,7 @@ export default function SUCCESS_EMAIL_TEMPLATE({
  <head>
   <!--  -->
   <meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
+  <meta name="supported-color-schemes" content="light">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -158,18 +158,18 @@ div.preheader
  
     <tr>
      <td align="center" style="padding: 20px 20px 0px;">
-      <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+      <!-- Hero bgcolor="#" Here --><table bgcolor="#000000" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
        
         <tr>
          <td>
-          <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+          <!-- Logo Lockup --><!-- Logo bgcolor="#" Here --><table bgcolor="#000000" border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
            
             <tr>
              <td>
               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                
                 <tr>
-                 <!-- Banner Image Here --><td bgcolor="#000000" style="font-size: 0; background: #000000 !important; line-height: 0;">
+                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
                    <img alt="VTEAM" src="${bannerImage}" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr></table></td></tr></table></td></tr><tr>
          <td>
          </td></tr></table>
@@ -188,12 +188,12 @@ div.preheader
           <tr>
            <td>
             <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-             
-              <tr>
-               <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; background: #000000 !important; line-height: 0;padding: 10px;">
-                <!-- Desktop Logo --><div class="logo-desk" style="display: none; height: 0; overflow: hidden;">
-                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.png" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 304px; font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="304"></a></div><!-- Mobile Logo --><!--[if !mso|(IE)]><!--><div class="logo-mob">
-                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.png" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 300px; font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="300"></a></div><!--<![endif]--></td><!-- Logo Ends --></tr></table></td></tr></table><!-- Logo Lockup --></td></tr><tr>
+               
+                <tr>
+                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
+                   <img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/banner.webp" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr>
+                </table></td></tr>
+            </table><!-- Logo Lockup --></td></tr><tr>
        <td>
        </td></tr></table>
     </td></tr>
@@ -216,9 +216,9 @@ div.preheader
 										<tr>
 											<td align="left" style="padding: 0px 0px 12px;">
 												<p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-													Xin chào bạn ${studentName}, <br>
+													Thân chào bạn ${studentName}, <br>
 													<br>
-													Trước tiên, Hội Đồng Học Sinh VCP xin chúc mừng bạn đã mua vé <span style="color:darkgreen;font-weight:bold;">thành công </span> cho sự kiện "${eventName}". Xin bạn vui lòng kiểm tra lại thông tin cá nhân của bạn ở bên dưới. <span style="color:crimson;font-weight: bold;">Nếu phát hiện bất kỳ sai sót nào</span>, hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
+													Trước tiên, Hội Đồng Học Sinh VCP xin chúc mừng bạn đã mua vé <span style="color:darkgreen;font-weight:bold;">thành công </span> cho sự kiện ${eventName}. Xin bạn vui lòng kiểm tra lại thông tin cá nhân của bạn ở bên dưới. <span style="color:crimson;font-weight: bold;">Nếu phát hiện bất kỳ sai sót nào</span>, hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
 											
                                                             </tr><!-- Bodycopy Here --><tr>
 											<tr><td align="left" style="padding: 0px 0px 12px;border:1px dashed black;border-radius: 10px;padding:10px;background: rgba(0,0,0,0.02);">
@@ -228,8 +228,7 @@ div.preheader
                                                         Tên sự kiện: <span style="font-weight: bold;">${eventName}</span></p>
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Hạng vé: <span style="font-weight: bold;">${ticketType}</span></p>
-
-                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
+                                                            <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                             Vé có concert: <span style="font-weight: bold;">${concertIncluded}</span></p>
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                         Tên người mua: <span style="font-weight: bold;">${studentName}</span></p>
@@ -239,20 +238,21 @@ div.preheader
                                                             <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
                                                                 Mã số HS: <span style="font-weight: bold;">${studentId}</span></p>
                                                         <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 30px; color: #000000; text-align: left; margin: 0px; padding: 0px;">
-                                                            Email: <span style="font-weight: bold;">${email}</span></p>                          
+                                                            Email: <span style="font-weight: bold;">${email}</span></p>
+                                                           
+                                                       
                                                 
                                                 </td> </tr>
-                                               ${
-                                                 eventType === "Silencio"
-                                                   ? `
-                                                <tr><td align="left" style="padding: 12px 0px 12px;">
-                                                    <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-                                                        Để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web dưới đây để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé (bạn chỉ có thể lấy số thứ tự khi vé của bạn bao gồm nhà ma). Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên:<br/> <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}</a></p>
 
-                                                </td> </tr>
-                                                `
-                                                   : null
-                                               }
+
+                                                ${
+                                                  eventType == "Silencio" &&
+                                                  `<tr><td align="left" style="padding: 12px 0px 12px;">
+                                                  <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
+                                                      Để cho sự kiện Silencio được diễn ra suôn sẻ và thuận lợi. Bạn hãy truy cập trang web dưới đây để lấy số thứ tự của bạn khi chơi nhà ma tại Silencio càng sớm càng tốt nhé (bạn chỉ có thể lấy số thứ tự khi vé của bạn bao gồm nhà ma). Nếu bạn chưa lấy số thứ tự trước deadline, vào hôm on-event bạn sẽ phải đi theo số thứ tự ngẫu nhiên: <br/> <a href="${SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL}" target="_blank" rel="noopener" referrerpolicy="no-referrer" style="color:crimson;font-weight: bold;">https://silencio-vcp.vercel.app</a></p>
+
+                                              </td> </tr>`
+                                                }
 
                                                 <tr><td align="left" style="padding: 12px 0px 12px;">
                                                     <p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
@@ -279,13 +279,7 @@ div.preheader
         <td align="center" style="padding: 10px 0px 10px;">
         </td>
     </tr>
-    <tr>
-        <td align="center" style="padding: 5px 5px 5px;">
-            <a href="https://www.facebook.com/vteam.vcp" target="_blank">
-                <img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/logo-inverted.png" style="display: block; margin: 0px auto; border: 0px; padding: 0px; width: 100px; font-family: Arial, sans-serif; font-size: 18px;" width="100">
-            </a>
-        </td>
-    </tr>
+    
     <tr>
         <td align="center" style="padding: 5px 0px 5px;">
         </td>
@@ -338,7 +332,6 @@ div.preheader
   
  
  </body>
-</html>
-`;
+</html>`;
   return EMAIL;
 }

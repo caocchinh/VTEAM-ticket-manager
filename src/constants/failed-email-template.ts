@@ -18,7 +18,7 @@ export default function FAILED_EMAIL_TEMPLATE({
  <head>
   <!--  -->
   <meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
+  <meta name="supported-color-schemes" content="light">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -167,8 +167,10 @@ div.preheader
               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                
                 <tr>
-                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; background: #000000 !important; line-height: 0;">
-                   <img alt="VTEAM" src="${bannerImage}" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr></table></td></tr></table></td></tr><tr>
+                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
+                   <img alt="VTEAM" src="${bannerImage}" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr>
+                </table></td></tr>
+            </table></td></tr><tr>
          <td>
          </td></tr></table>
       </td></tr>
@@ -185,13 +187,13 @@ div.preheader
          
           <tr>
            <td>
-            <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-             
-              <tr>
-               <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; background: #000000 !important; line-height: 0;padding: 10px;">
-                <!-- Desktop Logo --><div class="logo-desk" style="display: none; height: 0; overflow: hidden;">
-                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.png" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 304px; font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="304"></a></div><!-- Mobile Logo --><!--[if !mso|(IE)]><!--><div class="logo-mob">
-                 <a  href="https://www.facebook.com/vteam.vcp" target="_blank"><img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/full-logo.png" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 300px; font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="300"></a></div><!--<![endif]--></td><!-- Logo Ends --></tr></table></td></tr></table><!-- Logo Lockup --></td></tr><tr>
+           <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+               
+                <tr>
+                 <!-- Logo Here --><td bgcolor="#000000" style="font-size: 0; line-height: 0;">
+                   <img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/banner.webp" style="display: block; margin: 0px; border: 0px; padding: 0px; width: 100%;font-family: Arial, sans-serif; font-size: 18px; text-align: center; color: #ffffff;" width="604"></td></tr>
+                </table>
+                </td></tr></table><!-- Logo Lockup --></td></tr><tr>
        <td>
        </td></tr></table>
     </td></tr>
@@ -214,9 +216,9 @@ div.preheader
 										<tr>
 											<td align="left" style="padding: 0px 0px 12px;">
 												<p style="font-family: Roboto, Arial, sans-serif; font-size: 18px; font-weight: normal; line-height: 22px; letter-spacing: 0.25px; color: #000000; text-align: justify; margin: 0px; padding: 0px;">
-													Xin chào bạn ${studentName}, <br>
+													Thân chào bạn ${studentName}, <br>
 													<br>
-													<span style="color:crimson;font-weight:bold;">Rất đáng tiếc,</span> bạn đã không mua vé thành công cho sự kiện "${eventName}". Xin bạn vui lòng kiểm tra lại thông tin cá nhân và thông tin chuyển khoản của bạn ở bên dưới và hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
+													<span style="color:crimson;font-weight:bold;">Rất đáng tiếc,</span> bạn đã không mua vé thành công cho sự kiện PROM. Xin bạn vui lòng kiểm tra lại thông tin cá nhân và thông tin chuyển khoản của bạn ở bên dưới và hãy liên hệ với chúng mình ngay bằng cách trả lời email này!</p></td></tr><!-- Bodycopy Ends --><tr>
 											
                                                             </tr><!-- Bodycopy Here --><tr>
 											<tr><td align="left" style="padding: 0px 0px 12px;border:1px dashed black;border-radius: 10px;padding:10px;background: rgba(0,0,0,0.02);">
@@ -253,18 +255,12 @@ div.preheader
         <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><span style="font-size: medium;">  </span>
             
             
-<table align="center" bgcolor="#000000" style="background: #000000 !important;" border="0" cellpadding="0" cellspacing="0" role="presentation" width="94%">
+<table align="center" bgcolor="#000000" border="0" style="background: #000000 !important;" cellpadding="0" cellspacing="0" role="presentation" width="94%">
     <tr>
         <td align="center" style="padding: 10px 0px 10px;">
         </td>
     </tr>
-    <tr>
-        <td align="center" style="padding: 5px 5px 5px;">
-            <a href="https://www.facebook.com/vteam.vcp" target="_blank">
-                <img alt="VTEAM" src="https://vteam-online-ticket.vercel.app/assets/logo-inverted.png" style="display: block; margin: 0px auto; border: 0px; padding: 0px; width: 100px; font-family: Arial, sans-serif; font-size: 18px;" width="100">
-            </a>
-        </td>
-    </tr>
+  
     <tr>
         <td align="center" style="padding: 5px 0px 5px;">
         </td>
@@ -317,7 +313,6 @@ div.preheader
   
  
  </body>
-</html>
-`;
+</html>`;
   return EMAIL;
 }

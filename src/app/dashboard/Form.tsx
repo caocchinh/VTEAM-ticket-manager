@@ -677,7 +677,7 @@ const Form = ({
         </SidebarHeader>
         <SidebarContent className="overflow-x-hidden">
           <SidebarGroup>
-            <SidebarGroupLabel>Tổng quát</SidebarGroupLabel>
+            <SidebarGroupLabel>Overal</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SalesOveralSummary
@@ -708,7 +708,7 @@ const Form = ({
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Tiện ích</SidebarGroupLabel>
+            <SidebarGroupLabel>Ultilities</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
                 <RefreshSales
@@ -748,7 +748,7 @@ const Form = ({
             </SidebarMenu>
           </SidebarGroup>
           <SidebarGroup>
-            <SidebarGroupLabel>Dữ liệu bán vé</SidebarGroupLabel>
+            <SidebarGroupLabel>Sales data</SidebarGroupLabel>
             <div className="flex flex-col gap-2 w-full">
               <SidebarMenuItem>
                 <StatisticsDialog

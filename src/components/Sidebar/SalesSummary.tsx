@@ -558,7 +558,7 @@ const SalesSummary = ({
               <Card className="min-w-[220px] flex-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Doanh thu của bạn
+                    Your revenue
                   </CardTitle>
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -567,7 +567,7 @@ const SalesSummary = ({
                     {formatVietnameseCurrency(currentStaffSummary.revenue)}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {currentStaffSummary.orders} đơn hàng
+                    {currentStaffSummary.orders} orders
                     {totalSummary.totalRevenue > 0 && (
                       <span>
                         {" "}

@@ -51,36 +51,33 @@ const UpdateDataDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <SidebarMenuButton
-          tooltip="Cập nhật dữ liệu app"
-          className="cursor-pointer"
-        >
+        <SidebarMenuButton tooltip="Update app data" className="cursor-pointer">
           <CloudDownload />
-          <span>Cập nhật dữ liệu app</span>
+          <span>Update app data</span>
         </SidebarMenuButton>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Xác nhận cập nhật dữ liệu</DialogTitle>
+          <DialogTitle>Confirm Data Update</DialogTitle>
           <DialogDescription className="text-orange-500">
-            Mỗi khi thông tin trong sheet được cập nhật (ví dụ như giá vé, thông
-            tin sự kiện, thông tin email, ...), bạn cần cập nhật dữ liệu trong
-            app để đảm bảo dữ liệu trong app là mới nhất (Dữ liệu ở đây không
-            phải là thông tin sales).
+            Whenever information in the sheet is updated (such as ticket prices,
+            event information, email information, etc.), you need to update the
+            data in the app to ensure the app data is up to date (This data does
+            not include sales information).
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="offline">
           <TabsList>
-            <TabsTrigger value="offline">Dữ liệu bán vé offline</TabsTrigger>
-            <TabsTrigger value="online">Form bán vé online</TabsTrigger>
+            <TabsTrigger value="offline">Offline Ticket Sales Data</TabsTrigger>
+            <TabsTrigger value="online">Online Ticket Sales Form</TabsTrigger>
           </TabsList>
           <TabsContent value="offline">
             <DialogDescription>
-              Hành động này sẽ xóa tất cả thông tin đang nhập trong phiên làm
-              việc hiện tại và tải lại thông tin mới (danh sách học sinh & thông
-              tin vé & thông tin sự kiện & thông tin email) từ cơ sở dữ liệu.
-              Bạn có chắc chắn muốn tiếp tục?
+              This action will clear all information currently entered in the
+              current session and reload new information (student list & ticket
+              information & event information & email information) from the
+              database. Are you sure you want to continue?
             </DialogDescription>
             <DialogFooter className="mt-4">
               <Button
@@ -88,14 +85,14 @@ const UpdateDataDialog = ({
                 className="cursor-pointer"
                 onClick={() => onOpenChange(false)}
               >
-                Hủy
+                Cancel
               </Button>
               <Button
                 disabled={isStudentListFetching || isTicketInfoFetching}
                 onClick={handleOfflineRefresh}
                 className="cursor-pointer"
               >
-                Xác nhận update dữ liệu offline
+                Confirm Offline Data Update
                 {(isStudentListFetching || isTicketInfoFetching) && (
                   <Loader2 className="animate-spin" />
                 )}
@@ -104,9 +101,9 @@ const UpdateDataDialog = ({
           </TabsContent>
           <TabsContent value="online">
             <DialogDescription>
-              Hành động này sẽ update form bán vé online từ cơ sở dữ liệu (danh
-              sách học sinh & thông tin vé & thông tin sự kiện & thông tin
-              form). Bạn có chắc chắn muốn tiếp tục?
+              This action will update the online ticket sales form from the
+              database (student list & ticket information & event information &
+              form information). Are you sure you want to continue?
             </DialogDescription>
             <DialogFooter className="mt-4">
               <Button
@@ -114,14 +111,14 @@ const UpdateDataDialog = ({
                 className="cursor-pointer"
                 onClick={() => onOpenChange(false)}
               >
-                Hủy
+                Cancel
               </Button>
               <Button
                 onClick={onRefreshOnlineData}
                 className="cursor-pointer"
                 disabled={isOnlineDataUpdating}
               >
-                Xác nhận update form bán vé online
+                Confirm Online Form Update
                 {isOnlineDataUpdating && <Loader2 className="animate-spin" />}
               </Button>
             </DialogFooter>

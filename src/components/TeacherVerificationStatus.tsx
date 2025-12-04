@@ -269,25 +269,25 @@ const TeacherVerificationStatus = ({
                     </div>
 
                     <div className="text-sm text-black wrap-anywhere">
-                      <span className="font-semibold">Mã số HS:</span>{" "}
+                      <span className="font-semibold">Student ID:</span>{" "}
                       {student.studentId}
                     </div>
                     <div className="text-sm text-black wrap-anywhere">
-                      <span className="font-semibold">Lớp:</span>{" "}
+                      <span className="font-semibold">Class:</span>{" "}
                       {student.homeroom}
                     </div>
                     <div className="text-sm text-black">
-                      <span className="font-semibold">Lưu ý của bạn:</span>{" "}
+                      <span className="font-semibold">Your note:</span>{" "}
                       <span className="whitespace-pre-wrap wrap-anywhere">
                         {currentOrder.find(
                           (order) => order.studentIdInput === student.studentId
-                        )?.notice || "Không có lưu ý"}
+                        )?.notice || "No note"}
                       </span>
                     </div>
                     <div className="text-sm text-black">
-                      <span className="font-semibold">Ghi chú của GVCN:</span>{" "}
+                      <span className="font-semibold">Teacher note:</span>{" "}
                       <span className="whitespace-pre-wrap wrap-anywhere">
-                        {student.teacherNotice || "Không có ghi chú"}
+                        {student.teacherNotice || "No note"}
                       </span>
                     </div>
                   </div>
@@ -319,7 +319,7 @@ const TeacherVerificationStatus = ({
           {deletingIndex !== null && currentOrder[deletingIndex] && (
             <div className="p-2 border border-red-600 rounded-md">
               <div className="flex flex-row gap-2">
-                <p className="font-semibold">Tên & Mã số HS:</p>
+                <p className="font-semibold">Student name & ID:</p>
                 <p className="wrap-anywhere">
                   {currentOrder[deletingIndex].nameInput} -{" "}
                   {currentOrder[deletingIndex].studentIdInput}
@@ -376,12 +376,14 @@ const TeacherVerificationStatus = ({
                 <div className="flex flex-row gap-2 items-center">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <p className="font-semibold text-blue-900">
-                    Thông tin học sinh:
+                    Student information:
                   </p>
                 </div>
                 <div className="mt-2 pl-4">
                   <div className="flex flex-row gap-2">
-                    <p className="font-medium text-gray-700">Tên & Mã số HS:</p>
+                    <p className="font-medium text-gray-700">
+                      Student name & ID:
+                    </p>
                     <p className="text-gray-900">
                       {currentOrder[editingIndex].nameInput} -{" "}
                       {currentOrder[editingIndex].studentIdInput}

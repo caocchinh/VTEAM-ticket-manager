@@ -291,11 +291,11 @@ export const ONLINE_SALES_ORDER_HAS_BEEN_VERIFIED_INDEX = getColumnNumber(
 
 export const NOT_STAFF_ERROR = "not-staff";
 export const NOT_LOGGED_IN_ERROR = "not-logged-in";
-export const INVALID_TICKET_DUE_TO_INVALID_CLASS = "Lớp không hợp lệ!";
-export const ALL_TICKETS_SOLD_OUT = "Đã hết vé!";
-export const SALES_INFO_FETCHING = "Đang tải...";
+export const INVALID_TICKET_DUE_TO_INVALID_CLASS = "Class not found!";
+export const ALL_TICKETS_SOLD_OUT = "Tickets sold out!";
+export const SALES_INFO_FETCHING = "Loading...";
 export const NOT_STUDENT_IN_SCHOOL =
-  "Không phải học sinh trong trường, vui lòng tự điền";
+  "Not a student in the school, please fill in manually";
 
 export const VERIFICATION_FAILED = VERIFICATION_STATUS.FAILED;
 export const VERIFICATION_PENDING = VERIFICATION_STATUS.PENDING;
@@ -314,11 +314,11 @@ export const SILENCIO_HAUNTED_HOUSE_QUEUE_MANAGER_URL =
 // Spreadsheet & back-up Links
 export const SPREADSHEET_LINKS = [
   {
-    label: "Sheet bán vé offline",
+    label: "Offline sales sheet",
     href: `https://docs.google.com/spreadsheets/d/${OFFLINE_SALES_SHEET_ID}`,
   },
   {
-    label: "Sheet bán vé online",
+    label: "Online sales sheet",
     href: `https://docs.google.com/spreadsheets/d/${ONLINE_SALES_SHEET_ID}`,
   },
   {
@@ -326,15 +326,15 @@ export const SPREADSHEET_LINKS = [
     href: `https://docs.google.com/spreadsheets/d/${CHECKIN_SHEET_ID}`,
   },
   {
-    label: "Sheet xác nhận GVCN",
+    label: "Teacher verification sheet",
     href: `https://docs.google.com/spreadsheets/d/${TEACHER_VERIFICATION_SHEET_ID}`,
   },
   {
-    label: "Form bán vé dự phòng",
+    label: "Form backup",
     href: `https://docs.google.com/forms/d/e/1FAIpQLSfpRH5kU4lqvTnwgs_lmOHtYjo_RqZ2EDGlS6d7hewavX6zBg/viewform?usp=sharing&ouid=103069438122563507136`,
   },
   {
-    label: "Sheet bán vé dự phòng",
+    label: "Backup sheet",
     href: `https://docs.google.com/spreadsheets/d/1jV3n7OyCSe5WSVTNqBtb9csoIgye1-ue7VdntDPCzrY/edit?usp=sharing`,
   },
 ];

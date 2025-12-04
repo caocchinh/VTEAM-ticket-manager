@@ -1347,7 +1347,7 @@ const OnlineTicketManagement = ({
                             <Separator />
                             <div className="flex flex-row gap-2 items-center justify-start flex-wrap">
                               <p className="font-bold text-gray-900">
-                                Mã số học sinh:
+                                Student ID:
                               </p>
                               <p className="break-words max-w-full">
                                 {currentOrderData?.buyerId}

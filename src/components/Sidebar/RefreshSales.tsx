@@ -37,8 +37,8 @@ const RefreshSales = ({
         className={cn("whitespace-nowrap", isSalesInfoError && "text-white ")}
       >
         {isSalesInfoError
-          ? "Lỗi lấy dữ liệu, vui lòng thử lại"
-          : "Cập nhật dữ liệu sales"}
+          ? "Failed to fetch, please try again"
+          : "Update sales info"}
       </span>
     </SidebarMenuButton>
   );

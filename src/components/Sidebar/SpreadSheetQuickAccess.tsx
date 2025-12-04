@@ -31,7 +31,7 @@ export function SpreadSheetQuickAccess() {
       <Collapsible defaultOpen={false} className="group/collapsible">
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
-            tooltip="Các sheet liên quan"
+            tooltip="Spreadsheet quick access"
             onClick={() => {
               if (!isSidebarOpen) {
                 setIsDropdownOpen(true);
@@ -45,7 +45,7 @@ export function SpreadSheetQuickAccess() {
               width={21}
               height={21}
             />
-            <span className="whitespace-nowrap">Sheet liên quan</span>
+            <span className="whitespace-nowrap">Spreadsheet quick access</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
             <DropdownMenuTrigger asChild>
               <div className="absolute top-full left-0 w-full h-1 opacity-0 pointer-events-none" />

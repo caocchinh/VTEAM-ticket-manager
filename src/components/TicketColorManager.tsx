@@ -77,14 +77,15 @@ const TicketColorManager = ({
           className="gap-2 -mt-2 mb-2 cursor-pointer"
         >
           <Palette size={16} />
-          Màu vé
+          Ticket color
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Quản lý màu sắc hạng vé</DialogTitle>
+          <DialogTitle>Manage ticket colors</DialogTitle>
           <DialogDescription>
-            Chọn màu sắc cho từng loại vé để dễ phân biệt trong danh sách order
+            Choose colors for each ticket type to easily distinguish in the
+            order list
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] pr-4">
@@ -97,8 +98,8 @@ const TicketColorManager = ({
                     <p className="text-xs text-muted-foreground">
                       {ticketInfoMap.get(ticketType)?.price} -{" "}
                       {ticketInfoMap.get(ticketType)?.includeConcert
-                        ? "Có concert"
-                        : "Không concert"}
+                        ? "Concert included"
+                        : "Concert not included"}
                     </p>
                   </div>
                   <ColorPicker
@@ -124,13 +125,13 @@ const TicketColorManager = ({
             className="gap-2 w-full sm:w-auto cursor-pointer"
           >
             <RotateCcw size={16} />
-            Đặt lại màu mặc định
+            Reset to defaults
           </Button>
           <Button
             onClick={() => setIsOpen(false)}
             className="w-full sm:w-auto cursor-pointer"
           >
-            Xong
+            Finish
           </Button>
         </DialogFooter>
       </DialogContent>

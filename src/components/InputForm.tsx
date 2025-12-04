@@ -465,11 +465,11 @@ const InputForm = ({
       )}
     >
       {" "}
-      <h2 className="font-semibold">Điền thông tin người mua</h2>
+      <h2 className="font-semibold">Fill in customer information</h2>
       <div className="flex flex-col border shadow-sm p-4 rounded-md gap-[15px] items-start w-full relative">
         {(isTicketInfoFetching || isStudentListFetching) && (
           <div className="absolute w-full h-full bg-black/40 z-[10] top-0 left-0 rounded-md flex items-center justify-center flex-col">
-            <p className="text-white">Đang lấy thông tin từ cơ sở dữ liệu</p>
+            <p className="text-white">Fetching from database</p>
             <Loader2
               className="animate-spin"
               size={50}
@@ -504,7 +504,7 @@ const InputForm = ({
             htmlFor="student-id"
             className={errors.studentId ? "text-red-500" : ""}
           >
-            Mã số học sinh
+            Student ID
           </Label>
           <div className="relative w-full">
             <Input
@@ -516,7 +516,7 @@ const InputForm = ({
                 handleStudentIdChange(e.target.value.toUpperCase());
               }}
               value={selectedStudentIdInput}
-              placeholder="Nhập mã số HS"
+              placeholder="Enter student ID"
               className={cn(
                 errors.studentId
                   ? "border-red-500  focus:border-red-500 placeholder:text-red-400"
@@ -550,10 +550,10 @@ const InputForm = ({
                   tabIndex={-1}
                   className="bg-yellow-500 absolute top-1/2 left-2 -translate-y-1/2 text-white hover:text-white hover:bg-yellow-500 cursor-pointer w-20 h-6"
                 >
-                  <Sparkle size={8} /> Tất cả
+                  <Sparkle size={8} /> All
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Autocomplete tất cả</TooltipContent>
+              <TooltipContent>Autocomplete all</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -562,7 +562,7 @@ const InputForm = ({
             htmlFor="student-name"
             className={errors.studentName ? "text-red-500" : ""}
           >
-            Tên học sinh
+            Student name
           </Label>
           <div className="relative w-full">
             <Input
@@ -576,7 +576,7 @@ const InputForm = ({
               }}
               placeholder={
                 studentNameAutoCompleteValue ||
-                "Tên học sinh sẽ hiển thị tự động"
+                "Student name will be displayed automatically"
               }
               className={cn(
                 errors.studentName
@@ -633,7 +633,8 @@ const InputForm = ({
                 setEmailInput(e.target.value);
               }}
               placeholder={
-                emailAutoCompleteValue || "Email sẽ hiển thị tự động"
+                emailAutoCompleteValue ||
+                "Email will be displayed automatically"
               }
               className={cn(
                 errors.email
@@ -679,7 +680,7 @@ const InputForm = ({
             htmlFor="homeroom"
             className={errors.homeroom ? "text-red-500" : ""}
           >
-            Lớp
+            Class
           </Label>
           <div className="relative w-full">
             <Input
@@ -692,7 +693,8 @@ const InputForm = ({
                 setHomeroomInput(e.target.value.toUpperCase());
               }}
               placeholder={
-                homeroomAutoCompleteValue || "Lớp học sẽ hiển thị tự động"
+                homeroomAutoCompleteValue ||
+                "Class will be displayed automatically"
               }
               className={cn(
                 errors.homeroom
@@ -729,7 +731,7 @@ const InputForm = ({
                   <Sparkle size={8} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Autocomplete lớp</TooltipContent>
+              <TooltipContent>Autocomplete class</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -739,7 +741,7 @@ const InputForm = ({
               htmlFor="ticket-type"
               className={errors.studentId ? "text-red-500" : ""}
             >
-              Hạng vé{" "}
+              Ticket type{" "}
               {ticketType !== INVALID_TICKET_DUE_TO_INVALID_CLASS &&
               ticketType !== ALL_TICKETS_SOLD_OUT &&
               !isSalesInfoFetching &&
@@ -754,7 +756,7 @@ const InputForm = ({
                   style={{
                     backgroundColor: getTicketColor(ticketType),
                   }}
-                  title={`Màu cho ${ticketType}`}
+                  title={`Color for ${ticketType}`}
                 />
               )}
           </div>
@@ -766,19 +768,19 @@ const InputForm = ({
               extractFirstNumber(homeroomInput) &&
               ticketTypeAfterLimitCheck.length > 0
                 ? ""
-                : "Vui lòng điền lớp"
+                : "Please fill class"
             }
             setSelectedValue={setTicketType}
             selectedValue={ticketType}
             side="bottom"
-            label="Hạng vé"
+            label="Ticket type"
             data={selectValue()}
           />
         </div>
 
         <div className="flex flex-col w-full items-center gap-2 justify-center">
           <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 self-start">
-            Phương thức thanh toán
+            Payment method
           </Label>
           <div className="flex flex-row gap-3 w-full">
             <div
@@ -810,7 +812,7 @@ const InputForm = ({
                       : "text-gray-700 dark:text-gray-300"
                   )}
                 >
-                  Tiền mặt
+                  Cash
                 </Label>
               </div>
               <input
@@ -858,7 +860,7 @@ const InputForm = ({
                       : "text-gray-700 dark:text-gray-300"
                   )}
                 >
-                  Chuyển khoản
+                  Bank transfer
                 </Label>
               </div>
               <input
@@ -880,7 +882,7 @@ const InputForm = ({
         </div>
 
         <div className="w-full flex flex-col items-start gap-2">
-          <Label htmlFor="notice">Lưu ý</Label>
+          <Label htmlFor="notice">Note</Label>
           <div className="relative w-full">
             <Textarea
               id="notice"
@@ -888,7 +890,7 @@ const InputForm = ({
               onChange={(e) => {
                 setNoticeInput(e.target.value);
               }}
-              placeholder="Nếu có"
+              placeholder="If any"
               autoResize
               rows={1}
               className="!min-h-[30px] py-1"
@@ -913,12 +915,12 @@ const InputForm = ({
         >
           {isSalesInfoFetching ? (
             <>
-              Vui lòng đợi dữ liệu được làm mới
+              Please wait for the data to be refreshed.
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             </>
           ) : (
             <>
-              Thêm vào order
+              Add to order
               <ShoppingCart />
             </>
           )}
@@ -929,16 +931,16 @@ const InputForm = ({
         >
           <DialogTrigger asChild>
             <Button variant="outline" className="w-full cursor-pointer -mt-2">
-              Xóa tất cả thông tin đang nhập
+              Clear all information being entered
               <Trash2 />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Xác nhận xóa</DialogTitle>
+              <DialogTitle>Confirm delete</DialogTitle>
               <DialogDescription>
-                Bạn có chắc chắn muốn xóa tất cả thông tin đang nhập? Hành động
-                này không thể hoàn tác.
+                Are you sure you want to delete all information you are
+                entering? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -947,14 +949,14 @@ const InputForm = ({
                 className="cursor-pointer"
                 onClick={() => setIsDeleteAllDialogOpen(false)}
               >
-                Hủy
+                Cancel
               </Button>
               <Button
                 variant="destructive"
                 className="cursor-pointer"
                 onClick={handleConfirmClear}
               >
-                Xóa tất cả
+                Delete everything
               </Button>
             </DialogFooter>
           </DialogContent>

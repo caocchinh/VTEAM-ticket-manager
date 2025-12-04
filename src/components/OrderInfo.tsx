@@ -229,7 +229,7 @@ const OrderInfo = ({
       )}
     >
       <div className="flex items-start h-max justify-between  w-full">
-        <h2 className="font-semibold">Thông tin order</h2>
+        <h2 className="font-semibold">Order information</h2>
         {ticketInfo && (
           <TicketColorManager
             ticketInfo={ticketInfo.offline}
@@ -250,7 +250,7 @@ const OrderInfo = ({
                 ) : (
                   "⚠️"
                 )}
-                <span className="mr-2"> Loại vé đang hết:</span>{" "}
+                <span className="mr-2"> Sold out ticket:</span>{" "}
                 {soldOutTicketsType.map((ticket, index) => {
                   const soldCount = ticketsSoldPerType[ticket.ticketName] || 0;
                   const excess = soldCount - ticket.maxQuantity;
@@ -273,7 +273,7 @@ const OrderInfo = ({
             </div>
           )}
           {currentOrder.length === 0 && (
-            <h3 className="text-center mt-1">Hiện tại chưa có đơn nào!</h3>
+            <h3 className="text-center mt-1">No orders yet!</h3>
           )}
 
           {currentOrder.length > 0 && (
@@ -313,7 +313,9 @@ const OrderInfo = ({
                           {editingIndex !== null && (
                             <div className="p-2 border border-[#0084ff] rounded-md">
                               <div className="flex flex-row gap-2">
-                                <p className="font-semibold">Tên & Mã số HS:</p>
+                                <p className="font-semibold">
+                                  Student name & ID:
+                                </p>
                                 <p>
                                   {currentOrder[editingIndex].nameInput} -{" "}
                                   {currentOrder[editingIndex].studentIdInput}
@@ -378,7 +380,9 @@ const OrderInfo = ({
                           {deletingIndex !== null && (
                             <div className="p-2 border border-red-600 rounded-md">
                               <div className="flex flex-row gap-2">
-                                <p className="font-semibold">Tên & Mã số HS:</p>
+                                <p className="font-semibold">
+                                  Student name & ID:
+                                </p>
                                 <p>
                                   {currentOrder[deletingIndex].nameInput} -{" "}
                                   {currentOrder[deletingIndex].studentIdInput}
@@ -431,7 +435,7 @@ const OrderInfo = ({
         <div className="flex flex-row items-center justify-between flex-wrap w-full gap-4 ">
           {!isSidebarOpen && (
             <p className="font-semibold subtotal_text">
-              Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
+              Total: {formatVietnameseCurrency(orderSubtotal)}
             </p>
           )}
           <Dialog>
@@ -445,7 +449,7 @@ const OrderInfo = ({
               title="Tính tiền"
             >
               <Button className="cursor-pointer" variant="outline">
-                Thành tiền: {formatVietnameseCurrency(orderSubtotal)}
+                Total: {formatVietnameseCurrency(orderSubtotal)}
                 <Calculator />
               </Button>
             </DialogTrigger>
@@ -498,25 +502,29 @@ const OrderInfo = ({
             )}
             {!isSalesInfoFetching && !hasSoldOutTicketInOrder && (
               <>
-                Chốt deal <WandSparkles />
+                Close deal <WandSparkles />
               </>
             )}
             {hasSoldOutTicketInOrder && (
-              <>Không thể chốt deal vì có vé đã hết trong đơn hàng</>
+              <>
+                Cannot close deal because there are tickets sold out in the
+                order
+              </>
             )}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="py-3">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Lưu thông tin về spreadsheet & gửi email xác nhận
+              Save information to spreadsheet & send confirmation email
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Kiểm tra kỹ lại thông tin order nhé!! 1 khi bấm chốt, thông tin sẽ
-              được lưu về spreadsheet và khách hàng sẽ nhận được email xác nhận.
+              Please double-check the order information. Once you click close,
+              the information will be saved to the spreadsheet and the customer
+              will receive a confirmation email.
             </AlertDialogDescription>
             <div className="flex flex-row items-center gap-2">
-              <Label htmlFor="send-email">Gửi email xác nhận</Label>
+              <Label htmlFor="send-email">Send confirmation email</Label>
               <Switch
                 className="data-[state=checked]:border-[#0084ff] data-[state=checked]:bg-[#0084ff] data-[state=checked]:text-white dark:data-[state=checked]:border-[#0084ff] dark:data-[state=checked]:bg-[#0084ff] cursor-pointer"
                 id="send-email"
@@ -545,12 +553,12 @@ const OrderInfo = ({
             </Accordion>
           </ScrollArea>
           <p className="text-center">
-            Tôi chắc chắn đã nhận đủ{" "}
+            I am sure I have received the full amount of{" "}
             <span className="text-green-700 font-semibold">
               {" "}
               {formatVietnameseCurrency(orderSubtotal)}
             </span>{" "}
-            trước khi bấm{" "}
+            before clicking{" "}
             <span className="text-red-500 font-semibold">&quot;Chốt&quot;</span>
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-2 ">
@@ -562,7 +570,7 @@ const OrderInfo = ({
                 setIsConfirmingOrderAlertDialogOpen(false);
               }}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               disabled={isOrderMutating || isSalesInfoFetching}
@@ -571,14 +579,14 @@ const OrderInfo = ({
                 mutateOrder();
               }}
             >
-              Chốt
+              Close deal
               {!isOrderMutating && !isSalesInfoFetching && <Zap />}
               {isOrderMutating && !isSalesInfoFetching && (
                 <Loader2 className="animate-spin" />
               )}
               {isSalesInfoFetching && (
                 <>
-                  Vui lòng đợi dữ liệu được làm mới
+                  Please wait for data to be refreshed
                   <Loader2 className="animate-spin" />
                 </>
               )}
@@ -597,16 +605,16 @@ const OrderInfo = ({
             disabled={currentOrder.length === 0}
             className="cursor-pointer w-full"
           >
-            Xóa hết order
+            Delete all orders
             <Trash2 size={8} />
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa hết tất cả</DialogTitle>
+            <DialogTitle>Confirm delete all orders</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa hết order hiện tại này? Hành động này
-              không thể hoàn tác.
+              Are you sure you want to delete all orders? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -615,7 +623,7 @@ const OrderInfo = ({
               className="cursor-pointer"
               onClick={() => setIsDeleteAllDialogOpen(false)}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               variant="destructive"
@@ -627,7 +635,7 @@ const OrderInfo = ({
                 setIsDeleteAllDialogOpen(false);
               }}
             >
-              Xóa hết
+              Delete all
             </Button>
           </DialogFooter>
         </DialogContent>

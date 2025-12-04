@@ -51,7 +51,7 @@ const StaffOveralSummary = ({
       <Collapsible defaultOpen={false} className="group/collapsible">
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
-            tooltip="Doanh thu của bạn"
+            tooltip="Your revenue"
             onClick={() => {
               if (!isSidebarOpen) {
                 setIsDropdownOpen(true);
@@ -60,9 +60,9 @@ const StaffOveralSummary = ({
           >
             <UserStar size={20} className="text-yellow-500" />
             <div className="whitespace-nowrap flex items-center gap-2">
-              Doanh thu của bạn:
+              Your revenue:
               {isSalesInfoError && !isSalesInfoFetching && (
-                <span className="text-red-600"> Lỗi </span>
+                <span className="text-red-600"> Error </span>
               )}
               {isSalesInfoFetching && (
                 <Loader2 className="animate-spin" size={16} />
@@ -84,7 +84,7 @@ const StaffOveralSummary = ({
           {(!isSalesInfoError || isSalesInfoFetching) && (
             <SidebarMenuSub>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                Tổng đơn hàng:{" "}
+                Total orders:{" "}
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-25 h-4" />
                 ) : (
@@ -92,7 +92,7 @@ const StaffOveralSummary = ({
                 )}
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                % tổng doanh thu:
+                % total revenue:
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-25 h-4" />
                 ) : (
@@ -103,7 +103,7 @@ const StaffOveralSummary = ({
                 )}
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                % tổng doanh thu offline:
+                % total revenue offline:
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-25 h-4" />
                 ) : (
@@ -122,7 +122,7 @@ const StaffOveralSummary = ({
           {isSalesInfoError && !isSalesInfoFetching && (
             <SidebarMenuSub>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2 text-red-600">
-                Lỗi khi lấy dữ liệu
+                Error when fetching data
               </SidebarMenuSubItem>
             </SidebarMenuSub>
           )}
@@ -138,7 +138,7 @@ const StaffOveralSummary = ({
         {(!isSalesInfoError || isSalesInfoFetching) && (
           <>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Doanh thu của bạn:{" "}
+              Your revenue:{" "}
               <span className="font-medium text-green-600">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -149,7 +149,7 @@ const StaffOveralSummary = ({
             </div>
             <Separator orientation="horizontal" />
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Đơn hàng:{" "}
+              Orders:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -159,7 +159,7 @@ const StaffOveralSummary = ({
               </span>
             </div>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              % tổng doanh thu:{" "}
+              % total revenue:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -169,7 +169,7 @@ const StaffOveralSummary = ({
               </span>
             </div>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              % tổng doanh thu offline:{" "}
+              % total revenue offline:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -182,7 +182,7 @@ const StaffOveralSummary = ({
         )}
         {isSalesInfoError && !isSalesInfoFetching && (
           <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2 text-red-600">
-            Lỗi khi lấy dữ liệu
+            Error when fetching data
           </p>
         )}
       </DropdownMenuContent>

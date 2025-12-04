@@ -90,7 +90,7 @@ export function TicketsInfo({
     <DropdownMenu onOpenChange={setIsDropdownOpen} open={isDropdownOpen}>
       <DropdownMenuTrigger asChild>
         <SidebarMenuButton
-          tooltip="Thông tin vé"
+          tooltip="Ticket info"
           onClick={() => {
             if (!isSidebarOpen) {
               setIsDropdownOpen(true);
@@ -99,9 +99,9 @@ export function TicketsInfo({
         >
           <TicketIcon className="w-[21px] h-[21px]" />
           <div className="whitespace-nowrap flex items-center gap-2">
-            Thông tin vé{" "}
+            Ticket info{" "}
             {isTicketInfoError && !isTicketInfoFetching && (
-              <span className="text-red-600"> Lỗi </span>
+              <span className="text-red-600"> Error </span>
             )}
             <>
               {isTicketInfoFetching && (
@@ -119,7 +119,7 @@ export function TicketsInfo({
         align="center"
       >
         <div className="flex items-center justify-between w-full">
-          <p className="p-2 rounded-md text-sm font-medium">Thông tin vé</p>
+          <p className="p-2 rounded-md text-sm font-medium">Ticket info</p>
           <X
             className="w-4 h-4 cursor-pointer text-red-600"
             onClick={() => setIsDropdownOpen(false)}
@@ -133,7 +133,7 @@ export function TicketsInfo({
           mutualTicketTypes.length > 0 && (
             <>
               <p className="p-2 rounded-md text-sm font-medium text-muted-foreground">
-                Vé chung (Offline & Online)
+                Mutual tickets (Offline & Online)
               </p>
               {mutualTicketTypes.map((ticket, index) => (
                 <div
@@ -165,10 +165,10 @@ export function TicketsInfo({
                         variant="outline"
                         className="bg-[#0084ff] text-white"
                       >
-                        Có concert
+                        Include concert
                       </Badge>
                     ) : (
-                      <Badge variant="destructive">Không concert</Badge>
+                      <Badge variant="destructive">Not include concert</Badge>
                     )}
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export function TicketsInfo({
           distinctOfflineTickets.length > 0 && (
             <>
               <p className="p-2 rounded-md text-sm font-medium text-muted-foreground">
-                Vé Offline riêng
+                Distinct Offline Tickets
               </p>
               {distinctOfflineTickets.map((ticket, index) => (
                 <div
@@ -215,10 +215,10 @@ export function TicketsInfo({
                         variant="outline"
                         className="bg-[#0084ff] text-white"
                       >
-                        Có concert
+                        Include concert
                       </Badge>
                     ) : (
-                      <Badge variant="destructive">Không concert</Badge>
+                      <Badge variant="destructive">Not include concert</Badge>
                     )}
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export function TicketsInfo({
           distinctOnlineTickets.length > 0 && (
             <>
               <p className="p-2 rounded-md text-sm font-medium text-muted-foreground">
-                Vé Online riêng
+                Distinct Online Tickets
               </p>
               {distinctOnlineTickets.map((ticket, index) => (
                 <div
@@ -265,10 +265,10 @@ export function TicketsInfo({
                         variant="outline"
                         className="bg-[#0084ff] text-white"
                       >
-                        Có concert
+                        Include concert
                       </Badge>
                     ) : (
-                      <Badge variant="destructive">Không concert</Badge>
+                      <Badge variant="destructive">Not include concert</Badge>
                     )}
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export function TicketsInfo({
         {/* Error State in Dropdown */}
         {isTicketInfoError && !isTicketInfoFetching && (
           <p className="p-2 rounded-md text-sm text-red-600">
-            Không thể tải thông tin vé. Vui lòng thử lại sau.
+            Can&apos;t load ticket info. Please try again later.
           </p>
         )}
       </DropdownMenuContent>

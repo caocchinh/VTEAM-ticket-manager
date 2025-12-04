@@ -54,7 +54,7 @@ const SalesOveralSummary = ({
           >
             <ShoppingCart size={20} className="text-green-600" />
             <div className="whitespace-nowrap flex items-center gap-2">
-              Tổng danh thu:{" "}
+              Total revenue:{" "}
               {isSalesInfoError && !isSalesInfoFetching && (
                 <span className="text-red-600"> Lỗi </span>
               )}
@@ -81,7 +81,7 @@ const SalesOveralSummary = ({
           {(!isSalesInfoError || isSalesInfoFetching) && (
             <SidebarMenuSub>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                Tổng đơn hàng:{" "}
+                Total orders:{" "}
                 <span className="font-medium">
                   {isSalesInfoFetching ? (
                     <Skeleton className="w-25 h-4" />
@@ -91,7 +91,7 @@ const SalesOveralSummary = ({
                 </span>
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                Đơn hàng offline:{" "}
+                Offline orders:{" "}
                 <span className="font-medium">
                   {isSalesInfoFetching ? (
                     <Skeleton className="w-25 h-4" />
@@ -101,7 +101,7 @@ const SalesOveralSummary = ({
                 </span>
               </SidebarMenuSubItem>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-                Đơn hàng online:{" "}
+                Online orders:{" "}
                 <span className="font-medium">
                   {isSalesInfoFetching ? (
                     <Skeleton className="w-25 h-4" />
@@ -115,7 +115,7 @@ const SalesOveralSummary = ({
           {isSalesInfoError && !isSalesInfoFetching && (
             <SidebarMenuSub>
               <SidebarMenuSubItem className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2 text-red-600">
-                Lỗi khi lấy dữ liệu
+                Error when fetching data
               </SidebarMenuSubItem>
             </SidebarMenuSub>
           )}
@@ -131,7 +131,7 @@ const SalesOveralSummary = ({
         {(!isSalesInfoError || isSalesInfoFetching) && (
           <>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Tổng danh thu:{" "}
+              Total revenue:{" "}
               <span className="font-medium text-green-600">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -142,7 +142,7 @@ const SalesOveralSummary = ({
             </div>
             <Separator orientation="horizontal" />
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Doanh thu offline:{" "}
+              Offline revenue:{" "}
               <span className="font-medium text-blue-600">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -152,7 +152,7 @@ const SalesOveralSummary = ({
               </span>
             </div>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Doanh thu online:{" "}
+              Online revenue:{" "}
               <span className="font-medium text-orange-600">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -163,7 +163,7 @@ const SalesOveralSummary = ({
             </div>
             <Separator orientation="horizontal" />
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Tổng đơn hàng:{" "}
+              Total orders:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -173,7 +173,7 @@ const SalesOveralSummary = ({
               </span>
             </div>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Đơn hàng offline:{" "}
+              Offline orders:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -183,7 +183,7 @@ const SalesOveralSummary = ({
               </span>
             </div>
             <div className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2">
-              Đơn hàng online:{" "}
+              Online orders:{" "}
               <span className="font-medium">
                 {isSalesInfoFetching ? (
                   <Skeleton className="w-20 h-4" />
@@ -196,7 +196,7 @@ const SalesOveralSummary = ({
         )}
         {isSalesInfoError && !isSalesInfoFetching && (
           <p className="hover:bg-muted p-2 rounded-md text-sm whitespace-nowrap flex items-center gap-2 text-red-600">
-            Lỗi khi lấy dữ liệu
+            Error when fetching data
           </p>
         )}
       </DropdownMenuContent>

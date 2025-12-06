@@ -11,7 +11,7 @@ export const OrderItemInfo = ({
   return (
     <>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Lớp:</p>
+        <p className="font-semibold">Class:</p>
         <p className="wrap-anywhere">{order.homeroomInput}</p>
       </div>
       <div className="flex flex-row gap-2">
@@ -19,11 +19,11 @@ export const OrderItemInfo = ({
         <p className="wrap-anywhere">{order.email}</p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Hạng vé:</p>
+        <p className="font-semibold">Ticket type:</p>
         <p className="wrap-anywhere">{order.ticketType}</p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Giá vé:</p>
+        <p className="font-semibold">Ticket price:</p>
         <p className="wrap-anywhere">
           {formatVietnameseCurrency(parseVietnameseCurrency(price))}
         </p>
@@ -35,13 +35,13 @@ export const OrderItemInfo = ({
         </p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Hình thức:</p>
+        <p className="font-semibold">Payment method:</p>
         <p className="wrap-anywhere">{order.paymentMedium}</p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Lưu ý của bạn:</p>
+        <p className="font-semibold">Note:</p>
         <p className="whitespace-pre-wrap wrap-anywhere">
-          {order.notice || "Không có lưu ý"}
+          {order.notice || "No note"}
         </p>
       </div>
     </>

@@ -660,10 +660,10 @@ const OnlineTicketManagement = ({
           <SidebarMenuButton
             className="cursor-pointer !bg-[#F48120] !text-white relative active:bg-[#F48120] hover:bg-[#F48120] hover:text-white active:text-white !overflow-visible"
             disabled={!salesInfo || isSalesInfoError}
-            tooltip="Kiểm soát vé online"
+            tooltip="Online ticket management"
           >
             <Box />
-            <span className="whitespace-nowrap">Kiểm soát vé online</span>
+            <span className="whitespace-nowrap">Online ticket management</span>
             {pendingOrdersCount > 0 && (
               <>
                 <div className="absolute -top-1 z-[1000007] -right-[7px] w-max h-max py-[1px] px-[3px] min-w-[17px] min-h-[14px] bg-red-600 text-white text-xs rounded-full flex items-center justify-center font-bold">

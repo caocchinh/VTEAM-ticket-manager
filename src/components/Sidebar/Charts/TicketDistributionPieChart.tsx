@@ -67,8 +67,10 @@ export default function TicketDistributionPieChart({
   return (
     <div className="flex flex-col  w-[90%] md:w-[500px] h-max !p-2">
       <div className="items-center pb-0 flex justify-center flex-col">
-        <h3 className="text-lg text-center font-semibold">Phân khối vé</h3>
-        <p className="text-sm text-center">{chartData.length} khối vé</p>
+        <h3 className="text-lg text-center font-semibold">
+          Ticket distribution
+        </h3>
+        <p className="text-sm text-center">{chartData.length} ticket types</p>
       </div>
       <div className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square">

@@ -15,12 +15,12 @@ const InlineSidebarTrigger = ({ className }: InlineSidebarTriggerProps) => {
         <SidebarTrigger className={className}>
           <PanelLeft />
           <p className="block md:hidden">
-            {isMobileSidebarOpen ? "Ẩn sidebar" : "Hiển thị sidebar"}
+            {isMobileSidebarOpen ? "Hide sidebar" : "Show sidebar"}
           </p>
         </SidebarTrigger>
       </TooltipTrigger>
       <TooltipContent side="right" className="hidden md:block">
-        {isSidebarOpen ? "Ẩn sidebar" : "Hiển thị sidebar"}
+        {isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
       </TooltipContent>
     </Tooltip>
   );

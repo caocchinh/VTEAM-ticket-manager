@@ -64,8 +64,10 @@ export default function PaymentDistributionPieChart({
   return (
     <div className="flex flex-col w-[90%] md:w-[500px] !p-2">
       <div className="items-center pb-0 flex justify-center flex-col">
-        <h3 className="text-lg font-semibold">Hình thức</h3>
-        <p className="text-sm text-center">{chartData.length} hình thức</p>
+        <h3 className="text-lg font-semibold">Payment method</h3>
+        <p className="text-sm text-center">
+          {chartData.length} payment methods
+        </p>
       </div>
       <div className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square ">

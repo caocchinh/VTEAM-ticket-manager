@@ -54,7 +54,7 @@ const ChangeCalculator = ({
   return (
     <div className="flex-col items-center justify-start gap-2 w-full max-w-[300px]">
       <h2 className="font-semibold flex items-center justify-center gap-2">
-        Tính tiền
+        Calculate change
       </h2>
 
       <div
@@ -66,7 +66,7 @@ const ChangeCalculator = ({
         {/* Total Amount Display */}
         <div className="p-2 bg-blue-50 rounded-md">
           <Label className="text-sm font-medium text-blue-700">
-            Tổng tiền cần thanh toán:
+            Total amount to pay:
           </Label>
           <p className="text-lg font-bold text-blue-900">
             {formatVietnameseCurrency(totalAmount)}
@@ -76,7 +76,7 @@ const ChangeCalculator = ({
         {/* Preset Amount Buttons */}
         <div>
           <Label className="text-sm font-medium mb-2 block">
-            Chọn mệnh giá có sẵn:
+            Select preset amount:
           </Label>
           <div className="grid grid-cols-2 gap-2">
             {presetAmounts.map((amount) => (
@@ -101,12 +101,12 @@ const ChangeCalculator = ({
         {/* Custom Amount Input */}
         <div>
           <Label htmlFor="custom-amount" className="text-sm font-medium">
-            Hoặc nhập số tiền khác (nghìn đồng):
+            Or enter another amount (in thousands):
           </Label>
           <div className="flex items-center gap-2 mt-1">
             <Input
               id="custom-amount"
-              placeholder="Ví dụ: 350 (= 350,000 ₫)"
+              placeholder="Example: 350 (= 350,000 ₫)"
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
               inputMode="numeric"
@@ -129,7 +129,7 @@ const ChangeCalculator = ({
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-green-700">
-                  Khách đưa:
+                  Customer paid:
                 </span>
                 <span className="font-bold text-green-900 wrap-anywhere">
                   {formatVietnameseCurrency(
@@ -139,7 +139,7 @@ const ChangeCalculator = ({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-green-700">
-                  Tổng tiền:
+                  Total amount:
                 </span>
                 <span className="font-bold text-green-900">
                   {formatVietnameseCurrency(totalAmount)}
@@ -148,12 +148,12 @@ const ChangeCalculator = ({
               <hr className="border-green-300" />
               <div className="flex justify-between items-center">
                 <span className="text-sm font-bold text-green-700">
-                  Tiền thối:
+                  Change:
                 </span>
                 <span className="text-lg font-bold text-green-900 wrap-anywhere">
                   {change > 0 && formatVietnameseCurrency(change)}
-                  {change === 0 && "không cần thối"}
-                  {change < 0 && "Khách đưa thiếu"}
+                  {change === 0 && "No change"}
+                  {change < 0 && "Not enough"}
                 </span>
               </div>
             </div>

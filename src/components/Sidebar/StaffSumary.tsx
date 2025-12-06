@@ -46,20 +46,20 @@ const StaffSumary = ({
     <Dialog open={isStaffSumaryOpen} onOpenChange={setIsStaffSumaryOpen}>
       <DialogTrigger asChild>
         <SidebarMenuButton
-          tooltip="Lịch sử bán vé của bạn"
+          tooltip="Your sales history"
           className="bg-fuchsia-700 active:bg-fuchsia-700 text-white hover:bg-fuchsia-700 hover:text-white cursor-pointer active:text-white"
           disabled={!offlineSalesInfo || isSalesInfoError}
         >
           <SquareUserRound />
-          <span className="whitespace-nowrap">Lịch sử bán vé của bạn</span>
+          <span className="whitespace-nowrap">Your sales history</span>
         </SidebarMenuButton>
       </DialogTrigger>
 
       <DialogContent className="h-[97dvh] gap-2 !py-2 !max-w-[100vw] w-[95vw]">
-        <DialogTitle className="sr-only">Lịch sử bán vé của bạn</DialogTitle>
+        <DialogTitle className="sr-only">Your sales history</DialogTitle>
         <div className="flex items-center justify-center gap-2">
           <h3 className="text-center font-semibold text-xl uppercase">
-            Lịch sử bán vé của bạn
+            Your sales history
           </h3>
           <Separator orientation="vertical" />
           <Button
@@ -68,7 +68,7 @@ const StaffSumary = ({
             className="border border-black cursor-pointer"
             disabled={isRefetchingSales || isSalesInfoFetching}
           >
-            Cập nhật dữ liệu
+            Update data
             {(isRefetchingSales || isSalesInfoFetching) && (
               <Loader2 className="animate-spin " />
             )}

@@ -56,19 +56,19 @@ const SalesTrendChart = ({
 }: SalesTrendChartProps) => {
   const chartConfig = {
     totalRevenue: {
-      label: "Tổng doanh thu",
+      label: "Total revenue",
       color: "var(--chart-1)",
     },
     totalOrders: {
-      label: "Tổng đơn hàng",
+      label: "Total orders",
       color: "var(--chart-2)",
     },
     staffRevenue: {
-      label: "Doanh thu của bạn",
+      label: "Your revenue",
       color: "var(--chart-3)",
     },
     staffOrders: {
-      label: "Đơn hàng của bạn",
+      label: "Your orders",
       color: "var(--chart-4)",
     },
   } satisfies ChartConfig;
@@ -176,10 +176,8 @@ const SalesTrendChart = ({
     <Card className="py-4 sm:py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
-          <CardTitle>Xu hướng bán hàng</CardTitle>
-          <CardDescription>
-            Biểu đồ thể hiện xu hướng doanh thu và đơn hàng theo thời gian
-          </CardDescription>
+          <CardTitle>Sales trend chart</CardTitle>
+          <CardDescription>Chart showing sales trend over time</CardDescription>
         </div>
         <div className="flex w-[65%]">
           {(Object.keys(chartConfig) as Array<keyof typeof chartConfig>).map(

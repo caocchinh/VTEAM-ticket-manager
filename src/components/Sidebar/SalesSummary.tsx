@@ -435,7 +435,7 @@ const SalesSummary = ({
           <CardHeader className="min-w-[245px]">
             <CardTitle className="flex items-center gap-2 justify-center sm:justify-start">
               <Calendar size={20} />
-              Chọn khoảng thời gian
+              Choose date range
             </CardTitle>
           </CardHeader>
           <Separator
@@ -446,7 +446,7 @@ const SalesSummary = ({
           <CardContent>
             <div className="flex flex-wrap items-end gap-4 justify-center sm:justify-start">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="start-date">Từ ngày</Label>
+                <Label htmlFor="start-date">From date</Label>
                 <Input
                   id="start-date"
                   type="date"
@@ -456,7 +456,7 @@ const SalesSummary = ({
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="end-date">Đến ngày</Label>
+                <Label htmlFor="end-date">To date</Label>
                 <Input
                   id="end-date"
                   type="date"
@@ -473,7 +473,7 @@ const SalesSummary = ({
                   disabled={!allDataRange}
                   className={isAllData ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
                 >
-                  Tất cả
+                  All data
                 </Button>
                 <Button
                   variant={isToday ? "default" : "outline"}
@@ -481,7 +481,7 @@ const SalesSummary = ({
                   size="sm"
                   className={isToday ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""}
                 >
-                  Hôm nay
+                  Today
                 </Button>
                 <Button
                   variant={isThisWeek ? "default" : "outline"}
@@ -491,7 +491,7 @@ const SalesSummary = ({
                     isThisWeek ? "bg-[#0084ff] hover:bg-[#0084ff]" : ""
                   }
                 >
-                  Tuần này
+                  This week
                 </Button>
               </div>
             </div>
@@ -506,7 +506,7 @@ const SalesSummary = ({
             <Card className="min-w-[220px] flex-1">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Tổng doanh thu
+                  Total revenue
                 </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -521,7 +521,7 @@ const SalesSummary = ({
           <Card className="min-w-[220px] flex-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Tổng đơn hàng {isStaffSummary && "của bạn"}
+                Total orders {isStaffSummary && "of you"}
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -530,8 +530,8 @@ const SalesSummary = ({
                 {totalSummary.totalOrders}
               </div>
               <p className="text-xs text-muted-foreground">
-                {totalSummary.cashOrders} tiền mặt,{" "}
-                {totalSummary.transferOrders} chuyển khoản
+                {totalSummary.cashOrders} cash, {totalSummary.transferOrders}{" "}
+                transfer
                 {totalSummary.onlineOrders > 0 && (
                   <span>, {totalSummary.onlineOrders} online</span>
                 )}
@@ -542,7 +542,7 @@ const SalesSummary = ({
           <Card className="min-w-[220px] flex-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Giá trị TB/đơn
+                Average order value
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -575,7 +575,7 @@ const SalesSummary = ({
                         {Math.round(
                           (currentStaffSummary.revenue / totalRevenue) * 100
                         )}
-                        % tổng danh thu{" "}
+                        % total revenue{" "}
                         {isOfflineSalesInfo(salesInfo[0])
                           ? "offline"
                           : "online"}
@@ -594,11 +594,11 @@ const SalesSummary = ({
           <CardHeader>
             <CardTitle>
               {isStaffSummary
-                ? "Phân loại vé của bạn"
-                : "Phân loại vé tổng quan"}
+                ? "Your ticket breakdown"
+                : "Overall ticket breakdown"}
             </CardTitle>
             <CardDescription>
-              Chi tiết số lượng và doanh thu theo từng loại vé
+              Details of ticket quantity and revenue by each ticket type
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -627,11 +627,12 @@ const SalesSummary = ({
                           {ticketInfo.find(
                             (ticket) => ticket.ticketName === ticketType
                           )?.includeConcert
-                            ? "Có concert"
-                            : "Không concert"}
+                            ? "Has concert"
+                            : "No concert"}
                         </span>
                         <span className="text-muted-foreground">
-                          {count} vé • Tổng {formatVietnameseCurrency(revenue)}
+                          {count} tickets • Total{" "}
+                          {formatVietnameseCurrency(revenue)}
                         </span>
                       </div>
                       <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -644,9 +645,9 @@ const SalesSummary = ({
                         />
                       </div>
                       <div className="text-xs text-muted-foreground text-right">
-                        {percentage.toFixed(1)}% tổng doanh thu{" "}
+                        {percentage.toFixed(1)}% total revenue{" "}
                         {isStaffSummary ? (
-                          "của bạn"
+                          "of you"
                         ) : (
                           <>
                             {" "}
@@ -681,11 +682,11 @@ const SalesSummary = ({
       {summaryData && summaryData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Chi tiết theo ngày</CardTitle>
+            <CardTitle>Details by day</CardTitle>
             {!hideFilters && startDate && endDate && (
               <CardDescription>
-                Từ {format(new Date(startDate), "dd/MM/yyyy", { locale: vi })}{" "}
-                đến {format(new Date(endDate), "dd/MM/yyyy", { locale: vi })}
+                From {format(new Date(startDate), "dd/MM/yyyy", { locale: vi })}{" "}
+                to {format(new Date(endDate), "dd/MM/yyyy", { locale: vi })}
               </CardDescription>
             )}
           </CardHeader>
@@ -704,30 +705,30 @@ const SalesSummary = ({
                         {formatVietnameseCurrency(day.totalRevenue)}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {day.totalOrders} đơn
+                        {day.totalOrders} orders
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-stretch justify-center gap-4 md:gap-2 flex-col md:flex-row text-sm mb-4">
                     <div className="w-full md:w-1/2">
-                      <p className="font-medium mb-2">Hình thức thanh toán:</p>
+                      <p className="font-medium mb-2">Payment method: </p>
                       <div className="space-y-1">
                         {day.cashOrders > 0 && (
                           <div className="flex justify-between">
-                            <span>• Tiền mặt:</span>
+                            <span>• Cash:</span>
                             <span className="font-medium">
                               {formatVietnameseCurrency(day.cashRevenue)} (
-                              {day.cashOrders} đơn)
+                              {day.cashOrders} orders)
                             </span>
                           </div>
                         )}
                         {day.transferOrders > 0 && (
                           <div className="flex justify-between">
-                            <span>• Chuyển khoản:</span>
+                            <span>• Bank transfer :</span>
                             <span className="font-medium">
                               {formatVietnameseCurrency(day.transferRevenue)} (
-                              {day.transferOrders} đơn)
+                              {day.transferOrders} orders)
                             </span>
                           </div>
                         )}
@@ -736,7 +737,7 @@ const SalesSummary = ({
                             <span>• Online:</span>
                             <span className="font-medium">
                               {formatVietnameseCurrency(day.onlineRevenue)} (
-                              {day.onlineOrders} đơn)
+                              {day.onlineOrders} orders)
                             </span>
                           </div>
                         )}
@@ -748,7 +749,7 @@ const SalesSummary = ({
                     />
 
                     <div className="w-full md:w-1/2">
-                      <p className="font-medium mb-2">Tổng quan loại vé:</p>
+                      <p className="font-medium mb-2">Ticket breakdown:</p>
                       <div className="space-y-1">
                         {Object.entries(day.ticketBreakdown)
                           .sort(([, a], [, b]) => b - a)
@@ -756,7 +757,9 @@ const SalesSummary = ({
                           .map(([ticket, count]) => (
                             <div key={ticket} className="flex justify-between">
                               <span>• {ticket}:</span>
-                              <span className="font-medium">{count} vé</span>
+                              <span className="font-medium">
+                                {count} tickets
+                              </span>
                             </div>
                           ))}
                       </div>
@@ -768,7 +771,7 @@ const SalesSummary = ({
                       <AccordionTrigger className="text-sm cursor-pointer">
                         <div className="flex items-center gap-2">
                           <ChartNoAxesCombined className="h-4 w-4" />
-                          Chi tiết theo loại vé và hình thức thanh toán
+                          Details by ticket type and payment method
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -800,7 +803,7 @@ const SalesSummary = ({
                                           {formatVietnameseCurrency(
                                             data.revenue
                                           )}{" "}
-                                          ({data.count} vé)
+                                          ({data.count} tickets)
                                         </span>
                                       </div>
                                     );
@@ -813,7 +816,7 @@ const SalesSummary = ({
                           {day.transferRevenue > 0 && (
                             <div>
                               <h5 className="font-medium text-sm mb-2 text-blue-700">
-                                Chuyển khoản -{" "}
+                                Bank transfer -{" "}
                                 {formatVietnameseCurrency(day.transferRevenue)}
                               </h5>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -836,7 +839,7 @@ const SalesSummary = ({
                                           {formatVietnameseCurrency(
                                             data.revenue
                                           )}{" "}
-                                          ({data.count} vé)
+                                          ({data.count} tickets)
                                         </span>
                                       </div>
                                     );
@@ -872,7 +875,7 @@ const SalesSummary = ({
                                           {formatVietnameseCurrency(
                                             data.revenue
                                           )}{" "}
-                                          ({data.count} vé)
+                                          ({data.count} tickets)
                                         </span>
                                       </div>
                                     );
@@ -973,7 +976,7 @@ const DailyOrders = ({
           <AccordionTrigger className="cursor-pointer">
             <div className="flex items-center gap-2">
               <Receipt className="h-4 w-4" />
-              Chi tiết từng đơn hàng ({sortedOrders.length} đơn)
+              Details of each order ({sortedOrders.length} orders)
             </div>
           </AccordionTrigger>
           <AccordionContent className="p-1">
@@ -983,7 +986,7 @@ const DailyOrders = ({
                 size={15}
               />
               <Input
-                placeholder="Tìm kiếm theo tên/mã số HS khách hàng"
+                placeholder="Search by buyer name or buyer ID"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="pl-7"
@@ -1057,7 +1060,7 @@ const DailyOrders = ({
                                   <User className="h-4 w-4 text-muted-foreground mt-0.5" />
                                   <div className="flex-1">
                                     <div className="text-xs text-muted-foreground">
-                                      Khách hàng
+                                      Customer
                                     </div>
                                     <div className="font-medium">
                                       {order.buyerName}
@@ -1068,7 +1071,7 @@ const DailyOrders = ({
                                   <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                                   <div className="flex-1">
                                     <div className="text-xs text-muted-foreground">
-                                      Lớp
+                                      Class
                                     </div>
                                     <div className="font-medium">
                                       {order.buyerClass}
@@ -1081,7 +1084,7 @@ const DailyOrders = ({
                                   <Receipt className="h-4 w-4 text-muted-foreground mt-0.5" />
                                   <div className="flex-1">
                                     <div className="text-xs text-muted-foreground">
-                                      Mã học sinh
+                                      Student ID
                                     </div>
                                     <div className="font-medium font-mono">
                                       {order.buyerId}
@@ -1111,9 +1114,7 @@ const DailyOrders = ({
                                     <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                                     <div className="flex-1">
                                       <div className="text-xs text-muted-foreground">
-                                        Ghi chú:{" "}
-                                        {order.buyerNotice ||
-                                          "Không có ghi chú"}
+                                        Note: {order.buyerNotice || "No note"}
                                       </div>
                                     </div>
                                   </div>
@@ -1123,7 +1124,7 @@ const DailyOrders = ({
                                     <Mail className="h-4 w-4 text-muted-foreground" />
                                     <div className="text-xs">
                                       <span className="text-muted-foreground">
-                                        Trạng thái gửi email xác nhận vé:{" "}
+                                        Email status:{" "}
                                       </span>
                                       <span
                                         className={cn(
@@ -1148,7 +1149,8 @@ const DailyOrders = ({
                                       <User className="h-4 w-4 text-muted-foreground" />
                                       <div className="text-xs">
                                         <span className="text-muted-foreground">
-                                          Staff điền form: {order.staffName}
+                                          Staff who filled the form:{" "}
+                                          {order.staffName}
                                         </span>
                                       </div>
                                     </div>

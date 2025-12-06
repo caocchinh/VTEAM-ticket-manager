@@ -55,18 +55,18 @@ const SalesSummaryDialog = ({
           disabled={!salesInfo || isSalesInfoError}
         >
           <ChartSpline />
-          <span className="whitespace-nowrap"> Báo cáo tổng doanh thu</span>
+          <span className="whitespace-nowrap"> Total revenue report</span>
         </SidebarMenuButton>
       </DialogTrigger>
 
       <DialogContent className="h-[97dvh] gap-2 !py-2 !max-w-[100vw] w-[95vw]">
-        <DialogTitle className="sr-only">Báo cáo tổng doanh thu</DialogTitle>
+        <DialogTitle className="sr-only">Total revenue report</DialogTitle>
         <DialogDescription className="sr-only">
-          Báo cáo tổng doanh thu bán vé
+          Total revenue report
         </DialogDescription>
         <div className="flex items-center justify-center gap-2">
           <h3 className="text-center font-semibold text-xl uppercase">
-            Báo cáo tổng doanh thu
+            Total revenue report
           </h3>
           <Separator orientation="vertical" />
           <Button
@@ -75,7 +75,7 @@ const SalesSummaryDialog = ({
             className="border border-black cursor-pointer"
             disabled={isRefetchingSales || isSalesInfoFetching}
           >
-            Cập nhật dữ liệu
+            Update data
             {(isRefetchingSales || isSalesInfoFetching) && (
               <Loader2 className="animate-spin " />
             )}
@@ -107,7 +107,7 @@ const SalesSummaryDialog = ({
                 />
               ) : (
                 <div className="flex items-center justify-center text-center">
-                  Không có đủ dữ kiện offline để trình bày
+                  Not enough offline data to display
                 </div>
               )}
             </ScrollArea>
@@ -132,7 +132,7 @@ const SalesSummaryDialog = ({
                 />
               ) : (
                 <div className="flex items-center justify-center text-center">
-                  Không có đủ dữ kiện online đã xác minh để trình bày
+                  Not enough online data to display
                 </div>
               )}
             </ScrollArea>
@@ -144,7 +144,7 @@ const SalesSummaryDialog = ({
             className="w-full cursor-pointer"
             onClick={() => setIsSummaryDialogOpen(false)}
           >
-            Đóng
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -56,16 +56,17 @@ export default function StatisticsDialog({
           disabled={!salesInfo || isSalesInfoError}
         >
           <ChartPie />
-          <span className="whitespace-nowrap">Thống kê tổng</span>
+          <span className="whitespace-nowrap">Statistics</span>
         </SidebarMenuButton>
       </DialogTrigger>
 
       <DialogContent className="h-[95dvh] gap-2 !py-2 !max-w-[100vw] w-[95vw]">
-        <DialogTitle className="sr-only">Thống kê tổng</DialogTitle>
+        <DialogTitle className="sr-only">Statistics</DialogTitle>
         <div className="flex items-center justify-center gap-2">
           <h3 className="text-center font-semibold text-xl uppercase">
-            Tổng{" "}
-            {(salesInfo?.offline.length || 0) + verifiedOnlineOrders.length} đơn
+            Total{" "}
+            {(salesInfo?.offline.length || 0) + verifiedOnlineOrders.length}{" "}
+            orders
           </h3>
           <Separator orientation="vertical" />
           <Button
@@ -74,7 +75,7 @@ export default function StatisticsDialog({
             className="border border-black cursor-pointer"
             disabled={isRefetchingSales || isSalesInfoFetching}
           >
-            Cập nhật dữ liệu
+            Update data
             {(isRefetchingSales || isSalesInfoFetching) && (
               <Loader2 className="animate-spin " />
             )}
@@ -102,7 +103,7 @@ export default function StatisticsDialog({
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
-                  Không có dữ liệu offline để trình bày
+                  No offline data to display
                 </div>
               )}
             </ScrollArea>
@@ -119,17 +120,15 @@ export default function StatisticsDialog({
                   <div className="flex items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
                     <div className="text-center text-gray-500">
                       <p className="font-medium">
-                        Biểu đồ thanh toán & đóng góp của staff
+                        Payment & staff contribution chart
                       </p>
-                      <p className="text-sm">
-                        Chỉ khả dụng cho dữ liệu offline
-                      </p>
+                      <p className="text-sm">Only available for offline data</p>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
-                  Không có đơn online đã xác minh để trình bày
+                  No verified online orders to display
                 </div>
               )}
             </ScrollArea>
@@ -141,7 +140,7 @@ export default function StatisticsDialog({
             className="w-full cursor-pointer"
             onClick={() => setIsStatsDialogOpen(false)}
           >
-            Đóng
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -7,8 +7,8 @@ const SidebarToggle = () => {
   const isMobile = useIsMobile();
 
   const sideBarState = () => {
-    const closedSidebar = "Hiển thị sidebar";
-    const openSidebar = "Ẩn sidebar";
+    const closedSidebar = "Hide sidebar";
+    const openSidebar = "Show sidebar";
     if (isMobile && !isMobileSidebarOpen) {
       return closedSidebar;
     }

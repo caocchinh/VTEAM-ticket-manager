@@ -50,26 +50,15 @@ Designed for speed and accuracy at physical ticket booths:
 - **Direct Sales Processing**:
   - Support for **Cash** and **Bank Transfer** payments.
   - Customizable ticket types with real-time inventory tracking.
-  - Immediate receipt generation and email confirmation.
+  - Immediate email confirmation.
 - **Offline Resilience**:
   - **IndexedDB Caching**: Prevent unnecessary API calls and improve performance.
   - **Local State Persistence**: Never lose a partial order.
 
-<img src="/public/assets/screenshots/offline-sales.png" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 20px; margin-top: 10px;" />
-
-### ✅ Online Order Verification
-
-A streamlined workflow for managing self-service student orders:
-
-- **Verification Dashboard**:
-  - Real-time feed of pending online orders.
-  - Split-view interface for reviewing uploaded payment proofs (bank transfer screenshots).
-- **Approval Workflow**:
-  - **One-Click Approve**: Instantly issues the digital ticket via email.
-  - **Reject with Feedback**: Sends a clearer rejection reason to the student for correction.
-- **Fuzzy Search**: Quickly locate any order to resolve student inquiries on the spot.
-
-<img src="/public/assets/screenshots/online-portal.png" alt="Online Verification Dashboard" style="border-radius: 10px; margin-bottom: 20px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/overal1.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/overal2.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/order.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/colorpicker.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
 
 ### 📊 Real-Time Analytics
 
@@ -77,15 +66,26 @@ A streamlined workflow for managing self-service student orders:
 - **Staff Performance**: Track individual sales and verification counts.
 - **Visual Charts**: Interactive breakdowns of ticket types, sales velocity, and payment methods.
 
-<img src="/public/assets/screenshots/statistics-dashboard.png" alt="Statistics Dashboard" style="border-radius: 10px; margin-bottom: 20px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/statistic.webp?raw=true" alt="Statistics Dashboard" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/revenue1.webp?raw=true" alt="Statistics Dashboard" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/revenue2.webp?raw=true" alt="Statistics Dashboard" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/revenue3.webp?raw=true" alt="Statistics Dashboard" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
 
-### 🔒 Security & Management
+### 📢 Google Spreadsheet Integration
 
-- **Google OAuth**: strict access control via Vinschool Google accounts.
-- **Role-Based Access**:
-  - **Staff**: Can sell tickets and view personal stats.
-  - **Coordinators**: Can verify online orders and manage global inventory.
-- **Audit Logging**: Tracks every transaction and verification action.
+> [!IMPORTANT] > **Direct Google Ecosystem Integration**
+> Unlike traditional architectures, this system communicates **directly** with the Google Spreadsheet API to function as a dynamic backend CMS.
+
+- **Real-time Synchronization**:
+
+  - **Student Data**: Fetches the latest student list from a central "Master Sheet".
+  - **Orders**: Automatically syncs every offline order to daily sales sheets (e.g., "Offline sales 07-12-2025").
+  - **Inventory**: Pulls ticket types, prices, and inventory limits directly from the spreadsheet configuration.
+
+- **Resilient Data Pipeline**:
+  - **Auto-Provisioning**: Automatically creates and formats new sheets for each sales day.
+  - **Hybrid Storage**: Persists data to Neon PostgreSQL for reliability while simultaneously mirroring to Google Sheets for operations team accessibility.
+  - **Smart Formatting**: Applies conditional formatting and headers programmatically to new sheets.
 
 ## 🛠️ Tech Stack
 
@@ -150,5 +150,5 @@ A streamlined workflow for managing self-service student orders:
 ---
 
 <div align="center">
-  <p>Developed with ❤️ by the Vinschool Central Park Student Council Tech Team</p>
+  <p>Developed with ❤️ by Cao Cự Chính</p>
 </div>

@@ -559,7 +559,9 @@ const OrderInfo = ({
               {formatVietnameseCurrency(orderSubtotal)}
             </span>{" "}
             before clicking{" "}
-            <span className="text-red-500 font-semibold">&quot;Chốt&quot;</span>
+            <span className="text-red-500 font-semibold">
+              &quot;Close deal&quot;
+            </span>
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-2 ">
             <Button

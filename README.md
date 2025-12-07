@@ -19,7 +19,7 @@
   </p>
   
   <p>
-    <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white" alt="Next.js 15" />
+    <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white" alt="Next.js 16" />
     <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS 4" />
     <img src="https://img.shields.io/badge/Drizzle-ORM-C5F74F?logo=drizzle&logoColor=black" alt="Drizzle ORM" />
@@ -59,6 +59,7 @@ Designed for speed and accuracy at physical ticket booths:
 <img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/overal2.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
 <img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/order.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
 <img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/colorpicker.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/email.webp?raw=true" alt="Walk-in Sales Interface" style="border-radius: 10px; margin-bottom: 5px; margin-top: 10px;" />
 
 ### 📊 Real-Time Analytics
 
@@ -91,7 +92,7 @@ Designed for speed and accuracy at physical ticket booths:
 
 ### Core
 
-- **[Next.js 15](https://nextjs.org/)** - App Router & Turbopack.
+- **[Next.js 16](https://nextjs.org/)** - App Router & Turbopack.
 - **[TypeScript](https://www.typescriptlang.org/)** - Strict type safety.
 - **[React 19](https://react.dev/)** - Latest concurrent features.
 

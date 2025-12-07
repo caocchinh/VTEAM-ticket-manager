@@ -38,6 +38,23 @@ The system provides two critical functions for the event team:
 1.  **Staff-Managed Walk-in Sales ("Offline")**: A fast, efficient interface for selling tickets on-site.
 2.  **Online Order Verification**: A centralized dashboard for coordinators to review and approve payment proofs from student online orders.
 
+## 📸 Footage of VTEAM Ticket Management System in action
+
+<img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/proof.webp?raw=true" alt="400 students lined up and this system worked flawlessly" style="border-radius: 10px; margin-bottom: 10px; margin-top: 10px; width: 100%;" />
+
+> **"400 students lined up and this system worked flawlessly."**
+
+### ⚠️ The Challenge: Why this system exists?
+
+High-stakes events with limited timeframes are unforgiving. Without this dedicated infrastructure, the event operations would face critical failure points:
+
+- **The "Manual Email" Pain**: Manually sending confirmation emails after each sale is slow, error-prone, and distracts staff from the customer.
+  - _Solution_: **Automated Instant Delivery** triggers a professional confirmation email immediately after every successful purchase, giving students instant peace of mind without staff effort.
+- **The "Overselling" Nightmare**: With separate personel selling simultaneously, tracking real-time availability manually is impossible.
+  - _Solution_: **Unified Real-time Inventory** (PostgreSQL) acts as the single source of truth, locking concurrency conflicts to prevent selling more tickets than available seats.
+- **The Efficiency Bottleneck**: Manually searching for a student, verifying payment, and entering data takes ~2 minutes per person. For a queue of 400 students, that is unmanageable.
+  - _Solution_: **Instant Autocomplete, Optimistic UI and a built in change calculators** cuts processing time to <60 seconds per student, preventing riots.
+
 ## ✨ Features
 
 ### 🏦 Walk-in Ticket Sales (Offline Mode)

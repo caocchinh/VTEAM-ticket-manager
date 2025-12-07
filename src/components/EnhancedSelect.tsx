@@ -266,10 +266,10 @@ const EnhancedSelectItem = ({
         </Badge>
         {item.includeConcert ? (
           <Badge variant="outline" className="bg-[#0084ff] text-white">
-            Có concert
+            Has concert
           </Badge>
         ) : (
-          <Badge variant="destructive">Không concert</Badge>
+          <Badge variant="destructive">No concert</Badge>
         )}
       </span>
     </CommandItem>

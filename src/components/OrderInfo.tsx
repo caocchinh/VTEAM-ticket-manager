@@ -446,7 +446,7 @@ const OrderInfo = ({
                 isSidebarOpen && !isMobile ? "flex" : "hidden",
                 isMobile && "!flex"
               )}
-              title="Tính tiền"
+              title="Change calculator"
             >
               <Button className="cursor-pointer" variant="outline">
                 Total: {formatVietnameseCurrency(orderSubtotal)}
@@ -454,7 +454,7 @@ const OrderInfo = ({
               </Button>
             </DialogTrigger>
             <DialogContent className="!py-2">
-              <DialogTitle className="sr-only">Tính tiền</DialogTitle>
+              <DialogTitle className="sr-only">Change calculator</DialogTitle>
               <ScrollArea className="h-[84dvh]">
                 <div className="flex-col items-center justify-center w-full flex gap-2 ">
                   <ChangeCalculator totalAmount={orderSubtotal} />

@@ -26,8 +26,8 @@ export default async function Dashboard() {
   if (!session) {
     return (
       <RedirectMessage
-        message="Bạn chưa đăng nhập"
-        subMessage="Đang chuyển hướng đến trang đăng nhập..."
+        message="You are not logged in"
+        subMessage="Redirecting to login page..."
         redirectTo={`/?error=${NOT_LOGGED_IN_ERROR}`}
       />
     );

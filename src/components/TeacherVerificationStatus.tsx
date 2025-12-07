@@ -40,24 +40,24 @@ const getVerificationStatus = (
   if (acceptStatus === "TRUE") {
     return {
       className: "bg-green-100 text-green-800",
-      text: "Được tham gia",
+      text: "Allowed",
       fullClassName: "bg-green-100 text-green-800 border border-green-200",
-      fullText: "✓ Được tham gia",
+      fullText: "✓ Allowed",
     };
   }
   if (rejectStatus === "TRUE") {
     return {
       className: "bg-red-100 text-red-800",
-      text: "Không được tham gia",
+      text: "Not allowed",
       fullClassName: "bg-red-100 text-red-800 border border-red-200",
-      fullText: "✗ Không được tham gia",
+      fullText: "✗ Not allowed",
     };
   }
   return {
     className: "bg-orange-100 text-orange-800",
-    text: "Chưa xác nhận",
+    text: "Not confirmed",
     fullClassName: "bg-orange-100 text-orange-800 border border-orange-200",
-    fullText: "⏳ Chưa xác nhận",
+    fullText: "⏳ Not confirmed",
   };
 };
 
@@ -176,14 +176,14 @@ const TeacherVerificationStatus = ({
           )}
           disabled={currentOrder.length === 0}
         >
-          GVCN xác nhận
+          Homeroom teacher verification
           <List />
         </Button>
       </DialogTrigger>
       <DialogContent className=" max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Trạng thái xác nhận GVCN</span>
+            <span>Homeroom teacher verification</span>
             {isOpen && (
               <Button
                 variant="outline"
@@ -195,20 +195,18 @@ const TeacherVerificationStatus = ({
                 <RefreshCw
                   className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
                 />
-                Làm mới
+                Refresh
               </Button>
             )}
           </DialogTitle>
           <DialogDescription>
-            Chỉ hiển thị học sinh ở trong trường
+            Only students in school will be displayed
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[47dvh] w-full [&_.bg-border]:bg-logo-main/25 !pr-4">
           {teacherVerificationData && teacherVerificationData.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              Không có dữ liệu xác nhận GVCN
-            </div>
+            <div className="text-center py-8 text-gray-500">No data found</div>
           )}
           {isFetching && !teacherVerificationData && (
             <div className="flex items-center justify-center py-8">
@@ -220,8 +218,8 @@ const TeacherVerificationStatus = ({
             <div className="flex items-center justify-center py-8 text-red-600">
               <AlertCircle className="h-5 w-5 mr-2" />
               <span>
-                Lỗi khi tải dữ liệu:{" "}
-                {(error as Error)?.message || "Không xác định"}
+                Error loading data:{" "}
+                {(error as Error)?.message || "Unknown error"}
               </span>
             </div>
           )}
@@ -302,7 +300,7 @@ const TeacherVerificationStatus = ({
             className="w-full cursor-pointer"
             onClick={() => setIsOpen(false)}
           >
-            Đóng
+            CLose
           </Button>
         </DialogFooter>
       </DialogContent>

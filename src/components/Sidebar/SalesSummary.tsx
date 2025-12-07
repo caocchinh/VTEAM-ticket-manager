@@ -780,7 +780,7 @@ const SalesSummary = ({
                           {day.cashRevenue > 0 && (
                             <div>
                               <h5 className="font-medium text-sm mb-2 text-green-700">
-                                Tiền mặt -{" "}
+                                Cash -{" "}
                                 {formatVietnameseCurrency(day.cashRevenue)}
                               </h5>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -1042,7 +1042,9 @@ const DailyOrders = ({
                                 )}
                               >
                                 {isOfflineSalesInfo(order)
-                                  ? order.paymentMedium
+                                  ? order.paymentMedium === "Tiền mặt"
+                                    ? "Cash"
+                                    : "Online"
                                   : order.verificationStatus}
                               </Badge>
                               <span className="font-semibold">
@@ -1138,7 +1140,9 @@ const DailyOrders = ({
                                             : "text-amber-600 dark:text-amber-400"
                                         )}
                                       >
-                                        {order.emailStatus}
+                                        {order.emailStatus === "Đã gửi email"
+                                          ? "Sent"
+                                          : "Failed"}
                                       </span>
                                     </div>
                                   </div>

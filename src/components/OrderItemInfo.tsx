@@ -29,14 +29,14 @@ export const OrderItemInfo = ({
         </p>
       </div>
       <div className="flex flex-row gap-2">
-        <p className="font-semibold">Vé gồm concert:</p>
-        <p className="wrap-anywhere">
-          {order.concertIncluded ? "Có" : "Không"}
-        </p>
+        <p className="font-semibold">Concert included:</p>
+        <p className="wrap-anywhere">{order.concertIncluded ? "yes" : "no"}</p>
       </div>
       <div className="flex flex-row gap-2">
         <p className="font-semibold">Payment method:</p>
-        <p className="wrap-anywhere">{order.paymentMedium}</p>
+        <p className="wrap-anywhere">
+          {order.paymentMedium === "Chuyển khoản" ? "Bank transfer" : "Cash"}
+        </p>
       </div>
       <div className="flex flex-row gap-2">
         <p className="font-semibold">Note:</p>

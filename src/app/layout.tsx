@@ -31,7 +31,7 @@ export default function RootLayout({
         <link href="/assets/favicon.ico" rel="icon" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         <QueryProvider>{children}</QueryProvider>
         <Toaster />

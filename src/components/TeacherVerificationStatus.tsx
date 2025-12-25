@@ -308,10 +308,10 @@ const TeacherVerificationStatus = ({
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogTitle>Confirm delete</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đơn hàng này? Hành động này không thể
-              hoàn tác.
+              Are you sure you want to delete this order? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           {deletingIndex !== null && currentOrder[deletingIndex] && (
@@ -341,14 +341,14 @@ const TeacherVerificationStatus = ({
               className="cursor-pointer"
               onClick={() => setIsDeleteDialogOpen(false)}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               variant="destructive"
               className="cursor-pointer"
               onClick={handleConfirmDelete}
             >
-              Xóa đơn hàng
+              Delete order
             </Button>
           </DialogFooter>
         </DialogContent>

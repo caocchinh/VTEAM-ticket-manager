@@ -746,7 +746,7 @@ const InputForm = ({
               ticketType !== ALL_TICKETS_SOLD_OUT &&
               !isSalesInfoFetching &&
               availableTicketsType.length > 0 ? (
-                <>(còn {remainingTickets[ticketType]})</>
+                <>( {remainingTickets[ticketType]} left)</>
               ) : null}
             </Label>
             {ticketType &&

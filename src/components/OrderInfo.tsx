@@ -131,7 +131,7 @@ const OrderInfo = ({
       }
       localStorage.removeItem("currentOrderList"); // Clear saved order list after successful submission
       localStorage.removeItem("currentFormData"); // Clear saved form data after successful submission
-      sucessToast({ message: "Chốt deal thành công!" });
+      sucessToast({ message: "Successful!" });
       setIsConfirmingOrderAlertDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["sales_info"] });
     },
@@ -371,10 +371,10 @@ const OrderInfo = ({
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Xác nhận xóa</DialogTitle>
+                            <DialogTitle>Confirm delete</DialogTitle>
                             <DialogDescription>
-                              Bạn có chắc chắn muốn xóa đơn hàng này? Hành động
-                              này không thể hoàn tác.
+                              Are you sure you want to delete this order? This
+                              action cannot be undone.
                             </DialogDescription>
                           </DialogHeader>
                           {deletingIndex !== null && (
@@ -404,14 +404,14 @@ const OrderInfo = ({
                               className="cursor-pointer"
                               onClick={() => setIsDeleteDialogOpen(false)}
                             >
-                              Hủy
+                              Cancel
                             </Button>
                             <Button
                               variant="destructive"
                               className="cursor-pointer"
                               onClick={handleConfirmDelete}
                             >
-                              Xóa đơn hàng
+                              Delete order
                             </Button>
                           </DialogFooter>
                         </DialogContent>

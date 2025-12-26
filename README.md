@@ -38,7 +38,13 @@ The system provides two critical functions for the event team:
 1.  **Staff-Managed Walk-in Sales ("Offline")**: A fast, efficient interface for selling tickets on-site.
 2.  **Online Order Verification**: A centralized dashboard for coordinators to review and approve payment proofs from student online orders.
 
-## 📸 Footage of VTEAM Ticket Management System in action
+## 📸 Demo/footage of VTEAM Ticket Management System in action
+
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=M5l7nROB19Y" target="_blank">
+    <img src="https://img.youtube.com/vi/M5l7nROB19Y/maxresdefault.jpg" alt="Watch the Demo Video" width="100%" style="border-radius: 10px; margin-bottom: 10px;" />
+  </a>
+</div>
 
 <img src="https://github.com/caocchinh/VTEAM-ticket-manager/blob/master/public/assets/github/proof.webp?raw=true" alt="400 students lined up and this system worked flawlessly" style="border-radius: 10px; margin-bottom: 10px; margin-top: 10px; width: 100%;" />
 
